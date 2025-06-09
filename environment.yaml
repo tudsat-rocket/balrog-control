@@ -105,4 +105,4 @@ dependencies:
       - pyyaml==6.0.2
       - serial==0.0.97
       - tinkerforge==2.1.31
-prefix: /home/luis/anaconda3/envs/balrog
+prefix: .balrog/
