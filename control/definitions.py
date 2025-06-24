@@ -1,6 +1,7 @@
 from enum import Enum, StrEnum, IntEnum
 
 class ActorType(StrEnum):
+    DUMMY = "Dummy"
     SERVO = "Servo"
     SOLENOID = "Solenoid"
     HORN = "Horn"
@@ -20,9 +21,13 @@ class ActionType(IntEnum):
     LIGHT_ON = 8
     LIGHT_OFF = 9
     TOGGLE_LIGHT = 10
-    PULL_TRIGGER = 11
-    RELEASE_TRIGGER = 12
+    LIGHT_GREEN = 11
+    LIGHT_YELLOW = 12
+    LIGHT_RED = 13
+    PULL_TRIGGER = 14
+    RELEASE_TRIGGER = 15
    
+
 def str_to_action(action: str) -> ActionType:
 
     match action:
@@ -46,6 +51,12 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.LIGHT_OFF
         case "TOGGLE_LIGHT":
             return ActionType.TOGGLE_LIGHT
+        case "LIGHT_GREEN":
+            return ActionType.LIGHT_GREEN
+        case "LIGHT_YELLOW":
+            return ActionType.LIGHT_YELLOW
+        case "LIGHT_RED":
+            return ActionType.LIGHT_RED
         case "PULL_TRIGGER":
             return ActionType.PULL_TRIGGER
         case "RELEASE_TRIGGER":
