@@ -293,7 +293,7 @@
           <item>
            <widget class="QLabel" name="label_sequence_file_name">
             <property name="text">
-             <string>filename</string>
+             <string>No file selected.</string>
             </property>
            </widget>
           </item>
@@ -387,13 +387,6 @@
      <height>24</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>View</string>
-    </property>
-    <addaction name="actionOpen_plots_in_new_window"/>
-   </widget>
-   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget_3">
@@ -402,6 +395,18 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>500</width>
+     <height>140</height>
+    </size>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string comment="Sensor Plots"/>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -427,18 +432,30 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="PlotWidget" name="plot_pressure" native="true"/>
+         <widget class="PlotWidget" name="plot_pressure_1" native="true"/>
         </item>
-        <item row="1" column="0">
-         <widget class="PlotWidget" name="plot_thermocouple" native="true"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="PlotWidget" name="plot_load_cell" native="true"/>
+        <item row="0" column="1">
+         <widget class="PlotWidget" name="plot_pressure_2" native="true"/>
         </item>
         <item row="3" column="0">
-         <widget class="PlotWidget" name="plot_current" native="true"/>
+         <widget class="PlotWidget" name="plot_load_cell_thrust" native="true"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="PlotWidget" name="plot_pressure_4" native="true"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="PlotWidget" name="plot_pressure_3" native="true"/>
         </item>
         <item row="4" column="0">
+         <widget class="PlotWidget" name="plot_thermocouple_nitrous" native="true"/>
+        </item>
+        <item row="3" column="1">
+         <widget class="PlotWidget" name="plot_load_cell_nitrous" native="true"/>
+        </item>
+        <item row="4" column="1">
+         <widget class="PlotWidget" name="plot_thermocouple_engine" native="true"/>
+        </item>
+        <item row="5" column="0">
          <widget class="PlotWidget" name="plot_differential_pressure" native="true"/>
         </item>
        </layout>

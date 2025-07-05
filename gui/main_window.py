@@ -22,7 +22,6 @@ class NewMainWindow(ui_class, baseclass):
 
         # used to store the values from the queue
         self.pressure_data = []
-        self.current_data = []
         self.thermocouples_data = []
         self.load_cell_data = []
         self.differential_pressure_data = []
@@ -35,13 +34,16 @@ class NewMainWindow(ui_class, baseclass):
         self.setup_buttons()
 
         # create plot curves
-        self.pressure_curve_1 = self.plot_pressure.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.pressure_curve_2 = self.plot_pressure.plot([], [], pen=pg.mkPen(color="b", width=2))
-        self.pressure_curve_3 = self.plot_pressure.plot([], [], pen=pg.mkPen(color="g", width=2))
+        self.pressure_curve_1 = self.plot_pressure_1.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.pressure_curve_2 = self.plot_pressure_2.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.pressure_curve_3 = self.plot_pressure_3.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.pressure_curve_4 = self.plot_pressure_4.plot([], [], pen=pg.mkPen(color="r", width=2))
 
-        self.thermocouple_curve = self.plot_thermocouple.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.load_cell_curve = self.plot_load_cell.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.current_curve = self.plot_current.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.thermocouple_engine_curve = self.plot_thermocouple_engine.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.thermocouple_nitrous_curve = self.plot_thermocouple_nitrous.plot([], [], pen=pg.mkPen(color="r", width=2))
+
+        self.load_cell_nitrous_curve = self.plot_load_cell_nitrous.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.load_cell_thrust_curve = self.plot_load_cell_thrust.plot([], [], pen=pg.mkPen(color="r", width=2))
         self.differential_pressure_curve = self.plot_differential_pressure.plot([], [], pen=pg.mkPen(color="r", width=2))
 
         # setup timer - used to update the plots
@@ -81,24 +83,39 @@ class NewMainWindow(ui_class, baseclass):
         define the labels and other settings for the graphs
         """
         # pressure
-        self.plot_pressure.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_pressure.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure.setLabel('left', 'pressure', color='#FFFFFF')
+        self.plot_pressure_1.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_pressure_1.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_1.setLabel('left', 'pressure 1', color='#FFFFFF')
+
+        self.plot_pressure_2.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_pressure_2.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_2.setLabel('left', 'pressure 2', color='#FFFFFF')
+
+        self.plot_pressure_3.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_pressure_3.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_3.setLabel('left', 'pressure 3', color='#FFFFFF')
+
+        self.plot_pressure_4.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_pressure_4.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_4.setLabel('left', 'pressure 4', color='#FFFFFF')
 
         # plot_thermocouple
-        self.plot_thermocouple.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_thermocouple.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_thermocouple.setLabel('left', 'Temperature', color='#FFFFFF')
+        self.plot_thermocouple_nitrous.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_thermocouple_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_thermocouple_nitrous.setLabel('left', 'Temperature nitrous', color='#FFFFFF')
+
+        self.plot_thermocouple_engine.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_thermocouple_engine.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_thermocouple_engine.setLabel('left', 'Temperature engine', color='#FFFFFF')
 
         # plot_load_cell
-        self.plot_load_cell.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_load_cell.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell.setLabel('left', 'Load cell', color='#FFFFFF')
+        self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_load_cell_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_load_cell_nitrous.setLabel('left', 'Load cell nitrous tank', color='#FFFFFF')
 
-        # plot_current
-        self.plot_current.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_current.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_current.setLabel('left', 'Current', color='#FFFFFF')
+        self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_load_cell_thrust.setLabel('left', 'Load cell thrust', color='#FFFFFF')
 
         # plot_differential_pressure
         self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
