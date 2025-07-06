@@ -2,7 +2,7 @@ import yaml
 import csv
 import os 
 from typing import List, Tuple
-from definitions import ActionType, str_to_action
+from .definitions import ActionType, str_to_action
 
 def parse_csv(file: os.path) -> List[Tuple[str, int, ActionType]]:
     
