@@ -1,0 +1,5 @@
+actor_name, times_ms, action
+Light, 10, LIGHT_YELLOW
+Horn, 100, SOUND_HORN
+Igniter, 4100, PULL_TRIGGER
+Igniter, 4200, RELEASE_TRIGGER

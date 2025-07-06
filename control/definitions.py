@@ -1,12 +1,18 @@
 from enum import Enum, StrEnum, IntEnum
 
 class ActorType(StrEnum):
-    DUMMY = "Dummy"
-    SERVO = "Servo"
-    SOLENOID = "Solenoid"
-    HORN = "Horn"
-    LIGHT = "Light"
-    TRIGGER = "Trigger"
+    DUMMY = "DUMMY"
+    SERVO = "SERVO"
+    SOLENOID = "SOLENOID"
+    HORN = "HORN"
+    LIGHT = "LIGHT"
+    TRIGGER = "TRIGGER"
+
+
+class SensorType(StrEnum):
+    PRESSURE = "PRESSURE"
+    TEMPERATURE = "TEMPERATURE"
+    LOAD = "LOAD"
 
 
 class ActionType(IntEnum):
