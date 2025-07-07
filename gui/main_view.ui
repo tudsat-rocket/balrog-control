@@ -47,7 +47,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="edit_port">
+                 <widget class="QLineEdit" name="edit_host">
                   <property name="text">
                    <string>localhost</string>
                   </property>
@@ -61,7 +61,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="edit_port_2">
+                 <widget class="QLineEdit" name="edit_port">
                   <property name="text">
                    <string>4223</string>
                   </property>

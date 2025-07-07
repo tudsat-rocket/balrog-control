@@ -1,4 +1,3 @@
-from typing import Any
 from control.definitions import ActorType, ActionType
 
 class Actor:
