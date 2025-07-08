@@ -1,35 +1,39 @@
 # List of actor definitions
 actors:
   - name: Horn
-    type: HORN
-    uid:
-    output:
+    type: 2f6L
+    uid: UbQ
+    output: 2
   - name: Light
     type: LIGHT
-    uid:
-    output:
+    uid: UbQ
+    output: 0
   - name: Igniter
     type: TRIGGER
-    uid:
-    output:
+    uid: 2f6L
+    output: 0
   - name: NitrousMain
     type: SERVO
-    uid:
-    output:
+    uid: 2cPc
+    output: 0
   - name: NitrousVent
     type: SERVO
-    uid:
-    output:
+    uid: 2cPc
+    output: 1
   - name: NitrousFill
     type: SERVO
-    uid:
-    output:
+    uid: 2cPc
+    output: 2
   - name: N2Pressure
     type: SERVO
-    uid:
-    output:
+    uid: 2cPc
+    output: 3
   - name: N2Purge
     type: SOLENOID
+    uid: 2f6L
+    output: 1
+  - name: SegmentDisplay
+    type:
     uid:
     output:
 

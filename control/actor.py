@@ -92,7 +92,7 @@ class Actor:
         ac_bricklet.set_monflop(self.output, True, 1000) # sound horn for 1s = 1000ms
 
     def light_on(self, brick) -> None:
-        pass
+        brick.set_monflop(self.output, False, 1000) # pull to ground
 
     def light_off(self, brick) -> None:
         pass
