@@ -50,6 +50,11 @@ class StackHandler:
         except RuntimeError as err:
             raise err
 
+    def get_device(self, uid: str) -> Any:
+        try:
+            return self.devices[uid]
+        except KeyError as err:
+            raise err
 
     def cb_enumerate(self, uid, connected_uid, position, hardware_version, 
                      firmware_version, device_identifier, enumeration_type) -> None:

@@ -1,13 +1,13 @@
 import os
 import yaml
+import interval_timer
 
 from threading import Thread
 from typing import Any
-from brick_handling import StackHandler
-from control.definitions import ActorType
-from test_definition_parsing import parse_csv
-from actor import Actor
-from definitions import ActorType
+from control.brick_handling import StackHandler
+from control.definitions import ActorType, ActionType
+from control.test_definition_parsing import parse_csv
+from control.actor import Actor
 
 class Controller(Thread):
 
@@ -17,9 +17,13 @@ class Controller(Thread):
         self._construct_actors()
         self.sequence = None
         self.brick_stack = StackHandler()
-        Thread.start(self)
-
-
+    
+    def run(self):
+        super().run()
+    
+    def join(self, timeout = None):
+        super().join()
+    
     # ++++++++++++
     # Gui API
     # ++++++++++++
@@ -35,13 +39,20 @@ class Controller(Thread):
         pass
 
     def self_check(self) -> bool:
-        pass
+        print("Performing self check...")
+
+        return True
 
     def test_light(self) -> bool:
-        pass
+        uid = self.actors["Light"].get_br_uid()
+        self.actors["Light"].act(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        self.actors["Light"].act(ActionType.LIGHT_ON, self.brick_stack.get_device(uid))
+        return True
 
     def test_horn(self) -> bool:
-        pass
+        uid = self.actors["Horn"].get_br_uid()
+        self.actors["Horn"].act(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
+        return True
 
     def load_test_definition(self, path: os.path) -> bool:
 
@@ -66,7 +77,7 @@ class Controller(Thread):
     def start_sequence(self) -> bool:
 
         if self.sequence is not None:
-            #TODO: implement
+            self.run()
             return True
         else:
             return False
@@ -80,11 +91,12 @@ class Controller(Thread):
 
     def _construct_actors(self) -> None:
 
-        with open('../config/balrog.yaml', 'r') as f:
+        with open('config/balrog.yaml', 'r') as f:
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
             actors = balrog_config['actors']
 
             for actor in actors:
+                print(actor)
                 self.actors[actor['name']] = Actor(actor['name'], actor['type'], actor['uid'], actor['output'])
 
         '''
@@ -98,3 +110,19 @@ class Controller(Thread):
         self.actors["N2Pressure"] = Actor("N2Pressure", actor_type=ActorType.SERVO)
         self.actors["N2Purge"] = Actor("N2Purge", actor_type=ActorType.SOLENOID)
         '''
+
+    # ++++++
+    # Thread target
+    # ++++++
+
+    def _sequence_worker(self, thread_killer):
+
+        seq_idx = 0
+
+        for i in interval_timer.IntervalTimer(0.02):
+
+
+            self.actors[self.sequence[seq_idx][0]].act()
+
+            if thread_killer.is_set():
+                break

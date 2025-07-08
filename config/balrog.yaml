@@ -1,46 +1,41 @@
 # List of actor definitions
 actors:
-  - horn:
-      name: Horn
-      type: HORN
-      uid:
-      output:
-  - light:
-      name: Light
-      type: LIGHT
-      uid:
-      output:
-  - igniter:
-      name: Igniter
-      type: TRIGGER
-      uid:
-      output:
-  - n2o_main:
-      name: NitrousMain
-      type: SERVO
-      uid:
-      output:
-  - n2o_vent:
-      name: NitrousVent
-      type: SERVO
-      uid:
-      output:
-  - n2o_fill:
-      name: NitrousFill
-      type: SERVO
-      uid:
-      output:
-  - n2_pressure:
-      name: N2Pressure
-      type: SERVO
-      uid:
-      output:
-  - n2o_vent:
-      name: N2Purge
-      type: SOLENOID
-      uid:
-      output:
+  - name: Horn
+    type: HORN
+    uid:
+    output:
+  - name: Light
+    type: LIGHT
+    uid:
+    output:
+  - name: Igniter
+    type: TRIGGER
+    uid:
+    output:
+  - name: NitrousMain
+    type: SERVO
+    uid:
+    output:
+  - name: NitrousVent
+    type: SERVO
+    uid:
+    output:
+  - name: NitrousFill
+    type: SERVO
+    uid:
+    output:
+  - name: N2Pressure
+    type: SERVO
+    uid:
+    output:
+  - name: N2Purge
+    type: SOLENOID
+    uid:
+    output:
 
 # List of sensor definitions
 sensors:
-
+  - name:
+    type:
+    uid:
+    input:

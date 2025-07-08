@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1555</width>
-    <height>905</height>
+    <width>1920</width>
+    <height>1080</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,11 +24,11 @@
        <item>
         <widget class="QGroupBox" name="group_connection_handler">
          <property name="title">
-          <string>Connect to testbench</string>
+          <string>Connect to Test Bench</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QGroupBox" name="group_control_panal_connection_handler_control">
+           <widget class="QGroupBox" name="group_control_panel_connection_handler_control">
             <property name="title">
              <string/>
             </property>
@@ -121,14 +121,14 @@
              <item row="1" column="0">
               <widget class="QLabel" name="label_ip_address">
                <property name="text">
-                <string>IP-address</string>
+                <string>IP address</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="label_ip_address_state">
                <property name="text">
-                <string>unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
@@ -142,7 +142,7 @@
              <item row="2" column="1">
               <widget class="QLabel" name="label_master_id_state">
                <property name="text">
-                <string>unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
@@ -167,7 +167,7 @@
              <item>
               <widget class="QPushButton" name="button_selfcheck">
                <property name="text">
-                <string>perform selfcheck</string>
+                <string>Perform Self Check</string>
                </property>
               </widget>
              </item>
@@ -197,84 +197,84 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_valve_status_n2_pressure_2">
                <property name="text">
-                <string>N2 pressure valve</string>
+                <string>N2 Pressure Valve</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_valve_status_n2_pressure_2_state">
                <property name="text">
-                <string>Unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_valve_status_n20_main">
                <property name="text">
-                <string>N20 main valve</string>
+                <string>N20 Main Valve</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="label_valve_status_n20_main_state">
                <property name="text">
-                <string>Unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_valve_status_n20_vent">
                <property name="text">
-                <string>N20 vent valve</string>
+                <string>N20 Vent Valve</string>
                </property>
               </widget>
              </item>
              <item row="2" column="1">
               <widget class="QLabel" name="label_valve_status_n20_vent_state">
                <property name="text">
-                <string>Unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="3" column="0">
               <widget class="QLabel" name="label_valve_status_n20_release">
                <property name="text">
-                <string>N20 Release valve</string>
+                <string>N20 Release Valve</string>
                </property>
               </widget>
              </item>
              <item row="3" column="1">
               <widget class="QLabel" name="label_valve_status_n20_release_state">
                <property name="text">
-                <string>Unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="4" column="0">
               <widget class="QLabel" name="label_valve_status_n20_fill">
                <property name="text">
-                <string>N20 fill velve</string>
+                <string>N20 Fill Valve</string>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
               <widget class="QLabel" name="label_valve_status_n20_fill_state">
                <property name="text">
-                <string>Unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="6" column="0">
               <widget class="QLabel" name="label_valve_status_n2_pressure">
                <property name="text">
-                <string>N2 pressure valve</string>
+                <string>N2 Pressure Valve</string>
                </property>
               </widget>
              </item>
              <item row="6" column="1">
               <widget class="QLabel" name="label_valve_status_n2_pressure_state">
                <property name="text">
-                <string>Unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>

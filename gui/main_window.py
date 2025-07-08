@@ -1,16 +1,20 @@
+from curses.ascii import controlnames
+
 from PySide6.QtCore import QTimer
+from PySide6.QtUiTools import loadUiType
 import pyqtgraph as pg
 from .test_definition_file_explorer import (open_file_dialog, reload_file)
 from .data_plotter import update_plots
 
-ui_class, baseclass = pg.Qt.loadUiType("gui/main_view.ui")
+ui_class, baseclass = loadUiType("gui/main_view.ui")
 
 class NewMainWindow(ui_class, baseclass):
     def __init__(self, pressure_sensor_queue,
                  current_sensor_queue,
                  thermocouples_sensor_queue,
                  load_cell_sensor_queue,
-                 differential_sensor_queue):
+                 differential_sensor_queue,
+                 controller):
         super().__init__()
 
         # queue to transport the sensor values from the second thread to the UI
@@ -19,6 +23,7 @@ class NewMainWindow(ui_class, baseclass):
         self.thermocouples_sensor_queue = thermocouples_sensor_queue
         self.load_cell_sensor_queue = load_cell_sensor_queue
         self.differential_sensor_queue = differential_sensor_queue
+        self.controller = controller
 
         # used to store the values from the queue
         self.pressure_data = []
@@ -34,10 +39,10 @@ class NewMainWindow(ui_class, baseclass):
         self.setup_buttons()
 
         # create plot curves
-        self.pressure_curve_1 = self.plot_pressure_1.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.pressure_curve_2 = self.plot_pressure_2.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.pressure_curve_3 = self.plot_pressure_3.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.pressure_curve_4 = self.plot_pressure_4.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.pressure_curve_1 = self.plot_pressure_1.plot([], [], pen=pg.mkPen(color="r", width=1.5))
+        self.pressure_curve_2 = self.plot_pressure_2.plot([], [], pen=pg.mkPen(color="r", width=1.5))
+        self.pressure_curve_3 = self.plot_pressure_3.plot([], [], pen=pg.mkPen(color="r", width=1.5))
+        self.pressure_curve_4 = self.plot_pressure_4.plot([], [], pen=pg.mkPen(color="r", width=1.5))
 
         self.thermocouple_engine_curve = self.plot_thermocouple_engine.plot([], [], pen=pg.mkPen(color="r", width=2))
         self.thermocouple_nitrous_curve = self.plot_thermocouple_nitrous.plot([], [], pen=pg.mkPen(color="r", width=2))
@@ -51,32 +56,26 @@ class NewMainWindow(ui_class, baseclass):
         self.timer.timeout.connect(lambda: update_plots(self))
         self.timer.start(1000) # @TODO with 200, the UI beginns to get laggy
 
-    @staticmethod
-    def dummy_button_action(self, button_name):
-        """Just for testing"""
-        print(f" {button_name} pressed")
-        pass
-
     def setup_buttons(self):
         """
         Connect the click of a buttons to a methode
         @TODO: replace placeholder action for buttons
         """
         # Connection handler
-        self.button_connect.clicked.connect(lambda: self.dummy_button_action(self, "connect"))
+        self.button_connect.clicked.connect(lambda: self.controller.connect('localhost', 4223)) #TODO: replace with input field
 
         # Preparation
-        self.button_selfcheck.clicked.connect(lambda: self.dummy_button_action(self, "selfcheck"))
-        self.button_test_horn.clicked.connect(lambda: self.dummy_button_action(self, "test horn"))
-        self.button_test_light.clicked.connect(lambda: self.dummy_button_action(self, "test light"))
+        self.button_selfcheck.clicked.connect(lambda: self.controller.self_check())
+        self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
+        self.button_test_light.clicked.connect(lambda: self.controller.test_light())
 
         # Sequence loader
         self.button_open_sequence.clicked.connect(lambda: open_file_dialog(self))
         self.button_reload_sequence.clicked.connect(lambda: reload_file(self))
-        self.button_start_sequence.clicked.connect(lambda: self.dummy_button_action(self, "start sequence"))
+        self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())
 
         # Abort
-        self.button_abort_sequence.clicked.connect(lambda: self.dummy_button_action(self, "abort"))
+        self.button_abort_sequence.clicked.connect(lambda: self.controller.abort())
 
     def setup_graphs(self):
         """
@@ -85,39 +84,39 @@ class NewMainWindow(ui_class, baseclass):
         # pressure
         self.plot_pressure_1.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_1.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_1.setLabel('left', 'pressure 1', color='#FFFFFF')
+        self.plot_pressure_1.setLabel('left', 'Pressure 1 (bar)', color='#FFFFFF')
 
         self.plot_pressure_2.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_2.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_2.setLabel('left', 'pressure 2', color='#FFFFFF')
+        self.plot_pressure_2.setLabel('left', 'Pressure 2 (bar)', color='#FFFFFF')
 
         self.plot_pressure_3.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_3.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_3.setLabel('left', 'pressure 3', color='#FFFFFF')
+        self.plot_pressure_3.setLabel('left', 'Pressure 3 (bar)', color='#FFFFFF')
 
         self.plot_pressure_4.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_4.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_4.setLabel('left', 'pressure 4', color='#FFFFFF')
+        self.plot_pressure_4.setLabel('left', 'Pressure 4 (bar)', color='#FFFFFF')
 
         # plot_thermocouple
         self.plot_thermocouple_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_thermocouple_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_thermocouple_nitrous.setLabel('left', 'Temperature nitrous', color='#FFFFFF')
+        self.plot_thermocouple_nitrous.setLabel('left', 'Temperature Nitrous (°C)', color='#FFFFFF')
 
         self.plot_thermocouple_engine.showGrid(x=True, y=True, alpha=0.3)
         self.plot_thermocouple_engine.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_thermocouple_engine.setLabel('left', 'Temperature engine', color='#FFFFFF')
+        self.plot_thermocouple_engine.setLabel('left', 'Temperature Engine (°C)', color='#FFFFFF')
 
         # plot_load_cell
         self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_nitrous.setLabel('left', 'Load cell nitrous tank', color='#FFFFFF')
+        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (N)', color='#FFFFFF')
 
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_thrust.setLabel('left', 'Load cell thrust', color='#FFFFFF')
+        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (N)', color='#FFFFFF')
 
         # plot_differential_pressure
         self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
         self.plot_differential_pressure.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_differential_pressure.setLabel('left', 'differential pressure', color='#FFFFFF')
+        self.plot_differential_pressure.setLabel('left', 'Differential Pressure (bar)', color='#FFFFFF')
