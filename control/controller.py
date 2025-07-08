@@ -45,13 +45,13 @@ class Controller(Thread):
 
     def test_light(self) -> bool:
         uid = self.actors["Light"].get_br_uid()
-        self.actors["Light"].act(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
-        self.actors["Light"].act(ActionType.LIGHT_ON, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(ActionType.LIGHT_ON, self.brick_stack.get_device(uid))
         return True
 
     def test_horn(self) -> bool:
         uid = self.actors["Horn"].get_br_uid()
-        self.actors["Horn"].act(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
+        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
         return True
 
     def load_test_definition(self, path: os.path) -> bool:
@@ -122,7 +122,7 @@ class Controller(Thread):
         for i in interval_timer.IntervalTimer(0.02):
 
 
-            self.actors[self.sequence[seq_idx][0]].act()
+            self.actors[self.sequence[seq_idx][0]].action()
 
             if thread_killer.is_set():
                 break
