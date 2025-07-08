@@ -89,13 +89,13 @@ class Actor:
         pass
 
     def sound_horn(self, ac_bricklet) -> None:
-        ac_bricklet.set_monflop(self.output, True, 1000) # sound horn for 1s = 1000ms
+        ac_bricklet.set_monoflop(self.output, True, 1000) # sound horn for 1s = 1000ms
 
     def light_on(self, brick) -> None:
-        brick.set_monflop(self.output, False, 1000) # pull to ground
+        brick.set_monoflop(self.output, False, 1000) # pull to ground
 
     def light_off(self, brick) -> None:
-        pass
+        brick.set_monoflop(self.output, True, 5000)
 
     def light_toggle(self, brick) -> None:
         pass

@@ -16,7 +16,7 @@ def start_data_handling(pressure_sensor_queue, current_sensor_queue,
     This function starts the data handling process.
     """
     while not thread_killer.is_set():
-        print("adding new value to queue")
+        # print("adding new value to queue")
         # simulate sensor values for testing
         pressure_sensor_queue.put(randint(0, 100))
         current_sensor_queue.put(randint(0, 100))

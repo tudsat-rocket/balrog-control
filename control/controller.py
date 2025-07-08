@@ -29,9 +29,9 @@ class Controller(Thread):
     # ++++++++++++
 
     def connect(self, host: str, port: int) -> bool:
-        print(f"Connection to {host}:{port}")
+        print(f"Connect to {host}:{port}")
         # @TODO host and port are ignore here
-        self.brick_stack.start_connection()
+        self.brick_stack.start_connection(host, port)
         return True
 
     def stack_state(self) -> dict[str, Any]:
@@ -42,12 +42,11 @@ class Controller(Thread):
 
     def self_check(self) -> bool:
         print("Performing self check...")
-
         return True
 
     def test_light(self) -> bool:
         uid = self.actors["Light"].get_br_uid()
-        self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        #self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
         self.actors["Light"].action(ActionType.LIGHT_ON, self.brick_stack.get_device(uid))
         return True
 
@@ -77,7 +76,6 @@ class Controller(Thread):
         return True
 
     def start_sequence(self) -> bool:
-
         if self.sequence is not None:
             self.run()
             return True
