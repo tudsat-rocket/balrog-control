@@ -17,18 +17,20 @@ class Controller(Thread):
         self._construct_actors()
         self.sequence = None
         self.brick_stack = StackHandler()
-    
+
     def run(self):
         super().run()
-    
+
     def join(self, timeout = None):
         super().join()
-    
+
     # ++++++++++++
     # Gui API
     # ++++++++++++
 
     def connect(self, host: str, port: int) -> bool:
+        print(f"Connection to {host}:{port}")
+        # @TODO host and port are ignore here
         self.brick_stack.start_connection()
         return True
 

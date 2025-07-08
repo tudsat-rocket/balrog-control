@@ -3,6 +3,8 @@ from curses.ascii import controlnames
 from PySide6.QtCore import QTimer
 from PySide6.QtUiTools import loadUiType
 import pyqtgraph as pg
+
+from control.controller import Controller
 from .test_definition_file_explorer import (open_file_dialog, reload_file)
 from .data_plotter import update_plots
 
@@ -59,10 +61,10 @@ class NewMainWindow(ui_class, baseclass):
     def setup_buttons(self):
         """
         Connect the click of a buttons to a methode
-        @TODO: replace placeholder action for buttons
         """
         # Connection handler
-        self.button_connect.clicked.connect(lambda: self.controller.connect('localhost', 4223)) #TODO: replace with input field
+        self.button_connect.clicked.connect(lambda: self.controller.connect(self.edit_host.text(),
+                                                                            int(self.edit_port.text())))
 
         # Preparation
         self.button_selfcheck.clicked.connect(lambda: self.controller.self_check())
@@ -70,8 +72,9 @@ class NewMainWindow(ui_class, baseclass):
         self.button_test_light.clicked.connect(lambda: self.controller.test_light())
 
         # Sequence loader
-        self.button_open_sequence.clicked.connect(lambda: open_file_dialog(self))
-        self.button_reload_sequence.clicked.connect(lambda: reload_file(self))
+        self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())
+        self.button_open_sequence.clicked.connect(lambda: open_file_dialog(self, self.controller))
+        self.button_reload_sequence.clicked.connect(lambda: reload_file(self, self.controller))
         self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())
 
         # Abort
