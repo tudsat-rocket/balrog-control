@@ -8,12 +8,11 @@ class ActorType(StrEnum):
     LIGHT = "LIGHT"
     TRIGGER = "TRIGGER"
 
-
 class SensorType(StrEnum):
+    DUMMY = "DUMMY"
     PRESSURE = "PRESSURE"
     TEMPERATURE = "TEMPERATURE"
     LOAD = "LOAD"
-
 
 class ActionType(IntEnum):
     NOT_IMPLEMENTED = -1 
@@ -69,4 +68,3 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.RELEASE_TRIGGER
         case _:
             return ActionType.NOT_IMPLEMENTED
-

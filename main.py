@@ -1,5 +1,6 @@
 import sys
 import queue
+from queue import Queue
 
 from time import sleep
 from threading import Thread, Event
@@ -9,9 +10,9 @@ from PySide6.QtWidgets import QApplication
 from random import randint
 
 
-def start_data_handling(pressure_sensor_queue, current_sensor_queue,
-                        thermocouples_sensor_queue, load_cell_sensor_queue,
-                        differential_sensor_queue, thread_killer):
+def start_data_handling(pressure_sensor_queue: Queue, current_sensor_queue: Queue,
+                        thermocouples_sensor_queue: Queue, load_cell_sensor_queue: Queue,
+                        differential_sensor_queue: Queue, thread_killer, controller:Controller):
     """
     This function starts the data handling process.
     """
@@ -24,6 +25,9 @@ def start_data_handling(pressure_sensor_queue, current_sensor_queue,
         load_cell_sensor_queue.put(randint(0, 100))
         differential_sensor_queue.put(randint(0, 100))
         sleep(1)
+
+        # @TODO: read the sensor values from the controller
+        # controller.read_sensor()
 
     print("Exiting data handling thread")
 
@@ -39,15 +43,18 @@ if __name__ == "__main__":
 
     # start multithreaded environment to separate UI from data handling
 
+    controller = Controller()
 
     data_handling_thread = Thread(target=start_data_handling,
                                   args=(pressure_sensor_queue,
                                         current_sensor_queue,
                                         thermocouples_sensor_queue,
                                         load_cell_sensor_queue,
-                                        differential_pressure_queue, thread_killer))
+                                        differential_pressure_queue,
+                                        thread_killer,
+                                        controller))
 
-    controller = Controller()
+
 
     data_handling_thread.start()
 
@@ -62,7 +69,6 @@ if __name__ == "__main__":
     rc = app.exec()
 
 
-    # @TODO stop data thread if UI thread is stopped
     # join the threads again
     thread_killer.set()
     data_handling_thread.join(timeout=5)

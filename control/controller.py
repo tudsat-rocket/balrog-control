@@ -8,13 +8,16 @@ from control.brick_handling import StackHandler
 from control.definitions import ActorType, ActionType
 from control.test_definition_parsing import parse_csv
 from control.actor import Actor
+from control.sensor import Sensor
 
 class Controller(Thread):
 
     def __init__(self):
         Thread.__init__(self)
         self.actors = {}
+        self.sensors = {}
         self._construct_actors()
+        self._construct_sensor()
         self.sequence = None
         self.brick_stack = StackHandler()
 
@@ -30,7 +33,6 @@ class Controller(Thread):
 
     def connect(self, host: str, port: int) -> bool:
         print(f"Connect to {host}:{port}")
-        # @TODO host and port are ignore here
         self.brick_stack.start_connection(host, port)
         return True
 
@@ -56,7 +58,6 @@ class Controller(Thread):
         return True
 
     def load_test_definition(self, path: os.path) -> bool:
-
         if path is not None:
             self.sequence = parse_csv(path)
             return True
@@ -64,7 +65,6 @@ class Controller(Thread):
             return False
 
     def verify_sequence(self) -> bool:
-
         if self.sequence is None:
             return False
 
@@ -90,7 +90,6 @@ class Controller(Thread):
     # ++++++
 
     def _construct_actors(self) -> None:
-
         with open('config/balrog.yaml', 'r') as f:
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
             actors = balrog_config['actors']
@@ -99,17 +98,18 @@ class Controller(Thread):
                 print(actor)
                 self.actors[actor['name']] = Actor(actor['name'], actor['type'], actor['uid'], actor['output'])
 
-        '''
-        # Alternative static definition
-        self.actors["Horn"] = Actor("Horn", actor_type=ActorType.HORN)
-        self.actors["Light"] = Actor("Light", actor_type=ActorType.LIGHT)
-        self.actors["Igniter"] = Actor("Igniter", actor_type=ActorType.TRIGGER)
-        self.actors["NitrousMain"] = Actor("NitrousMain", actor_type=ActorType.SERVO)
-        self.actors["NitrousVent"] = Actor("NitrousVent", actor_type=ActorType.SERVO)
-        self.actors["NitrousFill"] = Actor("NitrousFill", actor_type=ActorType.SERVO)
-        self.actors["N2Pressure"] = Actor("N2Pressure", actor_type=ActorType.SERVO)
-        self.actors["N2Purge"] = Actor("N2Purge", actor_type=ActorType.SOLENOID)
-        '''
+    def _construct_sensor(self) -> None:
+        """
+        construct all sensors from the balrog.yaml file
+        """
+        with open('config/balrog.yaml', 'r') as f:
+            balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
+            sensors = balrog_config['sensors']
+
+            for sensor in sensors:
+                print(sensor)
+                self.actors[sensor['name']] = Sensor(sensor['name'], sensor['type'], sensor['uid'], sensor['pin'])
+
 
     # ++++++
     # Thread target

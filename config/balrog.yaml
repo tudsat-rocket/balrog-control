@@ -39,7 +39,35 @@ actors:
 
 # List of sensor definitions
 sensors:
-  - name:
-    type:
-    uid:
-    input:
+  - name: Pressure 1
+    type: PRESSURE
+    uid: TODO
+    pin: -1
+  - name: Pressure 2
+    type: PRESSURE
+    uid: TODO
+    pin: -1
+  - name: Pressure 3
+    type: PRESSURE
+    uid: TODO
+    pin: -1
+  - name: Pressure 4
+    type: PRESSURE
+    uid: TODO
+    pin: -1
+  - name: Temperatur 1
+    type: TEMPERATURE
+    uid: TODO
+    pin: -1
+  - name: Temperatur 2
+    type: TEMPERATURE
+    uid: TODO
+    pin: -1
+  - name: Load cell 1
+    type: LOAD
+    uid: TODO
+    pin: -1
+  - name: Load cell 2
+    type: LOAD
+    uid: TODO
+    pin: -1
