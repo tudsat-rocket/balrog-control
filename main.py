@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # start multithreaded environment to separate UI from data handling
 
-    controller = Controller(event_queue)
+    controller = Controller(event_queue, thread_killer)
 
     data_handling_thread = Thread(target=start_data_handling,
                                   args=(pressure_1_sensor_queue,

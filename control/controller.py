@@ -15,7 +15,7 @@ from queue import Queue
 
 class Controller(Thread):
 
-    def __init__(self, event_queue: Queue):
+    def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
         self.actors = {}
         self.sensors = {}
@@ -24,9 +24,11 @@ class Controller(Thread):
         self.sequence = None
         self.brick_stack = StackHandler()
         self.event_queue = event_queue
+        self.thread_killer = thread_killer
 
     def run(self):
         super().run()
+        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -38,7 +40,7 @@ class Controller(Thread):
     def connect(self, host: str, port: int) -> bool:
         print(f"Connect to {host}:{port}")
         try:
-            # @TODO the UI freezes while waiting for a new connection.
+            # @TODO the UI freezes while waiting for a new connection, could be solved with signals.
             self.brick_stack.start_connection(host, port)
             self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
                                   "status": "Connected",
@@ -189,14 +191,16 @@ class Controller(Thread):
     # Thread target
     # ++++++
 
-    def _sequence_worker(self, thread_killer):
+    def _sequence_worker(self):
 
         seq_idx = 0
 
         for i in interval_timer.IntervalTimer(0.02):
 
-
             self.actors[self.sequence[seq_idx][0]].action()
 
-            if thread_killer.is_set():
+            if self.thread_killer.is_set():
+                # TODO safely wrap up interrupted sequence
                 break
+
+        # TODO safely wrap up sequence
