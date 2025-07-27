@@ -7,30 +7,50 @@ import pyqtgraph as pg
 from control.controller import Controller
 from .test_definition_file_explorer import (open_file_dialog, reload_file)
 from .data_plotter import update_plots
+from gui.ui_updater import update_ui
 
 ui_class, baseclass = loadUiType("gui/main_view.ui")
 
 class NewMainWindow(ui_class, baseclass):
-    def __init__(self, pressure_sensor_queue,
-                 current_sensor_queue,
-                 thermocouples_sensor_queue,
-                 load_cell_sensor_queue,
+    def __init__(self,
+                 pressure_1_sensor_queue,
+                 pressure_2_sensor_queue,
+                 pressure_3_sensor_queue,
+                 pressure_4_sensor_queue,
+
+                 temperature_1_sensor_queue,
+                 temperature_2_sensor_queue,
+                 load_cell_1_sensor_queue,
+                 load_cell_2_sensor_queue,
                  differential_sensor_queue,
+                 event_queue,
                  controller):
         super().__init__()
 
         # queue to transport the sensor values from the second thread to the UI
-        self.pressure_sensor_queue = pressure_sensor_queue
-        self.current_sensor_queue = current_sensor_queue
-        self.thermocouples_sensor_queue = thermocouples_sensor_queue
-        self.load_cell_sensor_queue = load_cell_sensor_queue
+        self.pressure_1_sensor_queue = pressure_1_sensor_queue
+        self.pressure_2_sensor_queue = pressure_2_sensor_queue
+        self.pressure_3_sensor_queue = pressure_3_sensor_queue
+        self.pressure_4_sensor_queue = pressure_4_sensor_queue
+        self.temperature_1_sensor_queue = temperature_1_sensor_queue
+        self.temperature_2_sensor_queue = temperature_2_sensor_queue
+        self.load_cell_1_sensor_queue = load_cell_1_sensor_queue
+        self.load_cell_2_sensor_queue = load_cell_2_sensor_queue
         self.differential_sensor_queue = differential_sensor_queue
+        self.event_queue = event_queue
         self.controller = controller
 
         # used to store the values from the queue
-        self.pressure_data = []
-        self.thermocouples_data = []
-        self.load_cell_data = []
+        self.pressure_1_data = []
+        self.pressure_2_data = []
+        self.pressure_3_data = []
+        self.pressure_4_data = []
+
+        self.temperature_1_data = []
+        self.temperature_2_data = []
+
+        self.load_cell_1_data = []
+        self.load_cell_2_data = []
         self.differential_pressure_data = []
 
         # @TODO how to handle the time?
@@ -58,6 +78,10 @@ class NewMainWindow(ui_class, baseclass):
         self.timer.timeout.connect(lambda: update_plots(self))
         self.timer.start(1000) # @TODO with 200, the UI beginns to get laggy
 
+        self.event_timer = QTimer()
+        self.event_timer.timeout.connect(lambda: update_ui(self))
+        self.event_timer.start(1000)
+
     def setup_buttons(self):
         """
         Connect the click of a buttons to a methode
@@ -75,7 +99,6 @@ class NewMainWindow(ui_class, baseclass):
         self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())
         self.button_open_sequence.clicked.connect(lambda: open_file_dialog(self, self.controller))
         self.button_reload_sequence.clicked.connect(lambda: reload_file(self, self.controller))
-        self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())
 
         # Abort
         self.button_abort_sequence.clicked.connect(lambda: self.controller.abort())

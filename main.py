@@ -10,24 +10,29 @@ from PySide6.QtWidgets import QApplication
 from random import randint
 
 
-def start_data_handling(pressure_sensor_queue: Queue, current_sensor_queue: Queue,
-                        thermocouples_sensor_queue: Queue, load_cell_sensor_queue: Queue,
+def start_data_handling(pressure_1_sensor_queue: Queue, pressure_2_sensor_queue: Queue,
+                        pressure_3_sensor_queue: Queue,  pressure_4_sensor_queue: Queue,
+                        thermocouples_1_sensor_queue: Queue, thermocouples_2_sensor_queue: Queue,
+                        load_cell_1_sensor_queue: Queue,  load_cell_2_sensor_queue: Queue,
                         differential_sensor_queue: Queue, thread_killer, controller:Controller):
     """
     This function starts the data handling process.
     """
     while not thread_killer.is_set():
-        # print("adding new value to queue")
-        # simulate sensor values for testing
-        pressure_sensor_queue.put(randint(0, 100))
-        current_sensor_queue.put(randint(0, 100))
-        thermocouples_sensor_queue.put(randint(0, 100))
-        load_cell_sensor_queue.put(randint(0, 100))
-        differential_sensor_queue.put(randint(0, 100))
-        sleep(1)
+        pressure_1_sensor_queue.put(controller.read_pressure_1())
+        pressure_2_sensor_queue.put(controller.read_pressure_2())
+        pressure_3_sensor_queue.put(controller.read_pressure_3())
+        pressure_4_sensor_queue.put(controller.read_pressure_4())
 
-        # @TODO: read the sensor values from the controller
-        # controller.read_sensor()
+        thermocouples_1_sensor_queue.put(controller.read_temperature_1())
+        thermocouples_2_sensor_queue.put(controller.read_temperature_2())
+
+        load_cell_1_sensor_queue.put(controller.read_load_cell_1())
+        load_cell_2_sensor_queue.put(controller.read_load_cell_2())
+
+        differential_sensor_queue.put(controller.read_differential_pressure())
+
+        sleep(1) # @TODO how long should we wait?
 
     print("Exiting data handling thread")
 
@@ -35,21 +40,34 @@ def start_data_handling(pressure_sensor_queue: Queue, current_sensor_queue: Queu
 if __name__ == "__main__":
     # define shared queue between threads to communicate sensor values
     thread_killer = Event()
-    pressure_sensor_queue = queue.Queue()
-    current_sensor_queue = queue.Queue()
-    thermocouples_sensor_queue = queue.Queue()
-    load_cell_sensor_queue = queue.Queue()
+    pressure_1_sensor_queue = queue.Queue()
+    pressure_2_sensor_queue = queue.Queue()
+    pressure_3_sensor_queue = queue.Queue()
+    pressure_4_sensor_queue = queue.Queue()
+
+    temperature_1_sensor_queue = queue.Queue()
+    temperature_2_sensor_queue = queue.Queue()
+
+    load_cell_1_sensor_queue = queue.Queue()
+    load_cell_2_sensor_queue = queue.Queue()
     differential_pressure_queue = queue.Queue()
+
+    event_queue = queue.Queue()
 
     # start multithreaded environment to separate UI from data handling
 
-    controller = Controller()
+    controller = Controller(event_queue)
 
     data_handling_thread = Thread(target=start_data_handling,
-                                  args=(pressure_sensor_queue,
-                                        current_sensor_queue,
-                                        thermocouples_sensor_queue,
-                                        load_cell_sensor_queue,
+                                  args=(pressure_1_sensor_queue,
+                                        pressure_2_sensor_queue,
+                                        pressure_3_sensor_queue,
+                                        pressure_4_sensor_queue,
+
+                                        temperature_1_sensor_queue,
+                                        temperature_2_sensor_queue,
+                                        load_cell_1_sensor_queue,
+                                        load_cell_2_sensor_queue,
                                         differential_pressure_queue,
                                         thread_killer,
                                         controller))
@@ -62,9 +80,16 @@ if __name__ == "__main__":
     Start the main UI window
     """
     app = QApplication(sys.argv)
-    main_window = NewMainWindow(pressure_sensor_queue, current_sensor_queue,
-                                thermocouples_sensor_queue, load_cell_sensor_queue,
-                                differential_pressure_queue, controller)
+    main_window = NewMainWindow(pressure_1_sensor_queue,
+                                pressure_2_sensor_queue,
+                                pressure_3_sensor_queue,
+                                pressure_4_sensor_queue,
+                                temperature_1_sensor_queue,
+                                temperature_2_sensor_queue,
+                                load_cell_1_sensor_queue,
+                                load_cell_2_sensor_queue,
+                                differential_pressure_queue,
+                                event_queue, controller)
     main_window.show()
     rc = app.exec()
 

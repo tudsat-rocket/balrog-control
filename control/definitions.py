@@ -13,6 +13,7 @@ class SensorType(StrEnum):
     PRESSURE = "PRESSURE"
     TEMPERATURE = "TEMPERATURE"
     LOAD = "LOAD"
+    DIFFERENTIAL_PRESSURE = "DIFFERENTIAL_PRESSURE"
 
 class ActionType(IntEnum):
     NOT_IMPLEMENTED = -1 
@@ -68,3 +69,10 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.RELEASE_TRIGGER
         case _:
             return ActionType.NOT_IMPLEMENTED
+
+class EventType(Enum):
+    CONNECTION_STATUS_UPDATE = "STATUS_UPDATE"
+    VALVE_STATUS_UPDATE = "VALVE_STATUS_UPDATE"
+    SEQUENCE_STARTED = "SEQUENCE_STARTED"
+    SEQUENCE_STOPPED = "SEQUENCE_STOPPED"
+    SEQUENCE_ERROR = "SEQUENCE_ERROR"
