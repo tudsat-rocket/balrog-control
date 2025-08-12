@@ -35,7 +35,7 @@ class ActionType(IntEnum):
     RELEASE_TRIGGER = 15
     COUNTER_START = 16
     COUNTER_STOP = 17
-   
+    COUNTER_RESET = 18
 
 def str_to_action(action: str) -> ActionType:
 
@@ -72,11 +72,16 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.RELEASE_TRIGGER
         case "COUNTER_START":
             return ActionType.COUNTER_START
+        case "COUNTER_STOP":
+            return ActionType.COUNTER_STOP
+        case "COUNTER_RESET":
+            return ActionType.COUNTER_RESET
         case _:
             return ActionType.NOT_IMPLEMENTED
 
 class EventType(StrEnum):
     CONNECTION_STATUS_UPDATE = "STATUS_UPDATE"
+    INFO_EVENT = "INFO_EVENT"
     VALVE_STATUS_UPDATE = "VALVE_STATUS_UPDATE"
     SEQUENCE_STARTED = "SEQUENCE_STARTED"
     SEQUENCE_STOPPED = "SEQUENCE_STOPPED"

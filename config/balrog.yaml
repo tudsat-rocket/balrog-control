@@ -33,9 +33,9 @@ actors:
     uid: 2f6L
     output: 1
   - name: SegmentDisplay
-    type:
+    type: COUNTER
     uid:
-    output:
+    output: 0
 
 # List of sensor definitions
 sensors:
