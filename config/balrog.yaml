@@ -1,13 +1,13 @@
 # List of actor definitions
 actors:
   - name: Horn
-    type: 2f6L
-    uid: UbQ
-    output: 2
+    type: HORN
+    uid: 2f6L
+    output: 0
   - name: Light
     type: LIGHT
-    uid: UbQ
-    output: 0
+    uid: 2f6L
+    output: 1
   - name: Igniter
     type: TRIGGER
     uid: 2f6L
@@ -31,11 +31,11 @@ actors:
   - name: N2Purge
     type: SOLENOID
     uid: 2f6L
-    output: 1
-  - name: SegmentDisplay
-    type: COUNTER
-    uid:
-    output: 0
+    output: 4
+  #- name: SegmentDisplay
+  #  type: COUNTER
+  #  uid:
+  #  output: 0
 
 # List of sensor definitions
 sensors:

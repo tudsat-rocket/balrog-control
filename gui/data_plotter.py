@@ -10,7 +10,7 @@ def read_sensor_values_from_queue(self) -> bool:
     try:
         self.pressure_1_data.append(pressure_1_sensor_queue.get(False))
     except queue.Empty:
-        print("pressure 1 is empty")
+        # print("pressure 1 is empty")
         pass
     try:
         self.pressure_2_data.append(pressure_2_sensor_queue.get(False))
@@ -27,7 +27,7 @@ def read_sensor_values_from_queue(self) -> bool:
     try:
         self.temperature_1_data.append(temperature_nitrous_sensor_queue.get(False))
     except queue.Empty:
-        print("nitrous is empty")
+        # print("nitrous is empty")
         pass
     try:
         self.temperature_2_data.append(temperature_engine_sensor_queue.get(False))

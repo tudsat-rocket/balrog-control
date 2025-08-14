@@ -42,6 +42,7 @@ class Actor:
     def action(self, action: ActionType, brick) -> None:
         match action:
             case ActionType.SOUND_HORN:
+                print("sound horn")
                 return self.sound_horn(brick)
             case ActionType.SERVO_OPEN:
                 return self.servo_open(brick)
@@ -64,11 +65,11 @@ class Actor:
             case ActionType.LIGHT_OFF:
                 return self.light_off(brick)
             case ActionType.LIGHT_GREEN:
-                return self.light_green()
+                return self.light_green(brick)
             case ActionType.LIGHT_YELLOW:
-                return self.light_yellow()
+                return self.light_yellow(brick)
             case ActionType.LIGHT_RED:
-                return self.light_red()
+                return self.light_red(brick)
             case ActionType.COUNTER_START:
                 return self.counter_start(brick)
             case ActionType.COUNTER_RESET:
@@ -127,26 +128,40 @@ class Actor:
     def solenoid_toggle(self, brick) -> None:
         pass
 
-    def sound_horn(self, ac_bricklet) -> None:
-        ac_bricklet.set_monoflop(self.output, True, 1000) # sound horn for 1s = 1000ms
+    def sound_horn(self, brick) -> None:
+        brick.set_monoflop(self.output, True, 5000) # sound horn for 1s = 1000ms
 
     def light_on(self, brick) -> None:
-        brick.set_monoflop(self.output, False, 1000) # pull to ground
+        # not used anymore
+        pass
 
     def light_off(self, brick) -> None:
-        brick.set_monoflop(self.output, True, 5000)
+        brick.set_selected_value(self.output, False)
+        brick.set_selected_value(self.output, False)
+        brick.set_selected_value(self.output + 2, False)
 
     def light_toggle(self, brick) -> None:
         pass
 
-    def light_green(self) -> None:
-        pass
+    def light_green(self, brick) -> None:
+        brick.set_selected_value(self.output + 2, True)
+        # turn all other off
+        brick.set_selected_value(self.output + 1, False)
+        brick.set_selected_value(self.output + 2, False)
 
-    def light_yellow(self) -> None:
-        pass
+    def light_yellow(self, brick) -> None:
+        # turn red light on
+        brick.set_selected_value(self.output +1, True)
+        # turn all other off
+        brick.set_selected_value(self.output + 0, False)
+        brick.set_selected_value(self.output + 2, False)
 
-    def light_red(self) -> None:
-        pass
+    def light_red(self, brick) -> None:
+        # turn red light on
+        brick.set_selected_value(self.output, True)
+        # turn all other off
+        brick.set_selected_value(self.output + 1, False)
+        brick.set_selected_value(self.output + 2, False)
 
     def pull_trigger(self, brick) -> None:
         pass

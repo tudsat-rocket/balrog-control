@@ -1,4 +1,6 @@
 import os
+from datetime import time
+from time import sleep
 from unittest import case
 
 import yaml
@@ -7,7 +9,7 @@ import interval_timer
 from threading import Thread
 from typing import Any
 from control.brick_handling import StackHandler
-from control.definitions import ActionType, EventType
+from control.definitions import ActionType, EventType, ActorType
 from control.test_definition_parsing import parse_csv
 from control.actor import Actor
 from control.sensor import Sensor
@@ -66,8 +68,8 @@ class Controller(Thread):
         self.sensors = {}
         self._construct_actors()
         self._construct_sensor()
-        self.sequence = None
         self.brick_stack = StackHandler()
+        self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
 
@@ -93,8 +95,8 @@ class Controller(Thread):
                                   "hostname": host,
                                   "port": port}
                                  )
-            #global connected
-            #connected = True
+            # set config for all bricks
+            self._set_configuration()
             return True
         except Exception as e:
             print(f"Failed to connect to {host}:{port}: {e}")
@@ -130,12 +132,19 @@ class Controller(Thread):
         return True
 
     def test_light(self) -> bool:
-        uid = self.actors["Light"].check()
-        self.actors["Light"].action(ActionType.LIGHT_ON, self.brick_stack.get_device(uid))
+        uid = self.actors["Light"].get_br_uid()
+        self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        sleep(1)
+        self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
+        sleep(1)
+        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
+
         return True
 
     def test_horn(self) -> bool:
+        print("test horn")
         uid = self.actors["Horn"].get_br_uid()
+        print(uid)
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
         return True
 
@@ -248,10 +257,24 @@ class Controller(Thread):
     # Internal methods
     # ++++++
 
+    def _set_configuration(self):
+        # we have to wait until the brick are there @TODO find out why
+        sleep(0.5)
+        for actor in self.actors.values():
+            brick = self.brick_stack.get_device(actor.get_br_uid())
+
+            match actor.type:
+                case ActorType.LIGHT:
+                    brick.set_configuration(actor.output,'o', False)
+                    brick.set_configuration(actor.output + 1, 'o', False)
+                    brick.set_configuration(actor.output + 2, 'o', False)
+
+
     def _construct_actors(self) -> None:
         with open('config/balrog.yaml', 'r') as f:
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
             actors = balrog_config['actors']
+
 
             for actor in actors:
                 # print(actor)
