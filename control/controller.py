@@ -15,7 +15,7 @@ from queue import Queue
 
 class Controller(Thread):
 
-    def __init__(self, event_queue: Queue):
+    def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
         self.actors = {}
         self.sensors = {}
@@ -24,9 +24,11 @@ class Controller(Thread):
         self.sequence = None
         self.brick_stack = StackHandler()
         self.event_queue = event_queue
+        self.thread_killer = thread_killer
 
     def run(self):
         super().run()
+        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -38,7 +40,7 @@ class Controller(Thread):
     def connect(self, host: str, port: int) -> bool:
         print(f"Connect to {host}:{port}")
         try:
-            # @TODO the UI freezes while waiting for a new connection.
+            # @TODO the UI freezes while waiting for a new connection, could be solved with signals.
             self.brick_stack.start_connection(host, port)
             self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
                                   "status": "Connected",
@@ -64,11 +66,23 @@ class Controller(Thread):
 
     def self_check(self) -> bool:
         print("Performing self check...")
+        self.event_queue.put({"type": EventType.INFO_EVENT,
+                              "status": "Self Check"}
+                             )
+
+        for actor in self.actors:
+            rc = actor.check(self.brick_stack.get_device(actor.get_br_uid()))
+            if not rc:
+                self.event_queue.put({"type": EventType.INFO_EVENT,
+                                      "status": "Self check failed"})
+                return False
+
+        self.event_queue.put({"type": EventType.INFO_EVENT,
+                              "status": "Self check passed"})
         return True
 
     def test_light(self) -> bool:
-        uid = self.actors["Light"].get_br_uid()
-        #self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        uid = self.actors["Light"].check()
         self.actors["Light"].action(ActionType.LIGHT_ON, self.brick_stack.get_device(uid))
         return True
 
@@ -134,13 +148,13 @@ class Controller(Thread):
 
     def read_temperature_1(self):
         # return randint(0, 100)
-        uid = self.sensors["Temperatur 1"].get_br_uid()
-        return self.sensors["Temperatur 1"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Temperature 1"].get_br_uid()
+        return self.sensors["Temperature 1"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_temperature_2(self):
         # return randint(0, 100)
-        uid = self.sensors["Temperatur 2"].get_br_uid()
-        return self.sensors["Temperatur 2"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Temperature 2"].get_br_uid()
+        return self.sensors["Temperature 2"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_load_cell_1(self):
         # return randint(0, 100)
@@ -189,14 +203,20 @@ class Controller(Thread):
     # Thread target
     # ++++++
 
-    def _sequence_worker(self, thread_killer):
+    def _sequence_worker(self):
 
         seq_idx = 0
+        seq_ts = 0
 
         for i in interval_timer.IntervalTimer(0.02):
 
-
-            self.actors[self.sequence[seq_idx][0]].action()
-
-            if thread_killer.is_set():
+            if self.thread_killer.is_set():
+                self.abort()
                 break
+
+            while self.sequence[seq_idx][1] <= seq_ts:
+                tpl = self.sequence[seq_idx]
+                tpl[0].action(tpl[2], tpl.get_br_uid())
+                seq_idx += 1
+
+            seq_ts += 20

@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum, IntEnum
+from enum import StrEnum, IntEnum
 
 class ActorType(StrEnum):
     DUMMY = "DUMMY"
@@ -6,6 +6,7 @@ class ActorType(StrEnum):
     SOLENOID = "SOLENOID"
     HORN = "HORN"
     LIGHT = "LIGHT"
+    COUNTER = "COUNTER"
     TRIGGER = "TRIGGER"
 
 class SensorType(StrEnum):
@@ -32,7 +33,9 @@ class ActionType(IntEnum):
     LIGHT_RED = 13
     PULL_TRIGGER = 14
     RELEASE_TRIGGER = 15
-   
+    COUNTER_START = 16
+    COUNTER_STOP = 17
+    COUNTER_RESET = 18
 
 def str_to_action(action: str) -> ActionType:
 
@@ -67,11 +70,18 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.PULL_TRIGGER
         case "RELEASE_TRIGGER":
             return ActionType.RELEASE_TRIGGER
+        case "COUNTER_START":
+            return ActionType.COUNTER_START
+        case "COUNTER_STOP":
+            return ActionType.COUNTER_STOP
+        case "COUNTER_RESET":
+            return ActionType.COUNTER_RESET
         case _:
             return ActionType.NOT_IMPLEMENTED
 
-class EventType(Enum):
+class EventType(StrEnum):
     CONNECTION_STATUS_UPDATE = "STATUS_UPDATE"
+    INFO_EVENT = "INFO_EVENT"
     VALVE_STATUS_UPDATE = "VALVE_STATUS_UPDATE"
     SEQUENCE_STARTED = "SEQUENCE_STARTED"
     SEQUENCE_STOPPED = "SEQUENCE_STOPPED"
