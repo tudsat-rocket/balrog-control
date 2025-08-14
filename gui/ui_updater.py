@@ -1,4 +1,6 @@
 import queue
+from idlelib.sidebar import EndLineDelegator
+
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
 
 from control.definitions import EventType
@@ -46,6 +48,10 @@ def update_connection_state(self, connection_event):
     self.label_status_connection_state.setText(connection_event['status'])
     self.label_status_hostname_state.setText(connection_event['hostname'])
     self.label_status_port_state.setText(str(connection_event['port']))
+    if connection_event['status'] == "Connected":
+        self.button_connect.setText("Disconnect")
+    elif connection_event['status'] == "Disconnected":
+        self.button_connect.setText("Connect")
 
 def update_sequence_state(self, enabled:bool):
     """

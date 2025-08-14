@@ -61,6 +61,7 @@ def differential_pressure_callback( channel, current):
 
 class Controller(Thread):
     sensor_enabled = False
+    connected = False
 
     def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
@@ -86,26 +87,37 @@ class Controller(Thread):
     # ++++++++++++
 
     def connect(self, host: str, port: int) -> bool:
-        print(f"Connect to {host}:{port}")
-        try:
-            # @TODO the UI freezes while waiting for a new connection, could be solved with signals.
-            self.brick_stack.start_connection(host, port)
+        if self.connected:
+            self.brick_stack.stop_connection()
+            self.connected = False
             self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
-                                  "status": "Connected",
-                                  "hostname": host,
-                                  "port": port}
+                                  "status": "Disconnected",
+                                  "hostname": "unkown",
+                                  "port": "unkown"}
                                  )
-            # set config for all bricks
-            self._set_configuration()
-            return True
-        except Exception as e:
-            print(f"Failed to connect to {host}:{port}: {e}")
-            self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
-                                  "status": "Connection failed",
-                                  "hostname": host,
-                                  "port": port}
-                                 )
-            return False
+        else:
+            print(f"Connect to {host}:{port}")
+            try:
+                # @TODO the UI freezes while waiting for a new connection, could be solved with signals.
+                self.brick_stack.start_connection(host, port)
+                self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
+                                      "status": "Connected",
+                                      "hostname": host,
+                                      "port": port}
+                                     )
+                # set config for all bricks
+                self._set_configuration()
+                self.connected = True
+                return True
+            except Exception as e:
+                print(f"Failed to connect to {host}:{port}: {e}")
+                self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
+                                      "status": "Connection failed",
+                                      "hostname": host,
+                                      "port": port}
+                                     )
+                return False
+
 
 
     def stack_state(self) -> dict[str, Any]:
