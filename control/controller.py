@@ -227,9 +227,20 @@ class Controller(Thread):
 
     def abort(self) -> None:
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
+
+        # Close All Valves
+        self.actors["NitrousMain"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["NitrousMain"]))
+        self.actors["NitrousVent"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["NitrousVent"]))
+        self.actors["NitrousFill"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["NitrousFill"]))
+
+        # Open Purge Valve
+        self.actors["N2Purge"].action(ActionType.SOLENOID_OPEN, self.brick_stack.get_device(self.actors["N2Purge"]))
+
+        # visual and auditory warnings
+        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"]))
+        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"]))
+
         self.disable_all_callbacks()
-        # @TODO: implement
-        pass
 
     def read_pressure_1(self):
         uid = self.sensors["Pressure 1"].get_br_uid()
