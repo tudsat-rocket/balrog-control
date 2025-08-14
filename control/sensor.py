@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from control.definitions import SensorType
 
 class Sensor:
@@ -6,16 +8,23 @@ class Sensor:
     """
 
     def __init__(self, name: str = None, sensor_type: SensorType = SensorType.DUMMY,
-                 uid: str = None, port:int = None, pin: int = None) -> None:
+                 uid: str = None, channel: int = None, callback: Callable = None, periode: int = 1000) -> None:
+        """
+        Constructor
+        @callback: The callback function that will be called when the sensor has a new value
+        @periode: The periode of the sensor callback, in ms. Default is 1000ms = 1s
+        """
 
         # human-readable name
         self.name = name
         self.type = sensor_type
         # uid of bricklet responsible for reading the sensor
         self.br_uid = uid
-        # pin for the IO bricklet. Defines at which pin the sensor is connected to. Only used for the pressure sensor
-        self.port = port
-        self.pin = pin
+        # channel for the industrial dual bricklet. Only used for the pressure sensor
+        self.channel = channel
+        self.callback = callback
+        self.periode = periode
+
 
     def set_sensor_name(self, name: str) -> None:
         self.name = name
@@ -38,29 +47,44 @@ class Sensor:
         """
         match self.type:
             case SensorType.DUMMY:
-                print("Reading dummy sensor")
+                # print("Reading dummy sensor")
                 return 0
             case SensorType.PRESSURE:
+                # print("is type of pressure")
                 return self.read_pressure(brick)
             case SensorType.TEMPERATURE:
+                # print("is type of temperature")
                 return self.read_temperature(brick)
             case SensorType.LOAD:
+                # print("is type of load")
                 return self.read_load(brick)
             case SensorType.DIFFERENTIAL_PRESSURE:
-                return self.read_differential_pressure(brick)
+                # print("is type of differential pressure")
+                return self.read_pressure(brick)
 
     def read_pressure(self, brick) -> int:
         """
-        Reads of the IO input of the IO bricklet.
+        Reads of the IO input of the industrial dual bricklet.
+        @TODO: we could display an warning, if we expect that the sensor is either broken or not connected
         """
-        value, time, timing_remaining = brick.get_port_monoflop(self.port, self.pin)
-        return value
+        print("read pressure")
+        current = brick.get_current(self.channel)
+        if current < 4:
+            # there is no sensor connected!
+            pass
+        if current > 20:
+            # the sensor has a malfunction, Please check the sensor
+            pass
+        return current
 
     def read_temperature(self, brick) -> int:
-        return brick.get_temperature()
+        temperature = brick.get_temperature()
+        print(temperature)
+        return temperature
 
     def read_load(self, brick) -> int:
-        return brick.get_weight()
+        weight = brick.get_weight()
+        return weight
 
     def calibrate_sensor(self, brick):
         match self.type:
@@ -71,8 +95,50 @@ class Sensor:
             case _:
                 print("Calibration failed. Not implemented for this sensor type")
 
+    def _setup_callback(self, brick):
+        """
+        connects our callbacks to the sensor callbacks
+        """
+        match self.type:
+            case SensorType.TEMPERATURE:
+                brick.register_callback(brick.CALLBACK_TEMPERATURE, self.callback)
+            case SensorType.PRESSURE:
+                brick.register_callback(brick.CALLBACK_CURRENT, self.callback)
+            case SensorType.LOAD:
+                brick.register_callback(brick.CALLBACK_WEIGHT, self.callback)
+
+    def enable_callback(self, brick):
+        """
+        activates/enables the callbacks for new sensor values
+        """
+        self._setup_callback(brick)
+        match self.type:
+            case SensorType.TEMPERATURE:
+                # parameters are periode in ms, value_has_to_change, Threshold (x =disabled), min, max
+                brick.set_temperature_callback_configuration(self.periode, False, "x", 0, 0)
+            case SensorType.PRESSURE:
+                # parameters are: channel, periode in ms, threshold, min, max
+                brick.set_current_callback_configuration(self.channel, self.periode, False, "x", 0, 0)
+            case SensorType.LOAD:
+                brick.set_weight_callback_configuration(self.periode, False, "x", 0, 0)
+
+    def disable_callback(self, brick):
+        """
+        Disables the callback function
+        """
+        #  periode of 0 disables the callback
+        match self.type:
+            case SensorType.TEMPERATURE:
+                brick.set_temperature_callback_configuration(0, False, "x", 0, 0)
+            case SensorType.PRESSURE:
+                brick.set_current_callback_configuration(self.channel, 0, False, "x", 0, 0)
+            case SensorType.LOAD:
+                brick.set_weight_callback_configuration(0, False, "x", 0, 0)
+
+
     def setup_sensor(self, brick):
         """
+        -> not needed anymore
         some bricklets like the IO-16 bricklets require a setup
         see https://www.tinkerforge.com/de/doc/Software/Bricklets/IO16_Bricklet_Python.html#io16-bricklet-python-api
         """
@@ -94,7 +160,3 @@ class Sensor:
         see: https://www.tinkerforge.com/de/doc/Software/Bricklets/LoadCellV2_Bricklet_Python.html#load-cell-v2-bricklet-python-api
         """
         brick.tare()
-
-    def read_differential_pressure(self, brick) -> int:
-        #@TODO(Nucleus): implement
-        pass

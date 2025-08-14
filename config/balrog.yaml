@@ -41,46 +41,46 @@ actors:
 sensors:
   - name: Pressure 1
     type: PRESSURE
-    uid: TODO
-    port: -1
-    pin: -1
+    uid: 27AM
+    channel: 0
+    periode: 1000
   - name: Pressure 2
     type: PRESSURE
-    uid: TODO
-    port: -1
-    pin: -1
+    uid: 27AM
+    channel: 1
+    periode: 1000
   - name: Pressure 3
     type: PRESSURE
-    uid: TODO
-    port: -1
-    pin: -1
+    uid: 27AQ
+    channel: 0
+    periode: 1000
   - name: Pressure 4
     type: PRESSURE
-    uid: TODO
-    port: -1
-    pin: -1
-  - name: Temperatur 1
+    uid: 27AG
+    channel: 0
+    periode: 1000
+  - name: Temperatur Nitrous
     type: TEMPERATURE
-    uid: TODO
-    port: -1
-    pin: -1
-  - name: Temperatur 2
+    uid: 2f1R
+    channel: -1 # not used
+    periode: 1000
+  - name: Temperatur Engine
     type: TEMPERATURE
-    uid: TODO
-    port: -1
-    pin: -1
-  - name: Load cell 1
+    uid: 2eZV
+    channel: -1 # not used
+    periode: 1000
+  - name: Thrust load cell
     type: LOAD
-    uid: TODO
-    port: -1
-    pin: -1
-  - name: Load cell 2
+    uid: 29gV
+    channel: -1 # not used
+    periode: 1000
+  - name: Nitrous load cell
     type: LOAD
-    uid: TODO
-    port: -1
-    pin: -1
-  - name: Differential pressure
-    type: DIFFERENTIAL_PRESSURE
-    uid: TODO
-    port: -1
-    pin: -1
+    uid: 29h4
+    channel: -1 # not used
+    periode: 1000
+  - name: Differential Nitrous pressure
+    type: PRESSURE
+    uid: 27AR
+    channel: 1
+    periode: 1000
