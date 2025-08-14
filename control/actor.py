@@ -146,8 +146,8 @@ class Actor:
     def light_green(self, brick) -> None:
         brick.set_selected_value(self.output + 2, True)
         # turn all other off
+        brick.set_selected_value(self.output + 0, False)
         brick.set_selected_value(self.output + 1, False)
-        brick.set_selected_value(self.output + 2, False)
 
     def light_yellow(self, brick) -> None:
         # turn red light on

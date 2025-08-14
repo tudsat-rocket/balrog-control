@@ -138,6 +138,8 @@ class Controller(Thread):
         self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
         sleep(1)
         self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
+        sleep(1)
+        self.actors["Light"].action(ActionType.LIGHT_OFF, self.brick_stack.get_device(uid))
 
         return True
 
@@ -268,6 +270,8 @@ class Controller(Thread):
                     brick.set_configuration(actor.output,'o', False)
                     brick.set_configuration(actor.output + 1, 'o', False)
                     brick.set_configuration(actor.output + 2, 'o', False)
+                case ActorType.HORN:
+                    brick.set_configuration(actor.output, 'o', False)
 
 
     def _construct_actors(self) -> None:
