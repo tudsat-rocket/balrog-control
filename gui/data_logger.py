@@ -13,8 +13,7 @@ def start_logging(self):
     filepath = os.path.join("logs", self.current_log_filename)
     self.log_file = open(filepath, "w", newline="")
     self.writer = csv.writer(self.log_file)
-    self.writer.writerow(["Time", "Pressure", "Current"])
-
+    self.writer.writerow(["Time", "Pressure 1", "Current"])
 
 def end_logging(self):
     """

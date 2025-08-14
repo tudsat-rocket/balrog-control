@@ -94,6 +94,7 @@ class NewMainWindow(ui_class, baseclass):
         self.button_selfcheck.clicked.connect(lambda: self.controller.self_check())
         self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
         self.button_test_light.clicked.connect(lambda: self.controller.test_light())
+        self.button_toggle_sensors.clicked.connect(lambda: self.controller.toggle_sensors())
 
         # Sequence loader
         self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())

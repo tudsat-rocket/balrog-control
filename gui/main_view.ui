@@ -199,6 +199,13 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="button_toggle_sensors">
+               <property name="text">
+                <string>toggle sensors</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>

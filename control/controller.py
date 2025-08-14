@@ -1,4 +1,6 @@
 import os
+from unittest import case
+
 import yaml
 import interval_timer
 
@@ -11,9 +13,52 @@ from control.actor import Actor
 from control.sensor import Sensor
 from queue import Queue
 
-# from random import randint
+from shared.shared_queues import *
+
+def temperature_nitrous_callback( temperature):
+    #print("Temperature: " + str(temperature / 100.0) + " °C")
+    temperature_nitrous_sensor_queue.put(temperature)
+
+def temperature_engine_callback( temperature):
+    #print("Temperature: " + str(temperature / 100.0) + " °C")
+    temperature_engine_sensor_queue.put(temperature)
+
+def pressure_1_callback(channel, current):
+    print("Channel: " + str(channel))
+    print("Current: " + str(current / 1000000.0) + " mA")
+    pressure_1_sensor_queue.put(current)
+
+def pressure_2_callback(channel, current):
+    #print("Channel: " + str(channel))
+    #print("Current: " + str(current / 1000000.0) + " mA")
+    pressure_2_sensor_queue.put(current)
+
+def pressure_3_callback(channel, current):
+    #print("Channel: " + str(channel))
+    #print("Current: " + str(current / 1000000.0) + " mA")
+    pressure_3_sensor_queue.put(current)
+
+def pressure_4_callback( channel, current):
+    #print("Channel: " + str(channel))
+    #print("Current: " + str(current / 1000000.0) + " mA")
+    pressure_4_sensor_queue.put(current)
+
+def thrust_load_cell_callback( weight):
+    #print("Weight: " + str(weight) + " g")
+    load_cell_1_sensor_queue.put(weight)
+
+def nitrous_load_cell_callback( weight):
+    #print("Weight: " + str(weight) + " g")
+    load_cell_2_sensor_queue.put(weight)
+
+def differential_pressure_callback( channel, current):
+    #print("Channel: " + str(channel))
+    #print("Current: " + str(current / 1000000.0) + " mA")
+    differential_pressure_queue.put(current)
+
 
 class Controller(Thread):
+    sensor_enabled = False
 
     def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
@@ -33,6 +78,7 @@ class Controller(Thread):
     def join(self, timeout = None):
         super().join()
 
+
     # ++++++++++++
     # Gui API
     # ++++++++++++
@@ -47,6 +93,8 @@ class Controller(Thread):
                                   "hostname": host,
                                   "port": port}
                                  )
+            #global connected
+            #connected = True
             return True
         except Exception as e:
             print(f"Failed to connect to {host}:{port}: {e}")
@@ -109,12 +157,45 @@ class Controller(Thread):
 
         return True
 
+    def enable_all_callbacks(self):
+        """
+        Enable the callbacks and start the sensor reading
+        """
+        print("enable sensors")
+        for sensor in self.sensors.values():
+            uid = sensor.get_br_uid()
+            sensor.enable_callback(self.brick_stack.get_device(uid))
+
+    def disable_all_callbacks(self):
+        """
+        Disable all callbacks. No new sensor values will be added
+        """
+        print("disable sensors")
+        for sensor in self.sensors.values():
+            uid = sensor.get_br_uid()
+            sensor.disable_callback(self.brick_stack.get_device(uid))
+
+    def toggle_sensors(self):
+        """
+        Toggles the sensor callbacks on and off.
+        """
+        if not self.sensor_enabled:
+            print("enable all sensors")
+            self.enable_all_callbacks()
+            self.sensor_enabled = True
+        else:
+            print("disable all sensors")
+            self.disable_all_callbacks()
+            self.sensor_enabled = False
+
     def start_sequence(self) -> bool:
         print("Start sequence...")
-        self.event_queue.put({"type": EventType.SEQUENCE_STARTED}) # @TODO remove
+        # self.event_queue.put({"type": EventType.SEQUENCE_STARTED}) # @TODO remove
         if self.sequence is not None:
             self.event_queue.put({"type": EventType.SEQUENCE_STARTED})
+            self.enable_all_callbacks()
             self.run()
+            self.disable_all_callbacks()
             self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
             return True
         else:
@@ -123,53 +204,45 @@ class Controller(Thread):
 
     def abort(self) -> None:
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
+        self.disable_all_callbacks()
         # @TODO: implement
         pass
 
     def read_pressure_1(self):
-        # return randint(0, 100)
         uid = self.sensors["Pressure 1"].get_br_uid()
         return self.sensors["Pressure 1"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_pressure_2(self):
-        # return randint(0, 100)
         uid = self.sensors["Pressure 2"].get_br_uid()
         return self.sensors["Pressure 2"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_pressure_3(self):
-        # return randint(0, 100)
         uid = self.sensors["Pressure 3"].get_br_uid()
         return self.sensors["Pressure 3"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_pressure_4(self):
-        # return randint(0, 100)
         uid = self.sensors["Pressure 4"].get_br_uid()
         return self.sensors["Pressure 4"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_temperature_1(self):
-        # return randint(0, 100)
-        uid = self.sensors["Temperature 1"].get_br_uid()
-        return self.sensors["Temperature 1"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Temperatur Nitrous"].get_br_uid()
+        return self.sensors["Temperatur Nitrous"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_temperature_2(self):
-        # return randint(0, 100)
-        uid = self.sensors["Temperature 2"].get_br_uid()
-        return self.sensors["Temperature 2"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Temperatur Engine"].get_br_uid()
+        return self.sensors["Temperatur Engine"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_load_cell_1(self):
-        # return randint(0, 100)
-        uid = self.sensors["Load cell 1"].get_br_uid()
-        return self.sensors["Load cell 1"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Thrust load cell"].get_br_uid()
+        return self.sensors["Thrust load cell"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_load_cell_2(self):
-        # return randint(0, 100)
-        uid = self.sensors["Load cell 2"].get_br_uid()
-        return self.sensors["Load cell 2"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Nitrous load cell"].get_br_uid()
+        return self.sensors["Nitrous load cell"].read_sensor(self.brick_stack.get_device(uid))
 
     def read_differential_pressure(self):
-        # return randint(0, 100)
-        uid = self.sensors["Differential pressure"].get_br_uid()
-        return self.sensors["Differential pressure"].read_sensor(self.brick_stack.get_device(uid))
+        uid = self.sensors["Differential Nitrous pressure"].get_br_uid()
+        return self.sensors["Differential Nitrous pressure"].read_sensor(self.brick_stack.get_device(uid))
 
     # ++++++
     # Internal methods
@@ -186,6 +259,29 @@ class Controller(Thread):
 
         print(self.actors)
 
+    def get_sensor_callback(self, name):
+        match name:
+            case "Pressure 1":
+                return pressure_1_callback
+            case "Pressure 2":
+                return pressure_2_callback
+            case "Pressure 3":
+                return pressure_3_callback
+            case "Pressure 4":
+                return pressure_4_callback
+            case "Temperatur Engine":
+                return temperature_engine_callback
+            case "Temperatur Nitrous":
+                return temperature_nitrous_callback
+            case "Thrust load cell":
+                return thrust_load_cell_callback
+            case "Nitrous load cell":
+                return nitrous_load_cell_callback
+            case "Differential Nitrous pressure":
+                return differential_pressure_callback
+            case _:
+                print(f"no callback found for {name}")
+
     def _construct_sensor(self) -> None:
         """
         construct all sensors from the balrog.yaml file
@@ -195,15 +291,18 @@ class Controller(Thread):
             sensors = balrog_config['sensors']
 
             for sensor in sensors:
-                # print(sensor)
-                self.sensors[sensor['name']] = Sensor(sensor['name'], sensor['type'], sensor['uid'], sensor['port'], sensor['pin'])
+                self.sensors[sensor['name']] = Sensor(sensor['name'],
+                                                      sensor['type'],
+                                                      sensor['uid'],
+                                                      sensor['channel'],
+                                                      self.get_sensor_callback(sensor['name']),
+                                                      sensor['periode'])
         print(self.sensors)
 
     # ++++++
     # Thread target
     # ++++++
-
-    def _sequence_worker(self):
+    def _sequence_worker(self, thread_killer):
 
         seq_idx = 0
         seq_ts = 0
