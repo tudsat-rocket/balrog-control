@@ -1,3 +1,5 @@
+import time
+
 from control.definitions import ActorType, ActionType
 
 class Actor:
@@ -67,23 +69,60 @@ class Actor:
                 return self.light_yellow()
             case ActionType.LIGHT_RED:
                 return self.light_red()
+            case ActionType.COUNTER_START:
+                return self.counter_start(brick)
+            case ActionType.COUNTER_RESET:
+                return self.counter_reset(brick)
             case _:
                 raise NotImplementedError
 
+    def check(self, brick):
+        match self.type:
+            case ActorType.SERVO:
+                self.action(ActionType.SERVO_OPEN, brick)
+                time.sleep(1)
+                self.action(ActionType.SERVO_CLOSE, brick)
+                return True
+            case ActorType.SOLENOID:
+                self.action(ActionType.SOLENOID_OPEN, brick)
+                time.sleep(1)
+                self.action(ActionType.SOLENOID_CLOSE, brick)
+                return True
+            case ActorType.HORN:
+                self.action(ActionType.SOUND_HORN, brick)
+                return True
+            case ActorType.LIGHT:
+                self.action(ActionType.LIGHT_ON, brick)
+                time.sleep(1.0)
+                self.action(ActionType.LIGHT_OFF, brick)
+                return True
+            case ActorType.TRIGGER:
+                # Dangerous, do not execute anything
+                return True
+            case ActorType.COUNTER:
+                self.action(ActionType.COUNTER_START, brick)
+                time.sleep(0.1)
+                self.action(ActionType.COUNTER_RESET, brick)
+                return True
+            case _:
+                return False
+
     def servo_open(self, servo_bricklet) -> None:
-        pass
+        servo_bricklet.set_position(self.get_output(), 9000) # 9000/100 degrees => 90 degrees
+        servo_bricklet.set_enable(self.get_output(), True)
 
     def servo_close(self, servo_bricklet) -> None:
-        pass
+        servo_bricklet.set_position(self.get_output(), 0) # 0/100 degrees => 0 degrees
+        servo_bricklet.set_enable(self.get_output(), True)
 
     def servo_toggle(self, servo_bricklet) -> None:
         pass
 
-    def solenoid_open(self, brick) -> None:
-        pass
+    def solenoid_open(self, io_brick) -> None:
+        io_brick.set_selected_value(self.get_output(), True)
 
-    def solenoid_close(self, brick) -> None:
-        pass
+    def solenoid_close(self, io_brick) -> None:
+        io_brick.set_selected_value(self.get_output(), False)
 
     def solenoid_toggle(self, brick) -> None:
         pass
@@ -114,3 +153,12 @@ class Actor:
 
     def release_trigger(self, brick) -> None:
         pass
+
+    def counter_start(self, segment_display_brick) -> None:
+        segment_display_brick.start_counter(0, 9999, 1, 100)
+
+    def counter_stop(self, segment_display_brick) -> None:
+        segment_display_brick.set_numeric_value(segment_display_brick.get_numeric_value(), 0)
+
+    def counter_reset(self, segment_display_brick) -> None:
+        segment_display_brick.set_numeric_value([0,0,0,0])

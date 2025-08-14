@@ -5,7 +5,9 @@ from typing import List, Tuple
 from .definitions import ActionType, str_to_action
 
 def parse_csv(file: os.path) -> List[Tuple[str, int, ActionType]]:
-    
+    """
+    Parse a test definition from a CSV file.
+    """
     event_sequence = []
 
     with open(file, newline='') as test_definition:
@@ -32,4 +34,20 @@ def parse_csv(file: os.path) -> List[Tuple[str, int, ActionType]]:
             row_tuple = (actor_name, t_ms, action)
             event_sequence.append(row_tuple)
 
+    event_sequence.sort(key=lambda x: x[1])
+    return event_sequence
+
+
+def parse_yaml(file: os.path) -> List[Tuple[str, int, ActionType]]:
+    """
+    Parse a test definition from a YAML file (TBI).
+    """
+    event_sequence = []
+
+    with open(file, newline='') as test_definition:
+        reader = yaml.safe_load(test_definition)
+
+        # deconstruct yaml tree
+
+    event_sequence.sort(key=lambda x: x[1])
     return event_sequence
