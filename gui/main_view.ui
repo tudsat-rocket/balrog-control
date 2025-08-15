@@ -202,7 +202,35 @@
              <item>
               <widget class="QPushButton" name="button_toggle_sensors">
                <property name="text">
-                <string>toggle sensors</string>
+                <string>Toggle Sensor</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_test_counter">
+               <property name="text">
+                <string>Test Counter</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_test_servo_nitrous_main">
+               <property name="text">
+                <string>Test Servo Nitrous main</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_test_servo_nitrous_vent">
+               <property name="text">
+                <string>Test Servo Nitrous vent</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_test_servo_nitrous_fill">
+               <property name="text">
+                <string>Test Servo Nitrous fill</string>
                </property>
               </widget>
              </item>
@@ -285,14 +313,14 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
+             <item row="5" column="0">
               <widget class="QLabel" name="label_valve_status_n2_pressure">
                <property name="text">
                 <string>N2 Pressure Valve</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
+             <item row="5" column="1">
               <widget class="QLabel" name="label_valve_status_n2_pressure_state">
                <property name="text">
                 <string>unknown</string>
@@ -397,6 +425,16 @@
          </property>
          <property name="text">
           <string>Abort Sequence</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_force_dump">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Force Dump</string>
          </property>
         </widget>
        </item>

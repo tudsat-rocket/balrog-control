@@ -8,7 +8,7 @@ class Sensor:
     """
 
     def __init__(self, name: str = None, sensor_type: SensorType = SensorType.DUMMY,
-                 uid: str = None, channel: int = None, callback: Callable = None, periode: int = 1000) -> None:
+                 uid: str = None, channel: int = None, callback: Callable = None, period: int = 1000) -> None:
         """
         Constructor
         @callback: The callback function that will be called when the sensor has a new value
@@ -23,7 +23,7 @@ class Sensor:
         # channel for the industrial dual bricklet. Only used for the pressure sensor
         self.channel = channel
         self.callback = callback
-        self.periode = periode
+        self.period = period
 
 
     def set_sensor_name(self, name: str) -> None:
@@ -115,12 +115,12 @@ class Sensor:
         match self.type:
             case SensorType.TEMPERATURE:
                 # parameters are periode in ms, value_has_to_change, Threshold (x =disabled), min, max
-                brick.set_temperature_callback_configuration(self.periode, False, "x", 0, 0)
+                brick.set_temperature_callback_configuration(self.period, False, "x", 0, 0)
             case SensorType.PRESSURE:
                 # parameters are: channel, periode in ms, threshold, min, max
-                brick.set_current_callback_configuration(self.channel, self.periode, False, "x", 0, 0)
+                brick.set_current_callback_configuration(self.channel, self.period, False, "x", 0, 0)
             case SensorType.LOAD:
-                brick.set_weight_callback_configuration(self.periode, False, "x", 0, 0)
+                brick.set_weight_callback_configuration(self.period, False, "x", 0, 0)
 
     def disable_callback(self, brick):
         """

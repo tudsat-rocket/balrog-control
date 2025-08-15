@@ -14,54 +14,67 @@ from control.test_definition_parsing import parse_csv
 from control.actor import Actor
 from control.sensor import Sensor
 from queue import Queue
+from control.dump_sensor_to_file import dump_sensor_to_file
 
 from shared.shared_queues import *
 
 def temperature_nitrous_callback( temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
-    temperature_nitrous_sensor_queue.put(temperature)
+    #temperature_nitrous_sensor_queue.put(temperature)
+    temperature_nitrous_sensor_list.append(temperature)
 
 def temperature_engine_callback( temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
-    temperature_engine_sensor_queue.put(temperature)
+    #temperature_engine_sensor_queue.put(temperature)
+    temperature_engine_sensor_list.append(temperature)
 
 def pressure_1_callback(channel, current):
-    print("Channel: " + str(channel))
-    print("Current: " + str(current / 1000000.0) + " mA")
-    pressure_1_sensor_queue.put(current)
+    #print("Channel: " + str(channel))
+    #print("Current: " + str(current / 1000000.0) + " mA")
+    #pressure_1_sensor_queue.put(current)
+    pressure_1_sensor_list.append(current)
 
 def pressure_2_callback(channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
-    pressure_2_sensor_queue.put(current)
+    #pressure_2_sensor_queue.put(current)
+    pressure_2_sensor_list.append(current)
 
 def pressure_3_callback(channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
-    pressure_3_sensor_queue.put(current)
+    #pressure_3_sensor_queue.put(current)
+    pressure_3_sensor_list.append(current)
 
 def pressure_4_callback( channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
-    pressure_4_sensor_queue.put(current)
+    #pressure_4_sensor_queue.put(current)
+    pressure_4_sensor_list.append(current)
 
 def thrust_load_cell_callback( weight):
     #print("Weight: " + str(weight) + " g")
-    load_cell_1_sensor_queue.put(weight)
+    #load_cell_1_sensor_queue.put(weight)
+    load_cell_1_sensor_list.append(weight)
 
 def nitrous_load_cell_callback( weight):
     #print("Weight: " + str(weight) + " g")
-    load_cell_2_sensor_queue.put(weight)
+    #load_cell_2_sensor_queue.put(weight)
+    load_cell_2_sensor_list.append(weight)
 
 def differential_pressure_callback( channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
-    differential_pressure_queue.put(current)
+    #differential_pressure_queue.put(current)
+    differential_pressure_list.append(current)
 
 
 class Controller(Thread):
     sensor_enabled = False
     connected = False
+    servo_fill_open = False
+    servo_vent_open = False
+    servo_main_open = False
 
     def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
@@ -76,7 +89,7 @@ class Controller(Thread):
 
     def run(self):
         super().run()
-        self._sequence_worker()
+        self._sequence_worker(self.thread_killer)
 
     def join(self, timeout = None):
         super().join()
@@ -162,11 +175,61 @@ class Controller(Thread):
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
         return True
 
+    def test_counter(self):
+        uid = self.actors["SegmentDisplay"].get_br_uid()
+        self.actors["SegmentDisplay"].action(ActionType.COUNTER_RESET, self.brick_stack.get_device(uid))
+        self.actors["SegmentDisplay"].action(ActionType.COUNTER_START, self.brick_stack.get_device(uid))
+        return True
+
+    def test_servo_nitrous_main(self):
+        uid = self.actors["NitrousMain"].get_br_uid()
+        if self.servo_main_open:
+            self.actors["NitrousMain"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+            self.servo_main_open = False
+        else:
+            self.actors["NitrousMain"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+            self.servo_main_open = True
+
+        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
+                              "valve": "main",
+                              "state": self.servo_main_open,
+                                }
+                             )
+        return True
+
+    def test_servo_nitrous_vent(self):
+        uid = self.actors["NitrousVent"].get_br_uid()
+        if self.servo_vent_open:
+            self.actors["NitrousVent"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+            self.servo_vent_open = False
+        else:
+            self.actors["NitrousVent"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+            self.servo_vent_open = True
+        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
+                              "valve": "vent",
+                              "state": self.servo_vent_open,
+                              })
+
+    def test_servo_nitrous_fill(self):
+        uid = self.actors["NitrousFill"].get_br_uid()
+        if self.servo_fill_open:
+            self.actors["NitrousFill"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+            self.servo_fill_open = False
+        else:
+            self.actors["NitrousFill"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+            self.servo_fill_open = True
+        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
+                              "valve": "fill",
+                              "state": self.servo_fill_open,
+                              })
+
+
     def load_test_definition(self, path: os.path) -> bool:
         if path is not None:
             self.sequence = parse_csv(path)
             return True
         else:
+            print(f"Error {path} is not a valid path")
             return False
 
     def verify_sequence(self) -> bool:
@@ -219,6 +282,9 @@ class Controller(Thread):
             self.enable_all_callbacks()
             self.run()
             self.disable_all_callbacks()
+            # wait a moment to ensure every callback is done
+            sleep(0.5)
+            dump_sensor_to_file()
             self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
             return True
         else:
@@ -346,7 +412,7 @@ class Controller(Thread):
                                                       sensor['uid'],
                                                       sensor['channel'],
                                                       self.get_sensor_callback(sensor['name']),
-                                                      sensor['periode'])
+                                                      sensor['period'])
         print(self.sensors)
 
     # ++++++
@@ -356,6 +422,7 @@ class Controller(Thread):
 
         seq_idx = 0
         seq_ts = 0
+        seq_len = len(self.sequence)
 
         for i in interval_timer.IntervalTimer(0.02):
 
@@ -363,9 +430,11 @@ class Controller(Thread):
                 self.abort()
                 break
 
-            while self.sequence[seq_idx][1] <= seq_ts:
+            while int(self.sequence[seq_idx][1]) <= seq_ts:
                 tpl = self.sequence[seq_idx]
-                tpl[0].action(tpl[2], tpl.get_br_uid())
+                self.actors[tpl[0]].action(tpl[2], self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()))
+                if seq_idx == seq_len-1:
+                    return
                 seq_idx += 1
 
             seq_ts += 20

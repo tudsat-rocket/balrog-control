@@ -12,7 +12,7 @@ def parse_csv(file: os.path) -> List[Tuple[str, int, ActionType]]:
 
     with open(file, newline='') as test_definition:
         
-        reader = csv.reader(test_definition, delimiter=' ', quotechar='|')
+        reader = csv.reader(test_definition, delimiter=',', quotechar='|')
 
         # Skip header line
         next(reader)

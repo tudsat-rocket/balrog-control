@@ -170,7 +170,7 @@ class Actor:
         pass
 
     def counter_start(self, segment_display_brick) -> None:
-        segment_display_brick.start_counter(0, 9999, 1, 100)
+        segment_display_brick.start_counter(0, 9999, 1, 10)
 
     def counter_stop(self, segment_display_brick) -> None:
         segment_display_brick.set_numeric_value(segment_display_brick.get_numeric_value(), 0)

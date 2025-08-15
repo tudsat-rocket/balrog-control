@@ -30,8 +30,7 @@ def update_ui(self):
         case EventType.CONNECTION_STATUS_UPDATE:
             update_connection_state(self, event)
         case EventType.VALVE_STATUS_UPDATE:
-            # @TODO implement
-            pass
+            update_valve_state(self, event)
         case EventType.SEQUENCE_STARTED:
             update_sequence_state(self, False)
             clear_data_cache(self)
@@ -69,6 +68,16 @@ def update_sequence_state(self, enabled:bool):
     self.button_reload_sequence.setEnabled(enabled)
 
     self.button_abort_sequence.setEnabled(not enabled)
+
+def update_valve_state(self, event):
+    print(event)
+    match event['valve']:
+        case "main":
+            self.label_valve_status_n20_main_state.setText(str(event['state']))
+        case "vent":
+            self.label_valve_status_n20_vent_state.setText(str(event['state']))
+        case "fill":
+            self.label_valve_status_n20_fill_state.setText(str(event['state']))
 
 def show_sequence_error(self, error_event):
     """

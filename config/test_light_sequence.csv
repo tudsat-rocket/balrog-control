@@ -1,0 +1,8 @@
+actor_name,times_ms,action
+Horn,1,SOUND_HORN
+SegmentDisplay,1,COUNTER_RESET
+SegmentDisplay,10,COUNTER_START
+Light,10,LIGHT_GREEN
+Light,1000,LIGHT_YELLOW
+Light,2000,LIGHT_RED
+SegmentDisplay,2000,COUNTER_RESET

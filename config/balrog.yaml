@@ -15,7 +15,7 @@ actors:
   - name: NitrousMain
     type: SERVO
     uid: 2cPc
-    output: 0
+    output: 2
   - name: NitrousVent
     type: SERVO
     uid: 2cPc
@@ -23,7 +23,7 @@ actors:
   - name: NitrousFill
     type: SERVO
     uid: 2cPc
-    output: 2
+    output: 0
   - name: N2Pressure
     type: SERVO
     uid: 2cPc
@@ -32,55 +32,55 @@ actors:
     type: SOLENOID
     uid: 2f6L
     output: 4
-  #- name: SegmentDisplay
-  #  type: COUNTER
-  #  uid:
-  #  output: 0
+  - name: SegmentDisplay
+    type: COUNTER
+    uid: 256T
+    output: -1
 
 # List of sensor definitions
 sensors:
-  - name: Pressure 1
-    type: PRESSURE
-    uid: 27AM
-    channel: 0
-    periode: 1000
+  #- name: Pressure 1
+  #  type: PRESSURE
+  #  uid: 27AM
+  #  channel: 0
+  #  period: 10
   - name: Pressure 2
     type: PRESSURE
     uid: 27AM
     channel: 1
-    periode: 1000
+    period: 10
   - name: Pressure 3
     type: PRESSURE
     uid: 27AQ
     channel: 0
-    periode: 1000
+    period: 10
   - name: Pressure 4
     type: PRESSURE
     uid: 27AG
     channel: 0
-    periode: 1000
+    period: 10
   - name: Temperatur Nitrous
     type: TEMPERATURE
     uid: 2f1R
     channel: -1 # not used
-    periode: 1000
+    period: 10
   - name: Temperatur Engine
     type: TEMPERATURE
     uid: 2eZV
     channel: -1 # not used
-    periode: 1000
+    period: 10
   - name: Thrust load cell
     type: LOAD
     uid: 29gV
     channel: -1 # not used
-    periode: 1000
+    period: 10
   - name: Nitrous load cell
     type: LOAD
     uid: 29h4
     channel: -1 # not used
-    periode: 1000
+    period: 10
   - name: Differential Nitrous pressure
     type: PRESSURE
     uid: 27AR
     channel: 1
-    periode: 1000
+    period: 10
