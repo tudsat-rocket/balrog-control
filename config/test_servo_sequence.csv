@@ -1,0 +1,6 @@
+actor_name,times_ms,action
+SegmentDisplay,0,COUNTER_RESET
+NitrousVent,10,SERVO_OPEN
+NitrousVent,20,SERVO_CLOSE
+NitrousFill,30,SERVO_OPEN
+NitrousFill,40,SERVO_CLOSE

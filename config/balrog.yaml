@@ -39,48 +39,48 @@ actors:
 
 # List of sensor definitions
 sensors:
-  #- name: Pressure 1
-  #  type: PRESSURE
-  #  uid: 27AM
-  #  channel: 0
-  #  period: 10
+  - name: Pressure 1
+    type: PRESSURE
+    uid: 27AM
+    channel: 0
+    period: 5
   - name: Pressure 2
     type: PRESSURE
     uid: 27AM
     channel: 1
-    period: 10
+    period: 5
   - name: Pressure 3
     type: PRESSURE
     uid: 27AQ
     channel: 0
-    period: 10
+    period: 5
   - name: Pressure 4
     type: PRESSURE
     uid: 27AG
     channel: 0
-    period: 10
+    period: 5
   - name: Temperatur Nitrous
     type: TEMPERATURE
     uid: 2f1R
     channel: -1 # not used
-    period: 10
+    period: 5
   - name: Temperatur Engine
     type: TEMPERATURE
     uid: 2eZV
     channel: -1 # not used
-    period: 10
+    period: 5
   - name: Thrust load cell
-    type: LOAD
-    uid: 29gV
-    channel: -1 # not used
-    period: 10
-  - name: Nitrous load cell
     type: LOAD
     uid: 29h4
     channel: -1 # not used
-    period: 10
+    period: 5
+  - name: Nitrous load cell
+    type: LOAD
+    uid: 29gV
+    channel: -1 # not used
+    period: 5
   - name: Differential Nitrous pressure
     type: PRESSURE
     uid: 27AR
     channel: 1
-    period: 10
+    period: 5

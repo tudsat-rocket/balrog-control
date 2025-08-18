@@ -63,47 +63,49 @@ def update_plots(self):
     #read_sensor_values_from_queue(self)
 
     # update curves
+    #print(pressure_2_sensor_list)
 
     # pressure
     if len(pressure_1_sensor_list) > 0:
-        pressure1 = pressure_1_sensor_list.copy()
+        pressure1 = pressure_1_sensor_list[1].copy()
         self.pressure_curve_1.setData(create_time_list(len(pressure1)), pressure1)
         del pressure1
-    if len(pressure_2_sensor_list) > 0:
-        pressure2 = pressure_2_sensor_list.copy()
+    if len(pressure_2_sensor_list[1]) > 0:
+        pressure2 = pressure_2_sensor_list[1].copy()
         self.pressure_curve_2.setData(create_time_list(len(pressure2)), pressure2)
         del pressure2
     if len(pressure_3_sensor_list) > 0:
-        pressure3 = pressure_3_sensor_list.copy()
+        pressure3 = pressure_3_sensor_list[1].copy()
         self.pressure_curve_3.setData(create_time_list(len(pressure3)), pressure3)
         del pressure3
     if len(pressure_4_sensor_list) > 0:
-        pressure4 = pressure_4_sensor_list.copy()
+        pressure4 = pressure_4_sensor_list[1].copy()
         self.pressure_curve_4.setData(create_time_list(len(pressure4)), pressure4)
         del pressure4
 
     # temperature
     if len(temperature_engine_sensor_list) > 0:
-        temperature_engine = temperature_engine_sensor_list.copy()
-        self.thermocouple_engine_curve.setData(create_time_list(len(temperature_engine)), temperature_engine)
+        temperature_engine = temperature_engine_sensor_list[1].copy()
+        self.thermocouple_engine_curve.setData(create_time_list(temperature_engine))
         del temperature_engine
     if len(temperature_nitrous_sensor_list) > 0:
-        temperature_nitrous = temperature_nitrous_sensor_list.copy()
+        temperature_nitrous = temperature_nitrous_sensor_list[1].copy()
         self.thermocouple_nitrous_curve.setData(create_time_list(len(temperature_nitrous)), temperature_nitrous)
         del temperature_nitrous
 
     # load cell
     if len(load_cell_1_sensor_list) > 0:
-        load_cell1 = load_cell_1_sensor_list.copy()
+        # print(load_cell_1_sensor_list[1])
+        load_cell1 = load_cell_1_sensor_list[1].copy()
         self.load_cell_thrust_curve.setData(create_time_list(len(load_cell1)), load_cell1)
         del load_cell1
     if len(load_cell_2_sensor_list):
-        load_cell2 = load_cell_2_sensor_list.copy()
+        load_cell2 = load_cell_2_sensor_list[1].copy()
         self.load_cell_nitrous_curve.setData(create_time_list(len(load_cell2)), load_cell2)
         del load_cell2
 
     if len(differential_pressure_list) > 0 :
-        differential_pressure = differential_pressure_list.copy()
+        differential_pressure = differential_pressure_list[1].copy()
         self.differential_pressure_curve.setData(create_time_list(len(differential_pressure)), differential_pressure)
         del differential_pressure
 

@@ -1,7 +1,6 @@
 import os
-from datetime import time
+from datetime import datetime
 from time import sleep
-from unittest import case
 
 import yaml
 import interval_timer
@@ -21,52 +20,61 @@ from shared.shared_queues import *
 def temperature_nitrous_callback( temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
     #temperature_nitrous_sensor_queue.put(temperature)
-    temperature_nitrous_sensor_list.append(temperature)
+    temperature_nitrous_sensor_list[0].append(datetime.now())
+    temperature_nitrous_sensor_list[1].append(temperature)
 
 def temperature_engine_callback( temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
     #temperature_engine_sensor_queue.put(temperature)
-    temperature_engine_sensor_list.append(temperature)
+    temperature_engine_sensor_list[0].append(datetime.now())
+    temperature_engine_sensor_list[1].append(temperature)
 
 def pressure_1_callback(channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
     #pressure_1_sensor_queue.put(current)
-    pressure_1_sensor_list.append(current)
+    pressure_1_sensor_list[0].append(datetime.now())
+    pressure_1_sensor_list[1].append(current)
 
 def pressure_2_callback(channel, current):
     #print("Channel: " + str(channel))
-    #print("Current: " + str(current / 1000000.0) + " mA")
+    # print("Current: " + str(current / 1000000.0) + " mA")
     #pressure_2_sensor_queue.put(current)
-    pressure_2_sensor_list.append(current)
+    pressure_2_sensor_list[0].append(datetime.now())
+    pressure_2_sensor_list[1].append(current)
 
 def pressure_3_callback(channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
     #pressure_3_sensor_queue.put(current)
-    pressure_3_sensor_list.append(current)
+    pressure_3_sensor_list[0].append(datetime.now())
+    pressure_3_sensor_list[1].append(current)
 
 def pressure_4_callback( channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
     #pressure_4_sensor_queue.put(current)
-    pressure_4_sensor_list.append(current)
+    pressure_4_sensor_list[0].append(datetime.now())
+    pressure_4_sensor_list[1].append(current)
 
 def thrust_load_cell_callback( weight):
-    #print("Weight: " + str(weight) + " g")
+    #print("Weight thrust: " + str(weight) + " g")
     #load_cell_1_sensor_queue.put(weight)
-    load_cell_1_sensor_list.append(weight)
+    load_cell_1_sensor_list[0].append(datetime.now())
+    load_cell_1_sensor_list[1].append(weight)
 
-def nitrous_load_cell_callback( weight):
-    #print("Weight: " + str(weight) + " g")
+def nitrous_load_cell_callback(weight):
+    #print("Weight nitrous: " + str(weight) + " g")
     #load_cell_2_sensor_queue.put(weight)
-    load_cell_2_sensor_list.append(weight)
+    load_cell_2_sensor_list[0].append(datetime.now())
+    load_cell_2_sensor_list[1].append(weight)
 
 def differential_pressure_callback( channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
     #differential_pressure_queue.put(current)
-    differential_pressure_list.append(current)
+    differential_pressure_list[0].append(datetime.now())
+    differential_pressure_list[1].append(current)
 
 
 class Controller(Thread):
@@ -75,6 +83,7 @@ class Controller(Thread):
     servo_fill_open = False
     servo_vent_open = False
     servo_main_open = False
+    abort_sequence = False
 
     def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
@@ -89,7 +98,7 @@ class Controller(Thread):
 
     def run(self):
         super().run()
-        self._sequence_worker(self.thread_killer)
+        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -157,6 +166,9 @@ class Controller(Thread):
         return True
 
     def test_light(self) -> bool:
+        """
+        toggles every light color for 1s and turns off all lights afterwards
+        """
         uid = self.actors["Light"].get_br_uid()
         self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
         sleep(1)
@@ -165,23 +177,40 @@ class Controller(Thread):
         self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
         sleep(1)
         self.actors["Light"].action(ActionType.LIGHT_OFF, self.brick_stack.get_device(uid))
-
         return True
 
+    def set_light_to_red(self) -> None:
+        """
+        Sets the light to Red
+        """
+        uid = self.actors["Light"].get_br_uid()
+        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
+
+    def set_light_to_yellow(self):
+        uid = self.actors["Light"].get_br_uid()
+        self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
+
     def test_horn(self) -> bool:
-        print("test horn")
+        """
+        trigger the horn
+        """
         uid = self.actors["Horn"].get_br_uid()
-        print(uid)
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
         return True
 
     def test_counter(self):
+        """
+        resets and start the counter on the segment display
+        """
         uid = self.actors["SegmentDisplay"].get_br_uid()
         self.actors["SegmentDisplay"].action(ActionType.COUNTER_RESET, self.brick_stack.get_device(uid))
         self.actors["SegmentDisplay"].action(ActionType.COUNTER_START, self.brick_stack.get_device(uid))
         return True
 
     def test_servo_nitrous_main(self):
+        """
+        toggle the main valve from open to close
+        """
         uid = self.actors["NitrousMain"].get_br_uid()
         if self.servo_main_open:
             self.actors["NitrousMain"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
@@ -198,6 +227,9 @@ class Controller(Thread):
         return True
 
     def test_servo_nitrous_vent(self):
+        """
+        toggle the vent between open to close
+        """
         uid = self.actors["NitrousVent"].get_br_uid()
         if self.servo_vent_open:
             self.actors["NitrousVent"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
@@ -211,6 +243,9 @@ class Controller(Thread):
                               })
 
     def test_servo_nitrous_fill(self):
+        """
+        toggle the fill valve between open to close
+        """
         uid = self.actors["NitrousFill"].get_br_uid()
         if self.servo_fill_open:
             self.actors["NitrousFill"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
@@ -232,6 +267,20 @@ class Controller(Thread):
             print(f"Error {path} is not a valid path")
             return False
 
+    def calibrate_thrust_load(self, weight):
+        """
+        calibrates the thurst load cell with the given weight
+        """
+        uid = self.sensors["Thrust load cell"].get_br_uid()
+        return self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
+
+    def calibrate_nitrous_load(self, weight):
+        """
+        calibrates the nitrous load cell with the given weight
+        """
+        uid = self.sensors["Nitrous load cell"].get_br_uid()
+        return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
+
     def verify_sequence(self) -> bool:
         if self.sequence is None:
             return False
@@ -243,7 +292,7 @@ class Controller(Thread):
 
         return True
 
-    def enable_all_callbacks(self):
+    def enable_all_sensor_callbacks(self):
         """
         Enable the callbacks and start the sensor reading
         """
@@ -252,7 +301,7 @@ class Controller(Thread):
             uid = sensor.get_br_uid()
             sensor.enable_callback(self.brick_stack.get_device(uid))
 
-    def disable_all_callbacks(self):
+    def disable_all_sensor_callbacks(self):
         """
         Disable all callbacks. No new sensor values will be added
         """
@@ -263,27 +312,47 @@ class Controller(Thread):
 
     def toggle_sensors(self):
         """
-        Toggles the sensor callbacks on and off.
+        Toggles the sensor callbacks on and off. This starts  and stops the data recording / plotting
         """
         if not self.sensor_enabled:
             print("enable all sensors")
-            self.enable_all_callbacks()
+            self.enable_all_sensor_callbacks()
             self.sensor_enabled = True
         else:
             print("disable all sensors")
-            self.disable_all_callbacks()
+            self.disable_all_sensor_callbacks()
             self.sensor_enabled = False
 
     def start_sequence(self) -> bool:
+        """
+        start the loaded sequence. Before the sequence is started, we trigger the horn and set the light on red
+        """
         print("Start sequence...")
-        # self.event_queue.put({"type": EventType.SEQUENCE_STARTED}) # @TODO remove
         if self.sequence is not None:
             self.event_queue.put({"type": EventType.SEQUENCE_STARTED})
-            self.enable_all_callbacks()
+
+            # --- prepare sequence ---
+            self.set_light_to_yellow()
+            # set light to red and trigger horn
+            # this is to ensure that everyone is aware of the sequence
+            print("Safety preparation")
+            self.test_horn()
+            self.set_light_to_red()
+            print("Wait 5s for everyone to be away")
+            sleep(5)
+
+            # --- run sequence ---
+            print("running sequence")
+            # start the sequence
+            self.enable_all_sensor_callbacks()
             self.run()
-            self.disable_all_callbacks()
+            self.disable_all_sensor_callbacks()
+
+            # --- Finish sequence
+            self.set_light_to_yellow()
             # wait a moment to ensure every callback is done
-            sleep(0.5)
+            # print("waiting for callbacks to complete...")
+            # sleep(0.5)
             dump_sensor_to_file()
             self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
             return True
@@ -292,6 +361,12 @@ class Controller(Thread):
             return False
 
     def abort(self) -> None:
+        """
+        abort the sequence
+        """
+        # stop the sequence worker
+        self.abort_sequence = True
+
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
         # Close All Valves
@@ -306,7 +381,8 @@ class Controller(Thread):
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"]))
         self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"]))
 
-        self.disable_all_callbacks()
+        self.disable_all_sensor_callbacks()
+        self.set_light_to_yellow()
 
     def read_pressure_1(self):
         uid = self.sensors["Pressure 1"].get_br_uid()
@@ -368,7 +444,6 @@ class Controller(Thread):
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
             actors = balrog_config['actors']
 
-
             for actor in actors:
                 # print(actor)
                 self.actors[actor['name']] = Actor(actor['name'], actor['type'], actor['uid'], actor['output'])
@@ -418,7 +493,7 @@ class Controller(Thread):
     # ++++++
     # Thread target
     # ++++++
-    def _sequence_worker(self, thread_killer):
+    def _sequence_worker(self):
 
         seq_idx = 0
         seq_ts = 0
@@ -428,6 +503,11 @@ class Controller(Thread):
 
             if self.thread_killer.is_set():
                 self.abort()
+                break
+
+            # signal used to abort the sequence with a button
+            # @TODO check if that works
+            if self.abort_sequence:
                 break
 
             while int(self.sequence[seq_idx][1]) <= seq_ts:

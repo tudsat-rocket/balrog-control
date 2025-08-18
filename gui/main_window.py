@@ -99,6 +99,9 @@ class NewMainWindow(ui_class, baseclass):
         self.button_test_servo_nitrous_main.clicked.connect(lambda: self.controller.test_servo_nitrous_main())
         self.button_test_servo_nitrous_vent.clicked.connect(lambda: self.controller.test_servo_nitrous_vent())
         self.button_test_servo_nitrous_fill.clicked.connect(lambda: self.controller.test_servo_nitrous_fill())
+        self.button_calibrate_thrust_load.clicked.connect(lambda: self.controller.calibrate_thrust_load(int(self.edit_calibrate_load.text())))
+        self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(int(self.edit_calibrate_load.text())))
+
 
         # Sequence loader
         self.button_start_sequence.clicked.connect(lambda: self.controller.start_sequence())

@@ -129,7 +129,7 @@ class Actor:
         pass
 
     def sound_horn(self, brick) -> None:
-        brick.set_monoflop(self.output, True, 5000) # sound horn for 1s = 1000ms
+        brick.set_monoflop(self.output, True, 5000) # sound horn for 5s = 5000ms
 
     def light_on(self, brick) -> None:
         # not used anymore

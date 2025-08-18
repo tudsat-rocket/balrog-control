@@ -136,22 +136,7 @@ class Sensor:
                 brick.set_weight_callback_configuration(0, False, "x", 0, 0)
 
 
-    def setup_sensor(self, brick):
-        """
-        -> not needed anymore
-        some bricklets like the IO-16 bricklets require a setup
-        see https://www.tinkerforge.com/de/doc/Software/Bricklets/IO16_Bricklet_Python.html#io16-bricklet-python-api
-        """
-        match self.type:
-            case SensorType.PRESSURE:
-                #  @TODO implement
-                pass
-                # config = brick.get_port_configuration(self.port)
-                # new_config = config | self.pin
-                # i for input, o for output
-                #brick.set_port_configuration(self.port, "", "i")
-
-    def calibrate_load(self, brick) -> None:
+    def calibrate_load(self, brick, weight=None) -> None:
         """
         resets the weight the zero
 
@@ -159,4 +144,7 @@ class Sensor:
         This can also be done in the brickViewer and is therefore not implemented here.
         see: https://www.tinkerforge.com/de/doc/Software/Bricklets/LoadCellV2_Bricklet_Python.html#load-cell-v2-bricklet-python-api
         """
-        brick.tare()
+        if weight is not None:
+            brick.calibrate(weight)
+        else:
+            brick.tare()
