@@ -38,6 +38,8 @@ def update_ui(self):
             update_sequence_state(self, True)
         case EventType.SEQUENCE_ERROR:
             show_sequence_error(self, event)
+        case EventType.INFO_EVENT:
+            show_info_event(self, event)
 
 
 def update_connection_state(self, connection_event):
@@ -78,6 +80,19 @@ def update_valve_state(self, event):
             self.label_valve_status_n20_vent_state.setText(str(event['state']))
         case "fill":
             self.label_valve_status_n20_fill_state.setText(str(event['state']))
+
+def show_info_event(self, info_event):
+    """
+    Show a dialog with an error message
+    """
+    # @TODO(Nucleus): redesign with pyside designer
+    dlg = QDialog(self)
+    dlg.setWindowTitle(info_event["title"])
+    message = QLabel(info_event['message'])
+    layout = QVBoxLayout()
+    layout.addWidget(message)
+    dlg.setLayout(layout)
+    dlg.exec()
 
 def show_sequence_error(self, error_event):
     """

@@ -13,45 +13,25 @@ ui_class, baseclass = loadUiType("gui/main_view.ui")
 
 class NewMainWindow(ui_class, baseclass):
     def __init__(self,
-                 pressure_1_sensor_queue,
-                 pressure_2_sensor_queue,
-                 pressure_3_sensor_queue,
-                 pressure_4_sensor_queue,
-
-                 temperature_1_sensor_queue,
-                 temperature_2_sensor_queue,
-                 load_cell_1_sensor_queue,
-                 load_cell_2_sensor_queue,
-                 differential_sensor_queue,
                  event_queue,
                  controller):
         super().__init__()
 
-        # queue to transport the sensor values from the second thread to the UI
-        self.pressure_1_sensor_queue = pressure_1_sensor_queue
-        self.pressure_2_sensor_queue = pressure_2_sensor_queue
-        self.pressure_3_sensor_queue = pressure_3_sensor_queue
-        self.pressure_4_sensor_queue = pressure_4_sensor_queue
-        self.temperature_1_sensor_queue = temperature_1_sensor_queue
-        self.temperature_2_sensor_queue = temperature_2_sensor_queue
-        self.load_cell_1_sensor_queue = load_cell_1_sensor_queue
-        self.load_cell_2_sensor_queue = load_cell_2_sensor_queue
-        self.differential_sensor_queue = differential_sensor_queue
         self.event_queue = event_queue
         self.controller = controller
 
         # used to store the values from the queue
+        self.pressure_0_data = []
         self.pressure_1_data = []
         self.pressure_2_data = []
-        self.pressure_3_data = []
-        self.pressure_4_data = []
+        self.differential_pressure_data = []
 
         self.temperature_1_data = []
         self.temperature_2_data = []
 
         self.load_cell_1_data = []
         self.load_cell_2_data = []
-        self.differential_pressure_data = []
+
 
         # @TODO how to handle the time?
         self.time_data = []
@@ -61,17 +41,17 @@ class NewMainWindow(ui_class, baseclass):
         self.setup_buttons()
 
         # create plot curves
-        self.pressure_curve_1 = self.plot_pressure_1.plot([], [], pen=pg.mkPen(color="r", width=1.5))
-        self.pressure_curve_2 = self.plot_pressure_2.plot([], [], pen=pg.mkPen(color="r", width=1.5))
-        self.pressure_curve_3 = self.plot_pressure_3.plot([], [], pen=pg.mkPen(color="r", width=1.5))
-        self.pressure_curve_4 = self.plot_pressure_4.plot([], [], pen=pg.mkPen(color="r", width=1.5))
+        self.pressure_curve_0 = self.plot_pressure_0.plot([], [], pen=pg.mkPen(color="r", width=1.5))
+        self.pressure_curve_1 = self.plot_pressure_1.plot([], [], pen=pg.mkPen(color="g", width=1.5))
+        self.pressure_curve_2 = self.plot_pressure_2.plot([], [], pen=pg.mkPen(color="b", width=1.5))
+        self.differential_pressure_curve = self.plot_differential_pressure.plot([], [],
+                                                                                pen=pg.mkPen(color="m", width=2))
 
-        self.thermocouple_engine_curve = self.plot_thermocouple_engine.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.thermocouple_nitrous_curve = self.plot_thermocouple_nitrous.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.thermocouple_engine_curve = self.plot_thermocouple_engine.plot([], [], pen=pg.mkPen(color="c", width=2))
+        self.thermocouple_nitrous_curve = self.plot_thermocouple_nitrous.plot([], [], pen=pg.mkPen(color="y", width=2))
 
-        self.load_cell_nitrous_curve = self.plot_load_cell_nitrous.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.load_cell_thrust_curve = self.plot_load_cell_thrust.plot([], [], pen=pg.mkPen(color="r", width=2))
-        self.differential_pressure_curve = self.plot_differential_pressure.plot([], [], pen=pg.mkPen(color="r", width=2))
+        self.load_cell_nitrous_curve = self.plot_load_cell_nitrous.plot([], [], pen=pg.mkPen(color="brown", width=2))
+        self.load_cell_thrust_curve = self.plot_load_cell_thrust.plot([], [], pen=pg.mkPen(color="w", width=2))
 
         # setup timer - used to update the plots
         self.timer = QTimer()
@@ -92,15 +72,27 @@ class NewMainWindow(ui_class, baseclass):
 
         # Preparation
         self.button_selfcheck.clicked.connect(lambda: self.controller.self_check())
-        self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
-        self.button_test_light.clicked.connect(lambda: self.controller.test_light())
+
         self.button_toggle_sensors.clicked.connect(lambda: self.controller.toggle_sensors())
         self.button_test_counter.clicked.connect(lambda: self.controller.test_counter())
         self.button_test_servo_nitrous_main.clicked.connect(lambda: self.controller.test_servo_nitrous_main())
         self.button_test_servo_nitrous_vent.clicked.connect(lambda: self.controller.test_servo_nitrous_vent())
         self.button_test_servo_nitrous_fill.clicked.connect(lambda: self.controller.test_servo_nitrous_fill())
-        self.button_calibrate_thrust_load.clicked.connect(lambda: self.controller.calibrate_thrust_load(int(self.edit_calibrate_load.text())))
-        self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(int(self.edit_calibrate_load.text())))
+        self.button_calibrate_thrust_load.clicked.connect(lambda: self.controller.calibrate_thrust_load(self.edit_calibrate_load.text()))
+        self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(self.edit_calibrate_load.text()))
+
+        # green state
+        self.button_green_state.clicked.connect(lambda: self.controller.go_to_green_state())
+
+        # yellow state
+        self.button_yellow_state.clicked.connect(lambda: self.controller.go_to_yellow_state())
+
+        # red state
+        self.button_red_state.clicked.connect(lambda: self.controller.go_to_red_state())
+        self.button_close_all_valves.clicked.connect(lambda: self.controller.close_all_valves())
+        self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
+        #@TODO
+        #self.button_open_vent_valve.
 
 
         # Sequence loader
@@ -116,6 +108,10 @@ class NewMainWindow(ui_class, baseclass):
         define the labels and other settings for the graphs
         """
         # pressure
+        self.plot_pressure_0.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_pressure_0.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_0.setLabel('left', 'Pressure 0 (bar)', color='#FFFFFF')
+
         self.plot_pressure_1.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_1.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
         self.plot_pressure_1.setLabel('left', 'Pressure 1 (bar)', color='#FFFFFF')
@@ -124,13 +120,10 @@ class NewMainWindow(ui_class, baseclass):
         self.plot_pressure_2.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
         self.plot_pressure_2.setLabel('left', 'Pressure 2 (bar)', color='#FFFFFF')
 
-        self.plot_pressure_3.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_pressure_3.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_3.setLabel('left', 'Pressure 3 (bar)', color='#FFFFFF')
-
-        self.plot_pressure_4.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_pressure_4.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_4.setLabel('left', 'Pressure 4 (bar)', color='#FFFFFF')
+        # plot_differential_pressure
+        self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_differential_pressure.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_differential_pressure.setLabel('left', 'Differential Pressure (bar)', color='#FFFFFF')
 
         # plot_thermocouple
         self.plot_thermocouple_nitrous.showGrid(x=True, y=True, alpha=0.3)
@@ -149,8 +142,3 @@ class NewMainWindow(ui_class, baseclass):
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
         self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (N)', color='#FFFFFF')
-
-        # plot_differential_pressure
-        self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_differential_pressure.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_differential_pressure.setLabel('left', 'Differential Pressure (bar)', color='#FFFFFF')

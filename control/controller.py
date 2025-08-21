@@ -15,58 +15,62 @@ from control.sensor import Sensor
 from queue import Queue
 from control.dump_sensor_to_file import dump_sensor_to_file
 
+from enum import StrEnum
+
 from shared.shared_queues import *
 
-def temperature_nitrous_callback( temperature):
+def temperature_nitrous_callback(temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
     #temperature_nitrous_sensor_queue.put(temperature)
     temperature_nitrous_sensor_list[0].append(datetime.now())
+    #temperature_nitrous_sensor_list[0].append(1)
     temperature_nitrous_sensor_list[1].append(temperature)
 
-def temperature_engine_callback( temperature):
+def temperature_engine_callback(temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
     #temperature_engine_sensor_queue.put(temperature)
     temperature_engine_sensor_list[0].append(datetime.now())
+    #temperature_engine_sensor_list[0].append(1)
     temperature_engine_sensor_list[1].append(temperature)
 
-def pressure_1_callback(channel, current):
-    #print("Channel: " + str(channel))
-    #print("Current: " + str(current / 1000000.0) + " mA")
+def pressure_0_1_callback(channel, current):
+    #print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
+    #print("----")
     #pressure_1_sensor_queue.put(current)
-    pressure_1_sensor_list[0].append(datetime.now())
-    pressure_1_sensor_list[1].append(current)
+    if channel == 0:
+        pressure_0_sensor_list[0].append(datetime.now())
+        #pressure_0_sensor_list[0].append(1)
+        pressure_0_sensor_list[1].append(current)
+    elif channel == 1:
+        pressure_1_sensor_list[0].append(datetime.now())
+        #pressure_1_sensor_list[0].append(1)
+        pressure_1_sensor_list[1].append(current)
 
-def pressure_2_callback(channel, current):
-    #print("Channel: " + str(channel))
-    # print("Current: " + str(current / 1000000.0) + " mA")
-    #pressure_2_sensor_queue.put(current)
-    pressure_2_sensor_list[0].append(datetime.now())
-    pressure_2_sensor_list[1].append(current)
 
-def pressure_3_callback(channel, current):
-    #print("Channel: " + str(channel))
-    #print("Current: " + str(current / 1000000.0) + " mA")
+def pressure_2_3_callback(channel, current):
+    #print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
     #pressure_3_sensor_queue.put(current)
-    pressure_3_sensor_list[0].append(datetime.now())
-    pressure_3_sensor_list[1].append(current)
+    if channel == 0:
+        differential_pressure_list[0].append(datetime.now())
+        #differential_pressure_list[0].append(1)
+        differential_pressure_list[1].append(current)
+    elif channel == 1:
+        pressure_2_sensor_list[0].append(datetime.now())
+        #pressure_2_sensor_list[0].append(1)
+        pressure_2_sensor_list[1].append(current)
 
-def pressure_4_callback( channel, current):
-    #print("Channel: " + str(channel))
-    #print("Current: " + str(current / 1000000.0) + " mA")
-    #pressure_4_sensor_queue.put(current)
-    pressure_4_sensor_list[0].append(datetime.now())
-    pressure_4_sensor_list[1].append(current)
-
-def thrust_load_cell_callback( weight):
+def thrust_load_cell_callback(weight):
     #print("Weight thrust: " + str(weight) + " g")
     #load_cell_1_sensor_queue.put(weight)
     load_cell_1_sensor_list[0].append(datetime.now())
+    #load_cell_1_sensor_list[0].append(1)
     load_cell_1_sensor_list[1].append(weight)
 
 def nitrous_load_cell_callback(weight):
     #print("Weight nitrous: " + str(weight) + " g")
     #load_cell_2_sensor_queue.put(weight)
     load_cell_2_sensor_list[0].append(datetime.now())
+    #load_cell_2_sensor_list[0].append(1)
     load_cell_2_sensor_list[1].append(weight)
 
 def differential_pressure_callback( channel, current):
@@ -74,16 +78,44 @@ def differential_pressure_callback( channel, current):
     #print("Current: " + str(current / 1000000.0) + " mA")
     #differential_pressure_queue.put(current)
     differential_pressure_list[0].append(datetime.now())
+    #differential_pressure_list[0].append(1)
     differential_pressure_list[1].append(current)
 
+class NotConnectedException(Exception):
+    def __init__(self, event_queue, **kwargs):
+        print("Not connected. Please connect to the test bench first!")
+        event_queue.put({"type": EventType.INFO_EVENT,
+                              "title": "Not connected",
+                              "message": "Please connect to the test bench first!",
+                        }
+                    )
+
+class NotAllowedInThisState(Exception):
+    def __init__(self, event_queue, **kwargs):
+        print("This action is not allowed in the current state. Please change the state first")
+        event_queue.put({"type": EventType.INFO_EVENT,
+                              "title": "Not allowed",
+                              "message": "This action is not allowed in the current state. Please change the state first",
+                        }
+                    )
+
+class State(StrEnum):
+    GREEN_STATE = "GREEN_STATE"
+    YELLOW_STATE = "YELLOW_STATE"
+    RED_STATE = "RED_STATE"
 
 class Controller(Thread):
     sensor_enabled = False
     connected = False
-    servo_fill_open = False
+    servo_nitrous_fill_open = False
     servo_vent_open = False
     servo_main_open = False
+    servo_pressure_open = False
+    servo_purge_open = False
     abort_sequence = False
+
+    currentState:State = State.GREEN_STATE
+
 
     def __init__(self, event_queue: Queue, thread_killer):
         Thread.__init__(self)
@@ -95,6 +127,7 @@ class Controller(Thread):
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
+
 
     def run(self):
         super().run()
@@ -149,6 +182,8 @@ class Controller(Thread):
         pass
 
     def self_check(self) -> bool:
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
         print("Performing self check...")
         self.event_queue.put({"type": EventType.INFO_EVENT,
                               "status": "Self Check"}
@@ -165,10 +200,71 @@ class Controller(Thread):
                               "status": "Self check passed"})
         return True
 
+    def go_to_green_state(self):
+        """
+        This requires that all valves are closed and no bottle are connected anymore. There is no danger anymore
+        To go into green state, we have to be in the yellow state before. We can not chnage from red to green
+        """
+        if not self.currentState == State.YELLOW_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+        self.set_light_to_green()
+        self.currentState = State.GREEN_STATE
+
+    def get_servo_position(self):
+        """
+        Returns a list with all servo. If a servo is open, the entry is True, if the Servo has position 0, the valve is False
+        """
+        uid = self.actors["NitrousMain"].get_br_uid()
+        servo_bricklet =  self.brick_stack.get_device(uid)
+        # each is list of length 10
+        enabled, current_position, current_velocity, current, input_voltage = servo_bricklet.get_status()
+        result = []
+        for i in range(len(current_position)):
+            result[i] = current_position[i] == 0
+        return result
+
+    def check_all_servos_closed(self):
+        """
+        check if all servos are closed. Return True if all servo are closed, return False if at least one servo is open
+        """
+        servo_state = self.get_servo_position()
+        for i in servo_state:
+            if i:
+                return False
+        # every servo is closed
+        return True
+
+
+    def go_to_yellow_state(self):
+        """
+        For this, all valves have to be closed. If not every valve is closed, this will trigger an alert dialog and
+        will not set the light to yellow
+        """
+        # check if all valves are closed and only enter his mode if this is true
+        if self.check_all_servos_closed:
+            self.set_light_to_yellow()
+            self.currentState = State.YELLOW_STATE
+        else:
+            self.event_queue.put({"type": EventType.INFO_EVENT,
+                             "title": "Can not enter Yellow state",
+                             "message": "There is at least one valve still open. Please close all valves first and try again.",
+                             }
+                            )
+
+    def go_to_red_state(self):
+        """
+        Go to red state. This enabled the dangerous operations
+        """
+        self.set_light_to_red()
+        self.currentState = State.RED_STATE
+
     def test_light(self) -> bool:
         """
-        toggles every light color for 1s and turns off all lights afterwards
+        toggles every light color for 1s and turns off all lights afterward
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+
         uid = self.actors["Light"].get_br_uid()
         self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
         sleep(1)
@@ -183,17 +279,35 @@ class Controller(Thread):
         """
         Sets the light to Red
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
         uid = self.actors["Light"].get_br_uid()
         self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
 
     def set_light_to_yellow(self):
+        """
+        Set the light to yellow
+        """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
         uid = self.actors["Light"].get_br_uid()
         self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
+
+    def set_light_to_green(self):
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        uid = self.actors["Light"].get_br_uid()
+        self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
 
     def test_horn(self) -> bool:
         """
         trigger the horn
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
         uid = self.actors["Horn"].get_br_uid()
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
         return True
@@ -202,22 +316,30 @@ class Controller(Thread):
         """
         resets and start the counter on the segment display
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
         uid = self.actors["SegmentDisplay"].get_br_uid()
         self.actors["SegmentDisplay"].action(ActionType.COUNTER_RESET, self.brick_stack.get_device(uid))
         self.actors["SegmentDisplay"].action(ActionType.COUNTER_START, self.brick_stack.get_device(uid))
         return True
 
+    #####
+    #   Servo/Valve controller #
+    #####
     def test_servo_nitrous_main(self):
         """
         toggle the main valve from open to close
         """
-        uid = self.actors["NitrousMain"].get_br_uid()
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
         if self.servo_main_open:
-            self.actors["NitrousMain"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
-            self.servo_main_open = False
+            self.close_nitrous_main_valve()
         else:
-            self.actors["NitrousMain"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
-            self.servo_main_open = True
+            self.open_nitrous_main_valve()
 
         self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
                               "valve": "main",
@@ -226,10 +348,66 @@ class Controller(Thread):
                              )
         return True
 
+    def open_nitrous_main_valve(self):
+        uid = self.actors["NitrousMain"].get_br_uid()
+        self.actors["NitrousMain"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.servo_main_open = True
+
+    def close_nitrous_main_valve(self):
+        uid = self.actors["NitrousMain"].get_br_uid()
+        self.actors["NitrousMain"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.servo_main_open = False
+
+    def open_nitrous_fill_valve(self):
+        uid = self.actors["NitrousFill"].get_br_uid()
+        self.actors["NitrousFill"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.servo_nitrous_fill_open = True
+
+    def close_nitrous_fill_valve(self):
+        uid = self.actors["NitrousFill"].get_br_uid()
+        self.actors["NitrousFill"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.servo_nitrous_fill_open = False
+
+    def open_pressure_valve(self):
+        uid = self.actors["N2Pressure"].get_br_uid()
+        self.actors["N2Pressure"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.servo_pressure_open = True
+
+    def close_pressure_valve(self):
+        uid = self.actors["N2Pressure"].get_br_uid()
+        self.actors["N2Pressure"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.servo_pressure_open = False
+
+    def open_vent_valve(self):
+        uid = self.actors["NitrousVent"].get_br_uid()
+        self.actors["NitrousVent"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.servo_vent_open = True
+
+    def close_vent_valve(self):
+        uid = self.actors["NitrousVent"].get_br_uid()
+        self.actors["NitrousVent"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.servo_vent_open = False
+
+    def open_purge_valve(self):
+        uid = self.actors["N2Purge"].get_br_uid()
+        self.actors["N2Purge"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.servo_purge_open = True
+
+    def close_purge_valve(self):
+        uid = self.actors["N2Purge"].get_br_uid()
+        self.actors["N2Purge"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.servo_purge_open = True
+
     def test_servo_nitrous_vent(self):
         """
         toggle the vent between open to close
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+
         uid = self.actors["NitrousVent"].get_br_uid()
         if self.servo_vent_open:
             self.actors["NitrousVent"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
@@ -246,20 +424,85 @@ class Controller(Thread):
         """
         toggle the fill valve between open to close
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
         uid = self.actors["NitrousFill"].get_br_uid()
-        if self.servo_fill_open:
+        if self.servo_nitrous_fill_open:
             self.actors["NitrousFill"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
-            self.servo_fill_open = False
+            self.servo_nitrous_fill_open = False
         else:
             self.actors["NitrousFill"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
-            self.servo_fill_open = True
+            self.servo_nitrous_fill_open = True
         self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
                               "valve": "fill",
-                              "state": self.servo_fill_open,
+                              "state": self.servo_nitrous_fill_open,
                               })
 
+    def toggle_purge_valve(self):
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+        # @TODO implement
+
+    def toggle_pressure_valve(self):
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+        # @TODO implement
+
+    def toggle_quick_disconnect(self):
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+    def close_all_valves(self):
+        self.close_nitrous_main_valve()
+        self.close_pressure_valve()
+        self.close_nitrous_fill_valve()
+        self.close_purge_valve()
+        self.close_vent_valve()
+
+
+    def run_n20_purge_sequence(self):
+        """
+        run the purge sequence
+        only allowed in rea state
+        """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+        path = "config/operations/n20_purge_sequence.csv"
+        if os.path.exists(path):
+            self.sequence = parse_csv(path)
+            self.run()
+
+    def run_ignition_sequence(self):
+        """
+        run the ignition sequence
+        this is a dangerous operation and is only allowed in red state
+        """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+        path = "config/operations/ignition_sequence.csv"
+        if os.path.exists(path):
+            self.sequence = parse_csv(path)
+            self.run()
 
     def load_test_definition(self, path: os.path) -> bool:
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
         if path is not None:
             self.sequence = parse_csv(path)
             return True
@@ -269,8 +512,22 @@ class Controller(Thread):
 
     def calibrate_thrust_load(self, weight):
         """
-        calibrates the thurst load cell with the given weight
+        calibrates the thrust load cell with the given weight
+        depended on the given weight the following methods are called:
+        weight: "": we use 0
+        weight: "-1" use the tare function of the load cell
+        weight: >0 use the given weight
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+
+        if weight != "":
+            weight = int(weight)
+        elif weight == "-1":
+            weight = None
+        else:
+            weight = 0
+
         uid = self.sensors["Thrust load cell"].get_br_uid()
         return self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
 
@@ -278,6 +535,9 @@ class Controller(Thread):
         """
         calibrates the nitrous load cell with the given weight
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+
         uid = self.sensors["Nitrous load cell"].get_br_uid()
         return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
 
@@ -314,6 +574,9 @@ class Controller(Thread):
         """
         Toggles the sensor callbacks on and off. This starts  and stops the data recording / plotting
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+
         if not self.sensor_enabled:
             print("enable all sensors")
             self.enable_all_sensor_callbacks()
@@ -327,6 +590,9 @@ class Controller(Thread):
         """
         start the loaded sequence. Before the sequence is started, we trigger the horn and set the light on red
         """
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+
         print("Start sequence...")
         if self.sequence is not None:
             self.event_queue.put({"type": EventType.SEQUENCE_STARTED})
@@ -437,9 +703,19 @@ class Controller(Thread):
                     brick.set_configuration(actor.output + 2, 'o', False)
                 case ActorType.HORN:
                     brick.set_configuration(actor.output, 'o', False)
+                case ActorType.SERVO:
+                    # with 0 is the position instantly set
+                    velocity = 0
+                    acceleration = 0
+                    deceleration = 0
+                    brick.set_motion_configuration(actor.output, velocity, acceleration, deceleration)
 
 
     def _construct_actors(self) -> None:
+        """
+        Construct all actors from the balrog.yaml
+        """
+
         with open('config/balrog.yaml', 'r') as f:
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
             actors = balrog_config['actors']
@@ -451,15 +727,20 @@ class Controller(Thread):
         print(self.actors)
 
     def get_sensor_callback(self, name):
+        """
+        returns the sensor callbacks to register for for the thinkerforge boards
+        pressure 1 and 2 are on the same board, so we have to use the same callback
+        the same of 3 and 4
+        """
         match name:
+            case "Pressure 0":
+                return pressure_0_1_callback
             case "Pressure 1":
-                return pressure_1_callback
+                return pressure_0_1_callback
             case "Pressure 2":
-                return pressure_2_callback
-            case "Pressure 3":
-                return pressure_3_callback
-            case "Pressure 4":
-                return pressure_4_callback
+                return pressure_2_3_callback
+            case "Differential Nitrous pressure":
+                return pressure_2_3_callback
             case "Temperatur Engine":
                 return temperature_engine_callback
             case "Temperatur Nitrous":
@@ -468,8 +749,6 @@ class Controller(Thread):
                 return thrust_load_cell_callback
             case "Nitrous load cell":
                 return nitrous_load_cell_callback
-            case "Differential Nitrous pressure":
-                return differential_pressure_callback
             case _:
                 print(f"no callback found for {name}")
 
