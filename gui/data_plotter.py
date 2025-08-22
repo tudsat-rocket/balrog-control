@@ -86,7 +86,7 @@ def update_plots(self):
     # temperature
     if len(temperature_engine_sensor_list) > 0:
         temperature_engine = temperature_engine_sensor_list[1].copy()
-        self.thermocouple_engine_curve.setData(create_time_list(temperature_engine))
+        self.thermocouple_engine_curve.setData(create_time_list(len(temperature_engine)), temperature_engine)
         del temperature_engine
     if len(temperature_nitrous_sensor_list) > 0:
         temperature_nitrous = temperature_nitrous_sensor_list[1].copy()
