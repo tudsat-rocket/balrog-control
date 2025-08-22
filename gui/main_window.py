@@ -26,6 +26,7 @@ class NewMainWindow(ui_class, baseclass):
                  event_queue,
                  controller):
         super().__init__()
+        self.showMaximized()
 
         # queue to transport the sensor values from the second thread to the UI
         self.pressure_1_sensor_queue = pressure_1_sensor_queue
