@@ -66,22 +66,23 @@ def update_plots(self):
     #print(pressure_2_sensor_list)
 
     # pressure
+    if len(pressure_0_sensor_list) > 0:
+        pressure0 = pressure_0_sensor_list[1].copy()
+        self.pressure_curve_0.setData(create_time_list(len(pressure0)), pressure0)
+        del pressure0
     if len(pressure_1_sensor_list) > 0:
         pressure1 = pressure_1_sensor_list[1].copy()
         self.pressure_curve_1.setData(create_time_list(len(pressure1)), pressure1)
         del pressure1
-    if len(pressure_2_sensor_list[1]) > 0:
+    if len(pressure_2_sensor_list) > 0:
         pressure2 = pressure_2_sensor_list[1].copy()
         self.pressure_curve_2.setData(create_time_list(len(pressure2)), pressure2)
         del pressure2
-    if len(pressure_3_sensor_list) > 0:
-        pressure3 = pressure_3_sensor_list[1].copy()
-        self.pressure_curve_3.setData(create_time_list(len(pressure3)), pressure3)
-        del pressure3
-    if len(pressure_4_sensor_list) > 0:
-        pressure4 = pressure_4_sensor_list[1].copy()
-        self.pressure_curve_4.setData(create_time_list(len(pressure4)), pressure4)
-        del pressure4
+
+    if len(differential_pressure_list) > 0 :
+        differential_pressure = differential_pressure_list[1].copy()
+        self.differential_pressure_curve.setData(create_time_list(len(differential_pressure)), differential_pressure)
+        del differential_pressure
 
     # temperature
     if len(temperature_engine_sensor_list) > 0:
@@ -104,10 +105,7 @@ def update_plots(self):
         self.load_cell_nitrous_curve.setData(create_time_list(len(load_cell2)), load_cell2)
         del load_cell2
 
-    if len(differential_pressure_list) > 0 :
-        differential_pressure = differential_pressure_list[1].copy()
-        self.differential_pressure_curve.setData(create_time_list(len(differential_pressure)), differential_pressure)
-        del differential_pressure
+
 
     """
     if len(self.time_data) > view_buffer:

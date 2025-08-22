@@ -1,4 +1,5 @@
 import queue
+from control.definitions import State
 from idlelib.sidebar import EndLineDelegator
 
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
@@ -38,6 +39,10 @@ def update_ui(self):
             update_sequence_state(self, True)
         case EventType.SEQUENCE_ERROR:
             show_sequence_error(self, event)
+        case EventType.INFO_EVENT:
+            show_info_event(self, event)
+        case EventType.STATE_CHANGE:
+            update_state(self, event)
 
 
 def update_connection_state(self, connection_event):
@@ -79,6 +84,19 @@ def update_valve_state(self, event):
         case "fill":
             self.label_valve_status_n20_fill_state.setText(str(event['state']))
 
+def show_info_event(self, info_event):
+    """
+    Show a dialog with an error message
+    """
+    # @TODO(Nucleus): redesign with pyside designer
+    dlg = QDialog(self)
+    dlg.setWindowTitle(info_event["title"])
+    message = QLabel(info_event['message'])
+    layout = QVBoxLayout()
+    layout.addWidget(message)
+    dlg.setLayout(layout)
+    dlg.exec()
+
 def show_sequence_error(self, error_event):
     """
     Show a dialog with an error message
@@ -108,3 +126,21 @@ def clear_data_cache(self):
     self.load_cell_1_data = []
     self.load_cell_2_data = []
     self.differential_pressure_data = []
+
+def update_state(self, event):
+    match event["new_state"]:
+        case State.GREEN_STATE:
+            self.group_state_green.setStyleSheet("background-color: rgb(143, 240, 164);")
+
+            self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_red.setStyleSheet("background-color: rgb(255, 255, 255);")
+        case State.YELLOW_STATE:
+            self.group_state_yellow.setStyleSheet("background-color: rgb(249, 240, 107);")
+
+            self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_red.setStyleSheet("background-color: rgb(255, 255, 255);")
+        case State.RED_STATE:
+            self.group_state_red.setStyleSheet("background-color: rgb(255, 160, 160);")
+
+            self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")

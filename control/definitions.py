@@ -36,6 +36,9 @@ class ActionType(IntEnum):
     COUNTER_START = 16
     COUNTER_STOP = 17
     COUNTER_RESET = 18
+    SERVO_OPEN_SLOW = 19
+    SERVO_SAFE_OPEN = 20
+    SERVO_OPEN_QUARTER_SLOW = 21
 
 def str_to_action(action: str) -> ActionType:
 
@@ -76,6 +79,12 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.COUNTER_STOP
         case "COUNTER_RESET":
             return ActionType.COUNTER_RESET
+        case "SERVO_OPEN_SLOW":
+            return ActionType.SERVO_OPEN_SLOW
+        case "SERVO_SAFE_OPEN":
+            return ActionType.SERVO_SAFE_OPEN
+        case "SERVO_OPEN_QUARTER_SLOW":
+            return ActionType.SERVO_OPEN_QUARTER_SLOW
         case _:
             return ActionType.NOT_IMPLEMENTED
 
@@ -86,3 +95,10 @@ class EventType(StrEnum):
     SEQUENCE_STARTED = "SEQUENCE_STARTED"
     SEQUENCE_STOPPED = "SEQUENCE_STOPPED"
     SEQUENCE_ERROR = "SEQUENCE_ERROR"
+    STATE_CHANGE = "STATE_CHANGE"
+
+
+class State(StrEnum):
+    GREEN_STATE = "GREEN_STATE"
+    YELLOW_STATE = "YELLOW_STATE"
+    RED_STATE = "RED_STATE"

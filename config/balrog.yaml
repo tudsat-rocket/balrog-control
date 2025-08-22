@@ -12,26 +12,30 @@ actors:
     type: TRIGGER
     uid: 2f6L
     output: 0
-  - name: NitrousMain
+  - name: N20MainValve #renmaed from NitrousMain
     type: SERVO
     uid: 2cPc
     output: 2
-  - name: NitrousVent
+  - name: N20VentValve # rename from  NitrousVent
     type: SERVO
     uid: 2cPc
     output: 1
-  - name: NitrousFill
+  - name: N20FillValve #renamed from NitrousFill
     type: SERVO
     uid: 2cPc
     output: 0
-  - name: N2Pressure
+  - name: N2PressureValve #renamed from N2Pressure
     type: SERVO
     uid: 2cPc
     output: 3
-  - name: N2Purge
-    type: SOLENOID
-    uid: 2f6L
+  - name: N2PurgeValve #renmaned from N2Purge
+    type: SERVO
+    uid: 2cPc
     output: 4
+  - name: QuickDisconnect
+    type: SERVO
+    uid: 2cPc
+    output: 5
   - name: SegmentDisplay
     type: COUNTER
     uid: 256T
@@ -39,24 +43,24 @@ actors:
 
 # List of sensor definitions
 sensors:
-  - name: Pressure 1
+  - name: Pressure 0
     type: PRESSURE
     uid: 27AM
     channel: 0
     period: 5
-  - name: Pressure 2
+  - name: Pressure 1
     type: PRESSURE
     uid: 27AM
     channel: 1
     period: 5
-  - name: Pressure 3
+  - name: Pressure 2
     type: PRESSURE
     uid: 27AQ
-    channel: 0
+    channel: 1
     period: 5
-  - name: Pressure 4
+  - name: Differential Nitrous pressure
     type: PRESSURE
-    uid: 27AG
+    uid: 27AQ
     channel: 0
     period: 5
   - name: Temperatur Nitrous
@@ -71,16 +75,11 @@ sensors:
     period: 5
   - name: Thrust load cell
     type: LOAD
-    uid: 29h4
+    uid: 29hv
     channel: -1 # not used
     period: 5
   - name: Nitrous load cell
     type: LOAD
     uid: 29gV
     channel: -1 # not used
-    period: 5
-  - name: Differential Nitrous pressure
-    type: PRESSURE
-    uid: 27AR
-    channel: 1
     period: 5

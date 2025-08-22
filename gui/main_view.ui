@@ -6,35 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1162</width>
-    <height>874</height>
+    <width>1920</width>
+    <height>1094</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Balrog Control Software</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QGroupBox" name="group_control_panel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="title">
        <string/>
       </property>
@@ -132,7 +114,7 @@
              <item row="0" column="1">
               <widget class="QLabel" name="label_status_connection_state">
                <property name="text">
-                <string>unknown</string>
+                <string>unkown</string>
                </property>
               </widget>
              </item>
@@ -185,42 +167,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="group_preparation">
-         <property name="title">
-          <string>Preparation</string>
+        <widget class="QFrame" name="frame_2">
+         <property name="frameShape">
+          <enum>QFrame::Shape::StyledPanel</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="frameShadow">
+          <enum>QFrame::Shadow::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QGroupBox" name="group_preparation_buttons">
-            <property name="title">
-             <string/>
+           <widget class="QGroupBox" name="group_state_green">
+            <property name="styleSheet">
+             <string notr="true"/>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="title">
+             <string>Green State</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <widget class="QPushButton" name="button_green_state">
+               <property name="text">
+                <string>Go to Green State</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QPushButton" name="button_selfcheck">
                <property name="text">
-                <string>Perform Self Check</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_test_horn">
-               <property name="text">
-                <string>Test Horn</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_test_light">
-               <property name="text">
-                <string>Test Light</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_toggle_sensors">
-               <property name="text">
-                <string>Toggle Sensor</string>
+                <string>Perform Self Check (no action)</string>
                </property>
               </widget>
              </item>
@@ -232,65 +206,87 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="button_test_servo_nitrous_main">
+              <widget class="QPushButton" name="button_dump_sensors_to_file">
                <property name="text">
-                <string>Test Servo Nitrous main</string>
+                <string>dump sensors to file</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="button_test_servo_nitrous_vent">
+              <widget class="QPushButton" name="button_reset_sensors">
                <property name="text">
-                <string>Test Servo Nitrous vent</string>
+                <string>Reset Sensors</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="button_test_servo_nitrous_fill">
+              <widget class="QPushButton" name="button_toggle_sensors">
                <property name="text">
-                <string>Test Servo Nitrous fill</string>
+                <string>Toggle(enable/Disable) Sensor</string>
                </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frame">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_11">
+                <item>
+                 <widget class="QPushButton" name="button_calibrate_thrust_load">
+                  <property name="text">
+                   <string>Calibate thrust load</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_calibrate_nitrous_load">
+                  <property name="text">
+                   <string>calibrate nitrous load</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="edit_calibrate_load">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="toolTip">
+                   <string>input kown weight. If empty we use the value 0</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="frame">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QGroupBox" name="group_state_yellow">
+            <property name="styleSheet">
+             <string notr="true"/>
             </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
+            <property name="title">
+             <string>Yellow State</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_11">
+            <layout class="QVBoxLayout" name="verticalLayout_10">
              <item>
-              <widget class="QPushButton" name="button_calibrate_thrust_load">
+              <widget class="QPushButton" name="button_yellow_state">
                <property name="text">
-                <string>Calibate thrust load</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_calibrate_nitrous_load">
-               <property name="text">
-                <string>calibrate nitrous load</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="edit_calibrate_load">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>input kown weight. If empty we use the value 0</string>
+                <string>Go to Yellow State</string>
                </property>
               </widget>
              </item>
@@ -300,7 +296,7 @@
           <item>
            <widget class="QGroupBox" name="group_valve_status">
             <property name="title">
-             <string>Status</string>
+             <string>Vavle Status</string>
             </property>
             <layout class="QFormLayout" name="formLayout_2">
              <item row="0" column="0">
@@ -348,12 +344,40 @@
              <item row="3" column="0">
               <widget class="QLabel" name="label_valve_status_n20_release">
                <property name="text">
-                <string>N20 Release Valve</string>
+                <string>N20 pressure Valve</string>
                </property>
               </widget>
              </item>
              <item row="3" column="1">
               <widget class="QLabel" name="label_valve_status_n20_release_state">
+               <property name="text">
+                <string>unknown</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Purge valve</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>unknown</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Quick Disconnect</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLabel" name="label_2">
                <property name="text">
                 <string>unknown</string>
                </property>
@@ -366,11 +390,159 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="group_sequence_loader">
+        <widget class="QGroupBox" name="group_state_red">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="title">
-          <string>Sequence Loader</string>
+          <string>Red State</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="button_red_state">
+            <property name="text">
+             <string>Go to Red State</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_4">
+            <property name="frameShape">
+             <enum>QFrame::Shape::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Shadow::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QGroupBox" name="button_toggle_pressure_valve">
+               <property name="title">
+                <string>Manual control</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_3">
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="button_test_horn">
+                  <property name="text">
+                   <string>trigger Horn</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="button_toggle_n2_purge_valve">
+                  <property name="text">
+                   <string>Toggle N2 Purge valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="button_close_all_valves">
+                  <property name="text">
+                   <string>Close all valves</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QPushButton" name="button_toggle_n2o_main_valve">
+                  <property name="text">
+                   <string>Toggle N20 main valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QPushButton" name="button_toggle_quick_disconnect">
+                  <property name="text">
+                   <string>Toggle Quick Disconnect</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="button_toggle_n2_pressure_valve">
+                  <property name="text">
+                   <string>Toggle N2 Pressure valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
+                  <property name="text">
+                   <string>Toggle N20 fill valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QPushButton" name="button_toggle_n2o_vent_valve">
+                  <property name="text">
+                   <string>toggle N20 vent valve</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="title">
+                <string>Sequence selection</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_12">
+                <item>
+                 <widget class="QPushButton" name="button_run_n20_purge_sequence">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(53, 132, 228);</string>
+                  </property>
+                  <property name="text">
+                   <string>run N20 Purge Sequence</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_run_ignition_sequence">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(224, 27, 36);</string>
+                  </property>
+                  <property name="text">
+                   <string>run Ignition Sequence</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_abort_sequence">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Abort Sequence</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_force_dump">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Force Dump</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
           <item>
            <widget class="QLabel" name="label_sequence_file_name">
             <property name="text">
@@ -430,6 +602,9 @@
                     <height>5</height>
                    </size>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(224, 27, 36);</string>
+                  </property>
                   <property name="text">
                    <string>Start Sequence</string>
                   </property>
@@ -444,32 +619,6 @@
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="button_abort_sequence">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Abort Sequence</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="button_force_dump">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Force Dump</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
@@ -480,7 +629,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1162</width>
+     <width>1920</width>
      <height>24</height>
     </rect>
    </property>
@@ -488,7 +637,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget_3">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -496,11 +645,11 @@
    <property name="minimumSize">
     <size>
      <width>500</width>
-     <height>148</height>
+     <height>140</height>
     </size>
    </property>
    <property name="features">
-    <set>QDockWidget::NoDockWidgetFeatures</set>
+    <set>QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
     <string comment="Sensor Plots"/>
@@ -528,31 +677,28 @@
         <string/>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="PlotWidget" name="plot_pressure_1" native="true"/>
-        </item>
-        <item row="0" column="1">
+        <item row="2" column="0">
          <widget class="PlotWidget" name="plot_pressure_2" native="true"/>
         </item>
         <item row="3" column="0">
          <widget class="PlotWidget" name="plot_load_cell_thrust" native="true"/>
         </item>
-        <item row="2" column="1">
-         <widget class="PlotWidget" name="plot_pressure_4" native="true"/>
+        <item row="4" column="1">
+         <widget class="PlotWidget" name="plot_thermocouple_engine" native="true"/>
         </item>
-        <item row="2" column="0">
-         <widget class="PlotWidget" name="plot_pressure_3" native="true"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="PlotWidget" name="plot_thermocouple_nitrous" native="true"/>
+        <item row="0" column="1">
+         <widget class="PlotWidget" name="plot_pressure_1" native="true"/>
         </item>
         <item row="3" column="1">
          <widget class="PlotWidget" name="plot_load_cell_nitrous" native="true"/>
         </item>
-        <item row="4" column="1">
-         <widget class="PlotWidget" name="plot_thermocouple_engine" native="true"/>
+        <item row="0" column="0">
+         <widget class="PlotWidget" name="plot_pressure_0" native="true"/>
         </item>
-        <item row="5" column="0">
+        <item row="4" column="0">
+         <widget class="PlotWidget" name="plot_thermocouple_nitrous" native="true"/>
+        </item>
+        <item row="2" column="1">
          <widget class="PlotWidget" name="plot_differential_pressure" native="true"/>
         </item>
        </layout>
