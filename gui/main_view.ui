@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1920</width>
-    <height>1270</height>
+    <height>1094</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -178,7 +178,7 @@
           <item>
            <widget class="QGroupBox" name="group_state_green">
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(143, 240, 164);</string>
+             <string notr="true"/>
             </property>
             <property name="title">
              <string>Green State</string>
@@ -202,6 +202,20 @@
               <widget class="QPushButton" name="button_test_counter">
                <property name="text">
                 <string>Test Counter</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_dump_sensors_to_file">
+               <property name="text">
+                <string>dump sensors to file</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_reset_sensors">
+               <property name="text">
+                <string>Reset Sensors</string>
                </property>
               </widget>
              </item>
@@ -261,9 +275,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox_2">
+           <widget class="QGroupBox" name="group_state_yellow">
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(249, 240, 107);</string>
+             <string notr="true"/>
             </property>
             <property name="title">
              <string>Yellow State</string>
@@ -378,7 +392,7 @@
        <item>
         <widget class="QGroupBox" name="group_state_red">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 160, 160);</string>
+          <string notr="true"/>
          </property>
          <property name="title">
           <string>Red State</string>
@@ -406,13 +420,6 @@
                 <string>Manual control</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="button_test_servo_nitrous_vent">
-                  <property name="text">
-                   <string>Toggle Nitrous vent valve</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="1">
                  <widget class="QPushButton" name="button_test_horn">
                   <property name="text">
@@ -420,17 +427,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2">
-                 <widget class="QPushButton" name="button_test_servo_nitrous_fill">
-                  <property name="text">
-                   <string>Toggle Nitrous fill valve</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="3" column="0">
-                 <widget class="QPushButton" name="button_toggle_purge_valve">
+                 <widget class="QPushButton" name="button_toggle_n2_purge_valve">
                   <property name="text">
-                   <string>Toggle Purge valve</string>
+                   <string>Toggle N2 Purge valve</string>
                   </property>
                  </widget>
                 </item>
@@ -442,16 +442,9 @@
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QPushButton" name="button_test_servo_nitrous_main">
+                 <widget class="QPushButton" name="button_toggle_n2o_main_valve">
                   <property name="text">
-                   <string>Toggle Nitrous main valve</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QPushButton" name="button_open_vent_valve">
-                  <property name="text">
-                   <string>open vent valve</string>
+                   <string>Toggle N20 main valve</string>
                   </property>
                  </widget>
                 </item>
@@ -463,9 +456,23 @@
                  </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QPushButton" name="button_toggle_pressure_valve_2">
+                 <widget class="QPushButton" name="button_toggle_n2_pressure_valve">
                   <property name="text">
-                   <string>Toggle Pressure valve</string>
+                   <string>Toggle N2 Pressure valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
+                  <property name="text">
+                   <string>Toggle N20 fill valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QPushButton" name="button_toggle_n2o_vent_valve">
+                  <property name="text">
+                   <string>toggle N20 vent valve</string>
                   </property>
                  </widget>
                 </item>
@@ -479,26 +486,58 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
-                 <widget class="QPushButton" name="button_start_n20_purge_sequence">
+                 <widget class="QPushButton" name="button_run_n20_purge_sequence">
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(53, 132, 228);</string>
                   </property>
                   <property name="text">
-                   <string>start N20 Purge Sequence</string>
+                   <string>run N20 Purge Sequence</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="button_start_ignition_sequence">
+                 <widget class="QPushButton" name="button_run_ignition_sequence">
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(224, 27, 36);</string>
                   </property>
                   <property name="text">
-                   <string>Start Ignition Sequence</string>
+                   <string>run Ignition Sequence</string>
                   </property>
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_abort_sequence">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Abort Sequence</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_force_dump">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Force Dump</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -578,32 +617,6 @@
            </widget>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="button_abort_sequence">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Abort Sequence</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="button_force_dump">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Force Dump</string>
-         </property>
         </widget>
        </item>
       </layout>

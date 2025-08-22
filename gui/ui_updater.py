@@ -1,4 +1,5 @@
 import queue
+from control.definitions import State
 from idlelib.sidebar import EndLineDelegator
 
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
@@ -40,6 +41,8 @@ def update_ui(self):
             show_sequence_error(self, event)
         case EventType.INFO_EVENT:
             show_info_event(self, event)
+        case EventType.STATE_CHANGE:
+            update_state(self, event)
 
 
 def update_connection_state(self, connection_event):
@@ -123,3 +126,21 @@ def clear_data_cache(self):
     self.load_cell_1_data = []
     self.load_cell_2_data = []
     self.differential_pressure_data = []
+
+def update_state(self, event):
+    match event["new_state"]:
+        case State.GREEN_STATE:
+            self.group_state_green.setStyleSheet("background-color: rgb(143, 240, 164);")
+
+            self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_red.setStyleSheet("background-color: rgb(255, 255, 255);")
+        case State.YELLOW_STATE:
+            self.group_state_yellow.setStyleSheet("background-color: rgb(249, 240, 107);")
+
+            self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_red.setStyleSheet("background-color: rgb(255, 255, 255);")
+        case State.RED_STATE:
+            self.group_state_red.setStyleSheet("background-color: rgb(255, 160, 160);")
+
+            self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")

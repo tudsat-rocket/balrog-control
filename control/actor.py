@@ -49,6 +49,8 @@ class Actor:
                 return self.servo_open(brick)
             case ActionType.SERVO_CLOSE:
                 return self.servo_close(brick)
+            case ActionType.SERVO_OPEN_SLOW:
+                return self.servo_open_slow(brick)
             case ActionType.SERVO_TOGGLE:
                 return self.servo_toggle(brick)
             case ActionType.SOLENOID_OPEN:
@@ -119,17 +121,27 @@ class Actor:
         sleep(1) #@TODO display servo after use?
         servo_bricklet.set_enable(self.get_output(), False)
 
-    def server_open_slow(self, servo_bricklet):
+    def servo_open_slow(self, servo_bricklet):
         """
         open the servo to 90° within 2s
         """
-        # @TODO implement !
-        servo_bricklet.set_position(self.get_output(), 9000)  # 9000/100 degrees => 90 degrees
+        # @TODO test implementation
         servo_bricklet.set_enable(self.get_output(), True)
+        for i in range(9000): # 9000/100 degrees => 90 degrees
+            servo_bricklet.set_position(self.get_output(), i)
+            # to slow down the servo opening
+            sleep(0.00022) # 2s/9000 steps = 2s until open
 
         #sleep(1)  # @TODO display servo after use?
         #servo_bricklet.set_enable(self.get_output(), False)
 
+    def servo_open_quarter_slow(self, servo_bricklet):
+        servo_bricklet.set_enable(self.get_output(), True)
+        for i in range(2250):  # 2250/100 degrees => 22.5 degrees => 1/4 open
+            servo_bricklet.set_position(self.get_output(), i)
+            # to slow down the servo opening
+            sleep(0.00088)  # 2s/2250 steps = 2s until open
+        #@TODO disable servo after use?
 
     def servo_safe_open(self, servo_bricklet) -> None:
         """

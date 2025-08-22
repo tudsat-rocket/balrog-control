@@ -18,7 +18,7 @@ class NewMainWindow(ui_class, baseclass):
         super().__init__()
 
         self.event_queue = event_queue
-        self.controller = controller
+        self.controller:Controller = controller
 
         # used to store the values from the queue
         self.pressure_0_data = []
@@ -75,14 +75,14 @@ class NewMainWindow(ui_class, baseclass):
 
         self.button_toggle_sensors.clicked.connect(lambda: self.controller.toggle_sensors())
         self.button_test_counter.clicked.connect(lambda: self.controller.test_counter())
-        self.button_test_servo_nitrous_main.clicked.connect(lambda: self.controller.test_servo_nitrous_main())
-        self.button_test_servo_nitrous_vent.clicked.connect(lambda: self.controller.test_servo_nitrous_vent())
-        self.button_test_servo_nitrous_fill.clicked.connect(lambda: self.controller.test_servo_nitrous_fill())
+
         self.button_calibrate_thrust_load.clicked.connect(lambda: self.controller.calibrate_thrust_load(self.edit_calibrate_load.text()))
         self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(self.edit_calibrate_load.text()))
 
         # green state
         self.button_green_state.clicked.connect(lambda: self.controller.go_to_green_state())
+        self.button_dump_sensors_to_file.clicked.connect(lambda: self.controller.dump_sensors_to_file())
+        self.button_reset_sensors.clicked.connect(lambda: self.controller.reset_sensors())
 
         # yellow state
         self.button_yellow_state.clicked.connect(lambda: self.controller.go_to_yellow_state())
@@ -91,7 +91,18 @@ class NewMainWindow(ui_class, baseclass):
         self.button_red_state.clicked.connect(lambda: self.controller.go_to_red_state())
         self.button_close_all_valves.clicked.connect(lambda: self.controller.close_all_valves())
         self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
-        #@TODO
+
+        self.button_toggle_n2o_main_valve.clicked.connect(lambda: self.controller.toggle_n2o_main_valve())
+        self.button_toggle_n2o_fill_valve.clicked.connect(lambda: self.controller.toggle_n2o_fill_valve())
+        self.button_toggle_n2o_vent_valve.clicked.connect(lambda: self.controller.toggle_n2o_vent_valve())
+        self.button_toggle_n2_purge_valve.clicked.connect(lambda: self.controller.toggle_n2_purge_valve())
+        self.button_toggle_n2_pressure_valve.clicked.connect(lambda: self.controller.toggle_n2_pressure_valve())
+        self.button_toggle_quick_disconnect.clicked.connect(lambda: self.controller.toggle_quick_disconnect())
+
+
+
+        self.button_run_n20_purge_sequence.clicked.connect(lambda: self.controller.run_n2o_purge_sequence())
+        self.button_run_ignition_sequence.clicked.connect(lambda: self.controller.run_ignition_sequence())
         #self.button_open_vent_valve.
 
 
@@ -137,8 +148,8 @@ class NewMainWindow(ui_class, baseclass):
         # plot_load_cell
         self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (N)', color='#FFFFFF')
+        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (Kg)', color='#FFFFFF')
 
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (N)', color='#FFFFFF')
+        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (Kg)', color='#FFFFFF')

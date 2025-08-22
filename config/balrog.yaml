@@ -12,26 +12,30 @@ actors:
     type: TRIGGER
     uid: 2f6L
     output: 0
-  - name: NitrousMain
+  - name: N20MainValve #renmaed from NitrousMain
     type: SERVO
     uid: 2cPc
     output: 2
-  - name: NitrousVent # rename to N20VentValve
+  - name: N20VentValve # rename from  NitrousVent
     type: SERVO
     uid: 2cPc
     output: 1
-  - name: NitrousFill
+  - name: N20FillValve #renamed from NitrousFill
     type: SERVO
     uid: 2cPc
     output: 0
-  - name: N2Pressure
+  - name: N2PressureValve #renamed from N2Pressure
     type: SERVO
     uid: 2cPc
     output: 3
-  - name: N2Purge
-    type: SOLENOID # @TODO is now servo
-    uid: 2f6L
+  - name: N2PurgeValve #renmaned from N2Purge
+    type: SERVO
+    uid: 2cPc
     output: 4
+  - name: QuickDisconnect
+    type: SERVO
+    uid: 2cPc
+    output: 5
   - name: SegmentDisplay
     type: COUNTER
     uid: 256T
