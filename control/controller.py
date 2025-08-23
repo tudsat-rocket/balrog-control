@@ -124,7 +124,7 @@ class Controller(Thread):
 
 
     def __init__(self, event_queue: Queue, thread_killer):
-        Thread.__init__(self)
+        Thread.__init__(self, target=self._sequence_worker, args=(self,))
         self.actors = {}
         self.sensors = {}
         self._construct_actors()
@@ -137,7 +137,6 @@ class Controller(Thread):
 
     def run(self):
         super().run()
-        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -710,26 +709,34 @@ class Controller(Thread):
             # start the sequence
             self.enable_all_sensor_callbacks()
             self.run()
-            self.disable_all_sensor_callbacks()
-
-            # --- Finish sequence
-            self.set_light_to_yellow()
-            # wait a moment to ensure every callback is done
-            # print("waiting for callbacks to complete...")
-            # sleep(0.5)
-            dump_sensor_to_file()
-            self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
             return True
+
         else:
-            self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No Sequence found. Please load a sequence first"})
+            self.event_queue.put(
+                {"type": EventType.SEQUENCE_ERROR, "message": "No Sequence found. Please load a sequence first"})
             return False
+
+
+    def end_sequence(self) -> bool:
+
+        self.disable_all_sensor_callbacks()
+
+        # --- Finish sequence
+        self.set_light_to_yellow()
+        # wait a moment to ensure every callback is done
+        # print("waiting for callbacks to complete...")
+        # sleep(0.5)
+        dump_sensor_to_file()
+        self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
+        return True
+
 
     def abort(self) -> None:
         """
         abort the sequence
         """
         # stop the sequence worker
-        self.abort_sequence = True
+        self.thread_killer.set()
 
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
@@ -878,20 +885,18 @@ class Controller(Thread):
 
         for i in interval_timer.IntervalTimer(0.02):
 
+            # signal used to abort the sequence with a button
             if self.thread_killer.is_set():
                 self.abort()
-                break
-
-            # signal used to abort the sequence with a button
-            # @TODO check if that works
-            if self.abort_sequence:
-                break
+                return
 
             while int(self.sequence[seq_idx][1]) <= seq_ts:
                 tpl = self.sequence[seq_idx]
                 self.actors[tpl[0]].action(tpl[2], self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()))
                 if seq_idx == seq_len-1:
+                    self.end_sequence()
                     return
                 seq_idx += 1
 
             seq_ts += 20
+
