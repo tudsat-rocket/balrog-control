@@ -26,7 +26,7 @@ def current_to_pressure(current):
     # 0 = 6.248047485*4.001 => 24.992191
     # => f(x) = 6.248047485*current-24.992191
     # @todo verify calculation
-    return 6.248047485*current-24.992191
+    return 6.248047485*(current/1000000.0)-24.992191
 
 def temperature_nitrous_callback(temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")

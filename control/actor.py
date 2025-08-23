@@ -141,7 +141,7 @@ class Actor:
             servo_bricklet.set_position(self.get_output(), i)
             # to slow down the servo opening
             sleep(0.00088)  # 2s/2250 steps = 2s until open
-        #@TODO disable servo after use?
+        # @TODO disable servo after use?
 
     def servo_safe_open(self, servo_bricklet) -> None:
         """
