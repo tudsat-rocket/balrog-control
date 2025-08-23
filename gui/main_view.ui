@@ -48,6 +48,9 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="edit_host">
+                  <property name="focusPolicy">
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>10.42.0.81</string>
                   </property>
@@ -62,6 +65,9 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="edit_port">
+                  <property name="focusPolicy">
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>4223</string>
                   </property>
@@ -78,6 +84,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_6">
                 <item>
                  <widget class="QPushButton" name="button_connect">
+                  <property name="focusPolicy">
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                  </property>
                   <property name="text">
                    <string>Connect</string>
                   </property>
@@ -470,9 +479,12 @@
                  </widget>
                 </item>
                 <item row="1" column="2">
-                 <widget class="QPushButton" name="button_toggle_n2o_vent_valve">
+                 <widget class="QToolButton" name="tool_button_open_n2o_vent_valve">
                   <property name="text">
-                   <string>toggle N20 vent valve</string>
+                   <string>press to open N20 valve</string>
+                  </property>
+                  <property name="autoRepeat">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

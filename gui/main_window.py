@@ -2,6 +2,7 @@ from curses.ascii import controlnames
 
 from PySide6.QtCore import QTimer
 from PySide6.QtUiTools import loadUiType
+from PySide6.QtGui import QShortcut, QKeySequence
 import pyqtgraph as pg
 
 from control.controller import Controller
@@ -40,6 +41,7 @@ class NewMainWindow(ui_class, baseclass):
         self.setupUi(self)
         self.setup_graphs()
         self.setup_buttons()
+        self.setup_shortcuts()
 
         # create plot curves
         self.pressure_curve_0 = self.plot_pressure_0.plot([], [], pen=pg.mkPen(color="r", width=1.5))
@@ -62,6 +64,14 @@ class NewMainWindow(ui_class, baseclass):
         self.event_timer = QTimer()
         self.event_timer.timeout.connect(lambda: update_ui(self))
         self.event_timer.start(1000)
+
+
+    def setup_shortcuts(self):
+        open_n2o_vent_valve_shortcut = QShortcut(QKeySequence("v"), self)
+        open_n2o_vent_valve_shortcut.activated.connect(self.controller.open_as_long_pressed_n2o_vent_valve)
+
+        open_n2_purge_valve_shortcut = QShortcut(QKeySequence("esc"), self)
+        open_n2_purge_valve_shortcut.activated.connect(self.controller.open_as_long_pressed_n2_purge_valve)
 
     def setup_buttons(self):
         """
@@ -95,11 +105,10 @@ class NewMainWindow(ui_class, baseclass):
 
         self.button_toggle_n2o_main_valve.clicked.connect(lambda: self.controller.toggle_n2o_main_valve())
         self.button_toggle_n2o_fill_valve.clicked.connect(lambda: self.controller.toggle_n2o_fill_valve())
-        self.button_toggle_n2o_vent_valve.clicked.connect(lambda: self.controller.toggle_n2o_vent_valve())
+        self.tool_button_open_n2o_vent_valve.clicked.connect(lambda: self.controller.open_n2o_vent_valve())
         self.button_toggle_n2_purge_valve.clicked.connect(lambda: self.controller.toggle_n2_purge_valve())
         self.button_toggle_n2_pressure_valve.clicked.connect(lambda: self.controller.toggle_n2_pressure_valve())
         self.button_toggle_quick_disconnect.clicked.connect(lambda: self.controller.toggle_quick_disconnect())
-
 
 
         self.button_run_n20_purge_sequence.clicked.connect(lambda: self.controller.run_n2o_purge_sequence())

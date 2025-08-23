@@ -455,6 +455,14 @@ class Controller(Thread):
                               "state": self.servo_vent_open,
                               })
 
+    def open_as_long_pressed_n2o_vent_valve(self):
+        # @TODO implement
+        print("keep n20 vent valve open.")
+
+    def open_as_long_pressed_n2_purge_valve(self):
+        # @TODO implement
+        print("keep n2 purge valve open.")
+
     def toggle_n2o_fill_valve(self):
         """
         toggle the fill valve between open to close
