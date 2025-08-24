@@ -488,12 +488,10 @@ class Controller(Thread):
                               })
 
     def open_as_long_pressed_n2o_vent_valve(self):
-        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE,
-                                           self.brick_stack.get_device(self.actors["N20VentValve"].get_br_uid()))
+        self.toggle_n2o_vent_valve()
 
     def open_as_long_pressed_n2_purge_valve(self):
-        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN,
-                                           self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()))
+        self.toggle_n2_purge_valve()
 
     def toggle_n2o_fill_valve(self):
         """
