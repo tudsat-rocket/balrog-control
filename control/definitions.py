@@ -39,6 +39,7 @@ class ActionType(IntEnum):
     SERVO_OPEN_SLOW = 19
     SERVO_SAFE_OPEN = 20
     SERVO_OPEN_QUARTER_SLOW = 21
+    LIGHT_ALL = 22
 
 def str_to_action(action: str) -> ActionType:
 
@@ -85,6 +86,8 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.SERVO_SAFE_OPEN
         case "SERVO_OPEN_QUARTER_SLOW":
             return ActionType.SERVO_OPEN_QUARTER_SLOW
+        case "LIGHT_ALL":
+            return ActionType.LIGHT_ALL
         case _:
             return ActionType.NOT_IMPLEMENTED
 

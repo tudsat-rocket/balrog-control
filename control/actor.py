@@ -73,6 +73,8 @@ class Actor:
                 return self.light_yellow(brick)
             case ActionType.LIGHT_RED:
                 return self.light_red(brick)
+            case ActionType.LIGHT_ALL:
+                return self.light_all(brick)
             case ActionType.COUNTER_START:
                 return self.counter_start(brick)
             case ActionType.COUNTER_RESET:
@@ -209,6 +211,11 @@ class Actor:
         # turn all other off
         brick.set_selected_value(self.output + 1, False)
         brick.set_selected_value(self.output + 2, False)
+
+    def light_all(self, brick) -> None:
+        brick.set_selected_value(self.output, True)
+        brick.set_selected_value(self.output + 1, True)
+        brick.set_selected_value(self.output + 2, True)
 
     def pull_trigger(self, brick) -> None:
         pass

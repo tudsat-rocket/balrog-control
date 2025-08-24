@@ -167,6 +167,12 @@ class Controller(Thread):
                                      )
                 # set config for all bricks
                 self._set_configuration()
+                # Turn all lights on after connecting
+                try:
+                    uid = self.actors["Light"].get_br_uid()
+                    self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
+                except Exception as e:
+                    print(f"Failed to turn on all lights: {e}")
                 self.connected = True
                 return True
             except Exception as e:
@@ -314,6 +320,7 @@ class Controller(Thread):
             raise NotConnectedException(self.event_queue)
 
         uid = self.actors["Light"].get_br_uid()
+        self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
         self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
         sleep(1)
         self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
