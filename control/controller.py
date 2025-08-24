@@ -772,16 +772,16 @@ class Controller(Thread):
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
         # Close All Valves
-        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"]))
-        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"]))
-        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"]))
+        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"])) # ToDO: Check if we really don't require get_br_uid() here
 
         # Open Purge Valve
-        self.actors["N2PurgeValve"].action(ActionType.SOLENOID_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"]))
+        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"])) # ToDO: Check if we really don't require get_br_uid() here
 
         # visual and auditory warnings
-        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"]))
-        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"]))
+        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"])) # ToDO: Check if we really don't require get_br_uid() here
 
         self.disable_all_sensor_callbacks()
         self.set_light_to_yellow()
