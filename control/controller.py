@@ -766,6 +766,17 @@ class Controller(Thread):
         """
         abort the sequence
         """
+        # Requested by Tyler: Abort only in RED_STATE due to priority of security of personell at test site.
+        if not self.currentState == State.RED_STATE:
+            # Soft no-op: inform UI and return without raising to avoid killing threads
+            # ToDO: Check if we really cannot simply raise a State Error. Hypothesis: If abort is called from the sequence worker, the thread will end with an error.
+            self.event_queue.put({
+                "type": EventType.INFO_EVENT,
+                "title": "Not allowed",
+                "message": "Abort is only allowed in RED state."
+            })
+            return
+
         # stop the sequence worker
         self.thread_killer.set()
 
