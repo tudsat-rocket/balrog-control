@@ -59,7 +59,7 @@ class NewMainWindow(ui_class, baseclass):
         # setup timer - used to update the plots
         self.timer = QTimer()
         self.timer.timeout.connect(lambda: update_plots(self))
-        self.timer.start(1000) # @TODO with 200, the UI beginns to get laggy
+        self.timer.start(1000) # @TODO with 200, the UI begins to get laggy
 
         self.event_timer = QTimer()
         self.event_timer.timeout.connect(lambda: update_ui(self))
@@ -69,6 +69,7 @@ class NewMainWindow(ui_class, baseclass):
     def setup_shortcuts(self):
         open_n2o_vent_valve_shortcut = QShortcut(QKeySequence("v"), self)
         open_n2o_vent_valve_shortcut.activated.connect(self.controller.open_as_long_pressed_n2o_vent_valve)
+
 
         open_n2_purge_valve_shortcut = QShortcut(QKeySequence("esc"), self)
         open_n2_purge_valve_shortcut.activated.connect(self.controller.open_as_long_pressed_n2_purge_valve)

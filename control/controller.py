@@ -130,6 +130,8 @@ class Controller(Thread):
         self._construct_actors()
         self._construct_sensor()
         self.brick_stack = StackHandler()
+        self.ignition_sequence = parse_csv("config/operations/ignition_sequence.csv")
+        self.n2o_purge_sequence = parse_csv("config/operations/n20_purge_sequence.csv")
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
@@ -486,12 +488,12 @@ class Controller(Thread):
                               })
 
     def open_as_long_pressed_n2o_vent_valve(self):
-        # @TODO implement
-        print("keep n20 vent valve open.")
+        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE,
+                                           self.brick_stack.get_device(self.actors["N20VentValve"].get_br_uid()))
 
     def open_as_long_pressed_n2_purge_valve(self):
-        # @TODO implement
-        print("keep n2 purge valve open.")
+        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN,
+                                           self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()))
 
     def toggle_n2o_fill_valve(self):
         """
@@ -588,9 +590,8 @@ class Controller(Thread):
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
-        path = "config/operations/n20_purge_sequence.csv"
-        if os.path.exists(path):
-            self.sequence = parse_csv(path)
+        if self.n2o_purge_sequence is not None:
+            self.sequence = self.n2o_purge_sequence
             self.run()
 
     def run_ignition_sequence(self):
@@ -602,9 +603,8 @@ class Controller(Thread):
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
-        path = "config/operations/ignition_sequence.csv"
-        if os.path.exists(path):
-            self.sequence = parse_csv(path)
+        if self.ignition_sequence is not None:
+            self.sequence = self.ignition_sequence
             self.run()
 
     def load_test_definition(self, path: os.path) -> bool:
@@ -756,7 +756,7 @@ class Controller(Thread):
         self.set_light_to_yellow()
         # wait a moment to ensure every callback is done
         # print("waiting for callbacks to complete...")
-        # sleep(0.5)
+        sleep(0.5)
         dump_sensor_to_file()
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
         return True
@@ -766,16 +766,9 @@ class Controller(Thread):
         """
         abort the sequence
         """
-        # Requested by Tyler: Abort only in RED_STATE due to priority of security of personell at test site.
+        # Requested by Tyler: Abort only in RED_STATE due to priority of security of personnel at test site.
         if not self.currentState == State.RED_STATE:
-            # Soft no-op: inform UI and return without raising to avoid killing threads
-            # ToDO: Check if we really cannot simply raise a State Error. Hypothesis: If abort is called from the sequence worker, the thread will end with an error.
-            self.event_queue.put({
-                "type": EventType.INFO_EVENT,
-                "title": "Not allowed",
-                "message": "Abort is only allowed in RED state."
-            })
-            return
+            raise NotAllowedInThisState(self.event_queue)
 
         # stop the sequence worker
         self.thread_killer.set()
@@ -783,16 +776,16 @@ class Controller(Thread):
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
         # Close All Valves
-        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"])) # ToDO: Check if we really don't require get_br_uid() here
-        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"])) # ToDO: Check if we really don't require get_br_uid() here
-        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"].get_br_uid()))
+        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"].get_br_uid()))
+        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"].get_br_uid()))
 
         # Open Purge Valve
-        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()))
 
         # visual and auditory warnings
-        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"])) # ToDO: Check if we really don't require get_br_uid() here
-        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"].get_br_uid()))
+        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
 
         self.disable_all_sensor_callbacks()
         self.set_light_to_yellow()
@@ -875,7 +868,7 @@ class Controller(Thread):
 
     def get_sensor_callback(self, name):
         """
-        returns the sensor callbacks to register for for the thinkerforge boards
+        returns the sensor callbacks to register for the tinkerforge boards
         pressure 1 and 2 are on the same board, so we have to use the same callback
         the same of 3 and 4
         """
@@ -898,6 +891,7 @@ class Controller(Thread):
                 return nitrous_load_cell_callback
             case _:
                 print(f"no callback found for {name}")
+                return None
 
     def _construct_sensor(self) -> None:
         """
@@ -929,7 +923,6 @@ class Controller(Thread):
 
             # signal used to abort the sequence with a button
             if self.thread_killer.is_set():
-                self.abort()
                 return
 
             while int(self.sequence[seq_idx][1]) <= seq_ts:
@@ -941,4 +934,3 @@ class Controller(Thread):
                 seq_idx += 1
 
             seq_ts += 20
-
