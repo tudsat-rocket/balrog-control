@@ -229,13 +229,26 @@ class Controller(Thread):
         # every servo is closed
         return True
 
-    def go_to_green_state(self):
+    def request_go_to_green_state(self):
         """
         This requires that all valves are closed and no bottle are connected anymore. There is no danger anymore
         To go into green state, we have to be in the yellow state before. We can not chnage from red to green
         """
         if not self.currentState == State.YELLOW_STATE:
-            raise NotAllowedInThisState(self.event_queue)
+            self.event_queue.put({"type": EventType.CONFIRMATION_EVENT,
+                                  "title": "Confirm Procedure Override",
+                                  "message": f"Do you really want to go to GREEN state directly? Procedure demands transition is made only from YELLOW state.\n (Current State: {self.currentState})",
+                                  "cancel": lambda: None,
+                                  "confirm": lambda: self.go_to_green_state()}
+                                 )
+        else:
+            self.go_to_green_state()
+        
+    def go_to_green_state(self):
+        """
+        This requires that all valves are closed and no bottle are connected anymore. There is no danger anymore
+        To go into green state, we have to be in the yellow state before. We can not chnage from red to green
+        """
         self.set_light_to_green()
         self.currentState = State.GREEN_STATE
         self.event_queue.put({"type": EventType.STATE_CHANGE,
@@ -243,44 +256,55 @@ class Controller(Thread):
                               }
                              )
 
-    def go_to_yellow_state(self):
+    def request_go_to_yellow_state(self):
         """
         For this, all valves have to be closed. If not every valve is closed, this will trigger an alert dialog and
         will not set the light to yellow
         """
         # check if all valves are closed and only enter his mode if this is true
 
-        if self.check_all_servos_closed:
-            self.set_light_to_yellow()
-            self.currentState = State.YELLOW_STATE
-            self.event_queue.put({"type": EventType.STATE_CHANGE,
-                                  "new_state": State.YELLOW_STATE
-                                  }
+        if not self.check_all_servos_closed:
+            self.event_queue.put({"type": EventType.CONFIRMATION_EVENT,
+                                  "title": "Confirm Procedure Override",
+                                  "message": "WARNING: SOME VALVES ARE OPEN!!! Do you really want to go to YELLOW state.",
+                                  "cancel": lambda: None,
+                                  "confirm": lambda: self.go_to_yellow_state()}
+                                 )
+        else: 
+            self.go_to_yellow_state()
+
+    def go_to_yellow_state(self):
+        self.set_light_to_yellow()
+        self.currentState = State.YELLOW_STATE
+        self.event_queue.put({"type": EventType.STATE_CHANGE,
+                                "new_state": State.YELLOW_STATE
+                                }
+                                )
+
+    def request_go_to_red_state(self):
+        """
+        Requsest: Go to red state. This enabled the dangerous operations. Might require confirmation
+        """
+        if not self.currentState == State.YELLOW_STATE:
+            self.event_queue.put({"type": EventType.CONFIRMATION_EVENT,
+                                  "title": "Confirm Procedure Override",
+                                  "message": f"Do you really want to go to RED state directly? Procedure demands transition is made only from YELLOW state. \n (Current State: {self.currentState})",
+                                  "cancel": lambda: None,
+                                  "confirm": lambda: self.go_to_red_state()}
                                  )
         else:
-            self.event_queue.put({"type": EventType.INFO_EVENT,
-                             "title": "Can not enter Yellow state",
-                             "message": "There is at least one valve still open. Please close all valves first and try again.",
-                             }
-                            )
+            self.go_to_red_state()
 
     def go_to_red_state(self):
         """
         Go to red state. This enabled the dangerous operations
         """
-        if not self.currentState == State.YELLOW_STATE:
-            self.event_queue.put({"type": EventType.INFO_EVENT,
-                                  "title": "Can not enter RED state",
-                                  "message": "You have to be in yellow state first!",
-                                  }
-                                 )
-        else:
-            self.set_light_to_red()
-            self.currentState = State.RED_STATE
-            self.event_queue.put({"type": EventType.STATE_CHANGE,
-                                  "new_state": State.RED_STATE
-                                  }
-                                 )
+        self.set_light_to_red()
+        self.currentState = State.RED_STATE
+        self.event_queue.put({"type": EventType.STATE_CHANGE,
+                                "new_state": State.RED_STATE
+                                }
+                                )
 
     def test_light(self) -> bool:
         """

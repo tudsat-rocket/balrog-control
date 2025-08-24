@@ -91,15 +91,15 @@ class NewMainWindow(ui_class, baseclass):
         self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(self.edit_calibrate_load.text()))
 
         # green state
-        self.button_green_state.clicked.connect(lambda: self.controller.go_to_green_state())
+        self.button_green_state.clicked.connect(lambda: self.controller.request_go_to_green_state())
         self.button_dump_sensors_to_file.clicked.connect(lambda: self.controller.dump_sensors_to_file())
         self.button_reset_sensors.clicked.connect(lambda: self.controller.reset_sensors())
 
         # yellow state
-        self.button_yellow_state.clicked.connect(lambda: self.controller.go_to_yellow_state())
+        self.button_yellow_state.clicked.connect(lambda: self.controller.request_go_to_yellow_state())
 
         # red state
-        self.button_red_state.clicked.connect(lambda: self.controller.go_to_red_state())
+        self.button_red_state.clicked.connect(lambda: self.controller.request_go_to_red_state())
         self.button_close_all_valves.clicked.connect(lambda: self.controller.close_all_valves())
         self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
 

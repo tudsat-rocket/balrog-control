@@ -2,7 +2,7 @@ import queue
 from control.definitions import State
 from idlelib.sidebar import EndLineDelegator
 
-from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 
 from control.definitions import EventType
 
@@ -41,6 +41,8 @@ def update_ui(self):
             show_sequence_error(self, event)
         case EventType.INFO_EVENT:
             show_info_event(self, event)
+        case EventType.CONFIRMATION_EVENT:
+            show_confirmation_event(self, event)
         case EventType.STATE_CHANGE:
             update_state(self, event)
 
@@ -96,6 +98,25 @@ def show_info_event(self, info_event):
     layout.addWidget(message)
     dlg.setLayout(layout)
     dlg.exec()
+
+def show_confirmation_event(self, confirmation_event):
+    """
+    Show a dialog with an confirmation request
+    """
+    dlg = QDialog(self)
+    dlg.setWindowTitle(confirmation_event["title"])
+    message = QLabel(confirmation_event['message'])
+    buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    buttonBox.accepted.connect(confirmation_event["confirm"])
+    buttonBox.accepted.connect(dlg.accept)
+    buttonBox.rejected.connect(confirmation_event["cancel"])
+    buttonBox.rejected.connect(dlg.reject)
+    layout = QVBoxLayout()
+    layout.addWidget(message)
+    layout.addWidget(buttonBox)
+    dlg.setLayout(layout)
+    dlg.exec()
+
 
 def show_sequence_error(self, error_event):
     """
