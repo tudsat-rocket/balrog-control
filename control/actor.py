@@ -125,8 +125,8 @@ class Actor:
         position = self.min_position
         servo_bricklet.set_position(self.get_output(), position)
         servo_bricklet.set_enable(self.get_output(), True)
-        sleep(1) #@TODO display servo after use?
-        servo_bricklet.set_enable(self.get_output(), False)
+        #sleep(1) #@TODO display servo after use?
+        #servo_bricklet.set_enable(self.get_output(), False)
 
     def servo_open_slow(self, servo_bricklet):
         """

@@ -89,7 +89,7 @@ def update_sequence_state(self, enabled:bool):
 
     self.button_selfcheck.setEnabled(enabled)
     self.button_test_horn.setEnabled(enabled)
-    self.button_test_light.setEnabled(enabled)
+    #self.button_test_light.setEnabled(enabled)
 
     self.button_open_sequence.setEnabled(enabled)
     self.button_reload_sequence.setEnabled(enabled)
