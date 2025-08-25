@@ -674,7 +674,10 @@ class Controller(Thread):
             raise NotConnectedException(self.event_queue)
 
         # Clear existing sensor data before calibration
-        load_cell_1_sensor_list.clear()
+        load_cell_1_sensor_list[:] = [[],[]]
+        self.event_queue.put({"type": EventType.RESET_PLOTS,
+                              })
+
 
         if weight != "":
             weight = int(weight)
@@ -694,7 +697,9 @@ class Controller(Thread):
             raise NotConnectedException(self.event_queue)
 
         # Clear existing sensor data before calibration
-        load_cell_2_sensor_list.clear()
+        #self.disable_all_sensor_callbacks()
+        load_cell_2_sensor_list[:] = [[],[]]
+        self.event_queue.put({"type": EventType.RESET_PLOTS,})
 
         if weight != "":
             weight = int(weight)

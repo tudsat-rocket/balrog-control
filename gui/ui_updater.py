@@ -48,6 +48,8 @@ def update_ui(self):
             update_state(self, event)
         case EventType.ARMING_STATE_CHANGE:
             update_arming_state(self, event)
+        case EventType.RESET_PLOTS:
+            reset_plots(self)
 
 
 def update_valve_states(self):
@@ -202,3 +204,13 @@ def update_arming_state(self, event):
             self.button_toggle_n2_pressure_valve.setEnabled(False)
             self.button_toggle_n2o_fill_valve.setEnabled(False)
             self.button_start_sequence.setEnabled(False)
+
+def reset_plots(self):
+    #self.pressure_curve_0.clear()
+    #self.pressure_curve_2.clear()
+    #self.pressure_curve_1.clear()
+    #self.differential_pressure_curve.clear()
+    #self.thermocouple_engine_curve.clear()
+    #self.thermocouple_nitrous_curve.clear()
+    self.load_cell_nitrous_curve.clear()
+    self.load_cell_thrust_curve.clear()
