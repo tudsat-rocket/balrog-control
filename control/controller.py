@@ -120,6 +120,7 @@ class Controller(Thread):
     servo_quick_disconnect_open = False
     abort_sequence = False
 
+    armingState:bool = False
     currentState:State = State.GREEN_STATE
 
 
@@ -130,6 +131,8 @@ class Controller(Thread):
         self._construct_actors()
         self._construct_sensor()
         self.brick_stack = StackHandler()
+        self.ignition_sequence = parse_csv("config/operations/ignition_sequence.csv")
+        self.n2o_purge_sequence = parse_csv("config/operations/n20_purge_sequence.csv")
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
@@ -471,6 +474,7 @@ class Controller(Thread):
         """
         toggle the vent between open to close
         """
+        print("toggle vent valve")
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
@@ -484,14 +488,6 @@ class Controller(Thread):
                               "valve": "vent",
                               "state": self.servo_vent_open,
                               })
-
-    def open_as_long_pressed_n2o_vent_valve(self):
-        # @TODO implement
-        print("keep n20 vent valve open.")
-
-    def open_as_long_pressed_n2_purge_valve(self):
-        # @TODO implement
-        print("keep n2 purge valve open.")
 
     def toggle_n2o_fill_valve(self):
         """
@@ -514,8 +510,9 @@ class Controller(Thread):
     def toggle_n2_purge_valve(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
-        if not self.currentState == State.RED_STATE:
+        if not self.currentState == State.RED_STATE or not self.armingState: #@TODO test
             raise NotAllowedInThisState(self.event_queue)
+
 
         if self.servo_purge_open:
             self.close_n2_purge_valve()
@@ -588,9 +585,8 @@ class Controller(Thread):
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
-        path = "config/operations/n20_purge_sequence.csv"
-        if os.path.exists(path):
-            self.sequence = parse_csv(path)
+        if self.n2o_purge_sequence is not None:
+            self.sequence = self.n2o_purge_sequence
             self.run()
 
     def run_ignition_sequence(self):
@@ -602,9 +598,8 @@ class Controller(Thread):
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
-        path = "config/operations/ignition_sequence.csv"
-        if os.path.exists(path):
-            self.sequence = parse_csv(path)
+        if self.ignition_sequence is not None:
+            self.sequence = self.ignition_sequence
             self.run()
 
     def load_test_definition(self, path: os.path) -> bool:
@@ -660,6 +655,21 @@ class Controller(Thread):
 
         uid = self.sensors["Nitrous load cell"].get_br_uid()
         return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
+
+    def toggle_arming(self):
+        """
+        Toggle the arming state. Only if arming is true, we can trigger the
+         purge valve, the fill valve, the pressure valve and the igniter
+        """
+        if self.armingState:
+            self.armingState = False
+        else:
+            self.armingState = True
+
+        self.event_queue.put({"type": EventType.ARMING_STATE_CHANGE,
+                              "new_state": self.armingState,
+                              })
+
 
     def verify_sequence(self) -> bool:
         if self.sequence is None:
@@ -733,7 +743,7 @@ class Controller(Thread):
 
     def start_sequence(self) -> bool:
         """
-        start the loaded sequence. Before the sequence is started, we trigger the horn and set the light on red
+        start the loaded sequence.
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
@@ -741,16 +751,6 @@ class Controller(Thread):
         print("Start sequence...")
         if self.sequence is not None:
             self.event_queue.put({"type": EventType.SEQUENCE_STARTED})
-
-            # --- prepare sequence ---
-            self.set_light_to_yellow()
-            # set light to red and trigger horn
-            # this is to ensure that everyone is aware of the sequence
-            print("Safety preparation")
-            self.test_horn()
-            self.set_light_to_red()
-            print("Wait 5s for everyone to be away")
-            sleep(5)
 
             # --- run sequence ---
             print("running sequence")
@@ -770,10 +770,9 @@ class Controller(Thread):
         self.disable_all_sensor_callbacks()
 
         # --- Finish sequence
-        self.set_light_to_yellow()
         # wait a moment to ensure every callback is done
         # print("waiting for callbacks to complete...")
-        # sleep(0.5)
+        sleep(0.5)
         dump_sensor_to_file()
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
         return True
@@ -783,16 +782,9 @@ class Controller(Thread):
         """
         abort the sequence
         """
-        # Requested by Tyler: Abort only in RED_STATE due to priority of security of personell at test site.
+        # Requested by Tyler: Abort only in RED_STATE due to priority of security of personnel at test site.
         if not self.currentState == State.RED_STATE:
-            # Soft no-op: inform UI and return without raising to avoid killing threads
-            # ToDO: Check if we really cannot simply raise a State Error. Hypothesis: If abort is called from the sequence worker, the thread will end with an error.
-            self.event_queue.put({
-                "type": EventType.INFO_EVENT,
-                "title": "Not allowed",
-                "message": "Abort is only allowed in RED state."
-            })
-            return
+            raise NotAllowedInThisState(self.event_queue)
 
         # stop the sequence worker
         self.thread_killer.set()
@@ -800,19 +792,19 @@ class Controller(Thread):
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
         # Close All Valves
-        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"])) # ToDO: Check if we really don't require get_br_uid() here
-        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"])) # ToDO: Check if we really don't require get_br_uid() here
-        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"].get_br_uid()))
+        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"].get_br_uid()))
+        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"].get_br_uid()))
 
         # Open Purge Valve
-        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"])) # ToDO: Check if we really don't require get_br_uid() here
+        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()))
 
         # visual and auditory warnings
-        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"])) # ToDO: Check if we really don't require get_br_uid() here
-        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"])) # ToDO: Check if we really don't require get_br_uid() here
+        # @TODO do we want to tigger the horn here?
+        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"].get_br_uid()))
+        #self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
 
         self.disable_all_sensor_callbacks()
-        self.set_light_to_yellow()
 
     def read_pressure_1(self):
         uid = self.sensors["Pressure 1"].get_br_uid()
@@ -892,7 +884,7 @@ class Controller(Thread):
 
     def get_sensor_callback(self, name):
         """
-        returns the sensor callbacks to register for for the thinkerforge boards
+        returns the sensor callbacks to register for the tinkerforge boards
         pressure 1 and 2 are on the same board, so we have to use the same callback
         the same of 3 and 4
         """
@@ -916,7 +908,7 @@ class Controller(Thread):
             case _:
                 print(f"no callback found for {name}")
                 self.event_queue.put({"type": EventType.INFO_EVENT, "message": f"No callback found for {name}"})
-                return lambda *args, **kwargs: None
+                return None
 
     def _construct_sensor(self) -> None:
         """
@@ -950,7 +942,6 @@ class Controller(Thread):
         for i in interval_timer.IntervalTimer(0.02):
             # signal used to abort the sequence with a button
             if self.thread_killer.is_set():
-                self.abort()
                 return
 
             while seq_idx < seq_len and int(self.sequence[seq_idx][1]) <= seq_ts:
@@ -963,4 +954,3 @@ class Controller(Thread):
                 return
 
             seq_ts += 20
-

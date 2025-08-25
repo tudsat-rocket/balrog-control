@@ -45,6 +45,8 @@ def update_ui(self):
             show_confirmation_event(self, event)
         case EventType.STATE_CHANGE:
             update_state(self, event)
+        case EventType.ARMING_STATE_CHANGE:
+            update_arming_state(self, event)
 
 
 def update_connection_state(self, connection_event):
@@ -165,3 +167,20 @@ def update_state(self, event):
 
             self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
             self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")
+
+def update_arming_state(self, event):
+    match event["new_state"]:
+        case True:
+            self.button_run_n20_purge_sequence.setEnabled(True)
+            self.button_run_ignition_sequence.setEnabled(True)
+            self.button_toggle_n2_purge_valve.setEnabled(True)
+            self.button_toggle_n2_pressure_valve.setEnabled(True)
+            self.button_toggle_n2o_fill_valve.setEnabled(True)
+            self.button_start_sequence.setEnabled(True)
+        case False:
+            self.button_run_n20_purge_sequence.setEnabled(False)
+            self.button_run_ignition_sequence.setEnabled(False)
+            self.button_toggle_n2_purge_valve.setEnabled(False)
+            self.button_toggle_n2_pressure_valve.setEnabled(False)
+            self.button_toggle_n2o_fill_valve.setEnabled(False)
+            self.button_start_sequence.setEnabled(False)
