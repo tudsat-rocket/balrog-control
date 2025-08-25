@@ -740,7 +740,10 @@ class Controller(Thread):
         print("enable sensors")
         for sensor in self.sensors.values():
             uid = sensor.get_br_uid()
-            sensor.enable_callback(self.brick_stack.get_device(uid))
+            try:
+                sensor.enable_callback(self.brick_stack.get_device(uid))
+            except Exception as e:
+                print(f"could not enable sensor {sensor.get_br_uid()}", e)
 
     def disable_all_sensor_callbacks(self):
         """
