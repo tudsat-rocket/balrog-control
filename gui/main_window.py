@@ -8,7 +8,7 @@ import pyqtgraph as pg
 from control.controller import Controller
 from .test_definition_file_explorer import (open_file_dialog, reload_file)
 from .data_plotter import update_plots
-from gui.ui_updater import update_ui
+from gui.ui_updater import update_ui, update_valve_states
 
 ui_class, baseclass = loadUiType("gui/main_view.ui")
 
@@ -59,6 +59,7 @@ class NewMainWindow(ui_class, baseclass):
         # setup timer - used to update the plots
         self.timer = QTimer()
         self.timer.timeout.connect(lambda: update_plots(self))
+        self.timer.timeout.connect(lambda: update_valve_states(self))
         self.timer.start(1000) # @TODO with 200, the UI begins to get laggy
 
         self.event_timer = QTimer()

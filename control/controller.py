@@ -83,6 +83,16 @@ def nitrous_load_cell_callback(weight):
     #load_cell_2_sensor_list[0].append(1)
     load_cell_2_sensor_list[1].append(weight)
 
+def n2o_main_servo_sensor_callback(channel, position):
+    print("N20 main valve callback")
+    n2o_main_servo_sensor_list[0].append(datetime.now())
+    n2o_main_servo_sensor_list[1].append(position)
+
+def n2_purge_servo_sensor_callback(channel, position):
+    print("N20 purge valve callback")
+    n2_purge_servo_sensor_list[0].append(datetime.now())
+    n2_purge_servo_sensor_list[1].append(position)
+
 def differential_pressure_callback( channel, current):
     #print("Channel: " + str(channel))
     #print("Current: " + str(current / 1000000.0) + " mA")
@@ -887,6 +897,10 @@ class Controller(Thread):
                 return thrust_load_cell_callback
             case "Nitrous load cell":
                 return nitrous_load_cell_callback
+            case "N20MainValveSensor":
+                return n2o_main_servo_sensor_callback
+            case "N2PurgeValveSensor":
+                return n2_purge_servo_sensor_callback
             case _:
                 print(f"no callback found for {name}")
                 return None

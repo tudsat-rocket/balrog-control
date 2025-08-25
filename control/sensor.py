@@ -61,6 +61,11 @@ class Sensor:
             case SensorType.DIFFERENTIAL_PRESSURE:
                 # print("is type of differential pressure")
                 return self.read_pressure(brick)
+            case SensorType.SERVO_STATE:
+                return self.read_servo_state(brick)
+
+    def read_servo_state(self, brick) -> int:
+        return brick.get_current_position(self.channel)
 
     def read_pressure(self, brick) -> int:
         """
@@ -106,6 +111,9 @@ class Sensor:
                 brick.register_callback(brick.CALLBACK_CURRENT, self.callback)
             case SensorType.LOAD:
                 brick.register_callback(brick.CALLBACK_WEIGHT, self.callback)
+            case SensorType.SERVO_STATE:
+                print("Setting up servo state")
+                brick.register_callback(brick.CALLBACK_POSITION_REACHED, self.callback)
 
     def enable_callback(self, brick):
         """
@@ -121,6 +129,8 @@ class Sensor:
                 brick.set_current_callback_configuration(self.channel, self.period, False, "x", 0, 0)
             case SensorType.LOAD:
                 brick.set_weight_callback_configuration(self.period, False, "x", 0, 0)
+            case SensorType.SERVO_STATE:
+                brick.set_position_reached_callback_configuration(self.channel, True)
 
     def disable_callback(self, brick):
         """
@@ -134,6 +144,9 @@ class Sensor:
                 brick.set_current_callback_configuration(self.channel, 0, False, "x", 0, 0)
             case SensorType.LOAD:
                 brick.set_weight_callback_configuration(0, False, "x", 0, 0)
+            case SensorType.SERVO_STATE:
+                brick.set_position_reached_callback_configuration(self.channel, False)
+
 
 
     def calibrate_load(self, brick, weight=None) -> None:

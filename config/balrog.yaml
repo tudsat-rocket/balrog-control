@@ -83,3 +83,13 @@ sensors:
     uid: 29gV
     channel: -1 # not used
     period: 5
+  - name: N20MainValveSensor
+    type: SERVO_STATE
+    uid: 2cPc
+    channel: 1
+    period: -1
+  - name: N2PurgeValveSensor
+    type: SERVO_STATE
+    uid: 2cPc
+    channel: 4
+    period: -1

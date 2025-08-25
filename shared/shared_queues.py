@@ -12,3 +12,7 @@ temperature_engine_sensor_list = [[],[]]
 # load cell
 load_cell_1_sensor_list = [[],[]]
 load_cell_2_sensor_list = [[],[]]
+
+#servo
+n2o_main_servo_sensor_list = [[],[]]
+n2_purge_servo_sensor_list = [[],[]]

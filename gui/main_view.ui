@@ -49,7 +49,7 @@
                 <item>
                  <widget class="QLineEdit" name="edit_host">
                   <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                   <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
                    <string>10.42.0.81</string>
@@ -66,7 +66,7 @@
                 <item>
                  <widget class="QLineEdit" name="edit_port">
                   <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                   <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
                    <string>4223</string>
@@ -85,7 +85,7 @@
                 <item>
                  <widget class="QPushButton" name="button_connect">
                   <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                   <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
                    <string>Connect</string>
@@ -178,10 +178,7 @@
        <item>
         <widget class="QFrame" name="frame_2">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
@@ -244,10 +241,7 @@
                 </sizepolicy>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Shadow::Raised</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_11">
                 <item>
@@ -365,14 +359,14 @@
               </widget>
              </item>
              <item row="4" column="0">
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="label_valve_status_n2_purge">
                <property name="text">
                 <string>Purge valve</string>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLabel" name="label_4">
+              <widget class="QLabel" name="label_valve_status_n2_purge_state">
                <property name="text">
                 <string>unknown</string>
                </property>
@@ -417,10 +411,7 @@
           <item>
            <widget class="QFrame" name="frame_4">
             <property name="frameShape">
-             <enum>QFrame::Shape::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
@@ -661,7 +652,7 @@
     </size>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+    <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string comment="Sensor Plots"/>
