@@ -149,7 +149,7 @@ class Controller(Thread):
 
 
     def __init__(self, event_queue: Queue, thread_killer):
-        super().__init__(self)
+        super().__init__(target=None)
         self.actors = {}
         self.sensors = {}
         self._construct_actors()
@@ -807,8 +807,6 @@ class Controller(Thread):
 
             # --- run sequence ---
             print("running sequence")
-            # start the sequence
-            self.enable_all_sensor_callbacks()
             self.start()
             return True
 
@@ -817,10 +815,7 @@ class Controller(Thread):
                 {"type": EventType.SEQUENCE_ERROR, "message": "No Sequence found. Please load a sequence first"})
             return False
 
-
     def end_sequence(self) -> bool:
-
-        self.disable_all_sensor_callbacks()
 
         # --- Finish sequence
         # wait a moment to ensure every callback is done

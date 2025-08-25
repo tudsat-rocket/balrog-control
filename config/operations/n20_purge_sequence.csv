@@ -1,9 +1,9 @@
 actor_name,times_ms,action
-NitrousVent,1,SERVO_OPEN
-NitrousFill,1,SERVO_OPEN
-N2Pressure,1,SERVO_OPEN
-NitrousMain,1,SERVO_OPEN
-NitrousVent,2000,SERVO_CLOSE
-NitrousFill,2000,SERVO_CLOSE
-N2Pressure,2000,SERVO_CLOSE
-NitrousMain,2000,SERVO_CLOSE
+N20VentValve,1,SERVO_OPEN
+N20FillValve,1,SERVO_OPEN
+N2PressureValve,1,SERVO_OPEN
+N20MainValve,1,SERVO_OPEN
+N20VentValve,2000,SERVO_CLOSE
+N20FillValve,2000,SERVO_CLOSE
+N2PressureValve,2000,SERVO_CLOSE
+N20MainValve,2000,SERVO_CLOSE
