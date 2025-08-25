@@ -157,7 +157,7 @@ class Actor:
 
         step_size = -25 if not self.max_position < self.min_position else 25
 
-        for i in range(current_pos, int(self.max_position*0.75), step_size):  # CLOSE*0.75 => 1/4 open
+        for i in range(current_pos, int(self.max_position*0.6), step_size):  # CLOSE*0.6 => ~ 1/4 open
             servo_bricklet.set_position(self.get_output(), i)
 
             # to slow down the servo opening

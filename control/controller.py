@@ -148,8 +148,8 @@ class Controller(Thread):
     currentState:State = State.GREEN_STATE
 
 
-    def __init__(self, event_queue: Queue, thread_killer):
-        Thread.__init__(self, target=self._sequence_worker, args=(self,))
+    def __init__(self, event_queue: Queue, thread_killer, abort_signal, run_signal):
+        super().__init__(target=None)
         self.actors = {}
         self.sensors = {}
         self._construct_actors()
@@ -160,12 +160,14 @@ class Controller(Thread):
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
+        self.abort_signal = abort_signal
+        self.run_signal = run_signal
         global controller_singelton
         controller_singelton = self
-
+        self.start()
 
     def run(self):
-        super().run()
+        self._thread_loop()
 
     def join(self, timeout = None):
         super().join()
@@ -218,17 +220,18 @@ class Controller(Thread):
                 return False
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
-        print("Adjusting valve!")
         actor = self.actors[valve]
+        adjust = 50
         brick = self.brick_stack.get_device(actor.get_br_uid())
+
         if position == actor.max_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.max_position - 50)
+            brick.set_position(actor.output, actor.max_position - adjust )
         elif position == actor.max_position:
-            brick.set_position(actor.output, actor.max_position + 50)
+            brick.set_position(actor.output, actor.max_position + adjust)
         elif position == actor.min_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.min_position + 50)
+            brick.set_position(actor.output, actor.min_position + adjust)
         elif position == actor.min_position:
-            brick.set_position(actor.output, actor.min_position - 50)
+            brick.set_position(actor.output, actor.min_position - adjust)
 
     def read_valve_states(self) -> None:
         sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
@@ -636,7 +639,7 @@ class Controller(Thread):
 
         if self.n2o_purge_sequence is not None:
             self.sequence = self.n2o_purge_sequence
-            self.run()
+            self.run_signal.set()
 
     def run_ignition_sequence(self):
         """
@@ -649,7 +652,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
         if self.ignition_sequence is not None:
             self.sequence = self.ignition_sequence
-            self.run()
+            self.run_signal.set()
 
     def load_test_definition(self, path: os.PathLike) -> bool:
         if not self.connected:
@@ -751,7 +754,10 @@ class Controller(Thread):
         print("enable sensors")
         for sensor in self.sensors.values():
             uid = sensor.get_br_uid()
-            sensor.enable_callback(self.brick_stack.get_device(uid))
+            try:
+                sensor.enable_callback(self.brick_stack.get_device(uid))
+            except Exception as e:
+                print(f"could not enable sensor {sensor.get_br_uid()}", e)
 
     def disable_all_sensor_callbacks(self):
         """
@@ -816,9 +822,7 @@ class Controller(Thread):
 
             # --- run sequence ---
             print("running sequence")
-            # start the sequence
-            self.enable_all_sensor_callbacks()
-            self.run()
+            self.run_signal.set()
             return True
 
         else:
@@ -826,10 +830,7 @@ class Controller(Thread):
                 {"type": EventType.SEQUENCE_ERROR, "message": "No Sequence found. Please load a sequence first"})
             return False
 
-
     def end_sequence(self) -> bool:
-
-        self.disable_all_sensor_callbacks()
 
         # --- Finish sequence
         # wait a moment to ensure every callback is done
@@ -849,7 +850,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
 
         # stop the sequence worker
-        self.thread_killer.set()
+        self.abort_signal.set()
 
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
@@ -1005,14 +1006,15 @@ class Controller(Thread):
         if self.sequence is None:
             self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
             return
-
+        
         seq_idx = 0
         seq_ts = 0
         seq_len = len(self.sequence)
 
         for i in interval_timer.IntervalTimer(0.02):
             # signal used to abort the sequence with a button
-            if self.thread_killer.is_set():
+            if self.abort_signal.is_set():
+                self.abort_signal.clear()
                 return
 
             while seq_idx < seq_len and int(self.sequence[seq_idx][1]) <= seq_ts:
@@ -1025,3 +1027,11 @@ class Controller(Thread):
                 return
 
             seq_ts += 20
+
+    def _thread_loop(self):
+
+        while not self.thread_killer.is_set():
+
+            if self.run_signal.is_set():
+                self.run_signal.clear()
+                self._sequence_worker()
