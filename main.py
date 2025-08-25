@@ -17,12 +17,14 @@ connected = False
 if __name__ == "__main__":
     # define shared queue between threads to communicate sensor values
     thread_killer = Event()
+    abort_signal = Event()
+    run_signal = Event()
 
     event_queue = queue.Queue()
 
     # start multithreaded environment to separate UI from data handling
 
-    controller = Controller(event_queue, thread_killer)
+    controller = Controller(event_queue, thread_killer, abort_signal, run_signal)
 
 
     """
