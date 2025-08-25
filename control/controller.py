@@ -623,6 +623,9 @@ class Controller(Thread):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
+        # Clear existing sensor data before calibration
+        load_cell_1_sensor_list.clear()
+
         if weight != "":
             weight = int(weight)
         elif weight == "-1":
@@ -639,6 +642,16 @@ class Controller(Thread):
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
+
+        # Clear existing sensor data before calibration
+        load_cell_2_sensor_list.clear()
+
+        if weight != "":
+            weight = int(weight)
+        elif weight == "-1":
+            weight = None
+        else:
+            weight = 0
 
         uid = self.sensors["Nitrous load cell"].get_br_uid()
         return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
@@ -660,11 +673,12 @@ class Controller(Thread):
 
     def verify_sequence(self) -> bool:
         if self.sequence is None:
+            self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence loaded."})
             return False
 
         for step in self.sequence:
-
             if step[0] not in self.actors.keys():
+                self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": f"Actor {step[0]} not found."})
                 return False
 
         return True
@@ -710,6 +724,9 @@ class Controller(Thread):
         dump_sensor_to_file()
 
     def reset_sensors(self):
+        # Disable all sensor callbacks before clearing the lists
+        self.disable_all_sensor_callbacks()
+
         pressure_0_sensor_list.clear()
         pressure_1_sensor_list.clear()
         pressure_2_sensor_list.clear()
@@ -860,8 +877,11 @@ class Controller(Thread):
             actors = balrog_config['actors']
 
             for actor in actors:
-                # print(actor)
-                self.actors[actor['name']] = Actor(actor['name'], actor['type'], actor['uid'], actor['output'])
+                # Convert actor type to ActorType enum
+                actor_type = ActorType[actor['type'].upper()]
+                self.actors[actor['name']] = Actor(
+                    actor['name'], actor_type, actor['uid'], actor['output'], actor.get('inverted', False)
+                )
 
         print(self.actors)
 
@@ -890,6 +910,7 @@ class Controller(Thread):
                 return nitrous_load_cell_callback
             case _:
                 print(f"no callback found for {name}")
+                self.event_queue.put({"type": EventType.INFO_EVENT, "message": f"No callback found for {name}"})
                 return None
 
     def _construct_sensor(self) -> None:
@@ -913,23 +934,26 @@ class Controller(Thread):
     # Thread target
     # ++++++
     def _sequence_worker(self):
+        if self.sequence is None:
+            self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
+            return
 
         seq_idx = 0
         seq_ts = 0
         seq_len = len(self.sequence)
 
         for i in interval_timer.IntervalTimer(0.02):
-
             # signal used to abort the sequence with a button
             if self.thread_killer.is_set():
                 return
 
-            while int(self.sequence[seq_idx][1]) <= seq_ts:
+            while seq_idx < seq_len and int(self.sequence[seq_idx][1]) <= seq_ts:
                 tpl = self.sequence[seq_idx]
                 self.actors[tpl[0]].action(tpl[2], self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()))
-                if seq_idx == seq_len-1:
-                    self.end_sequence()
-                    return
                 seq_idx += 1
+
+            if seq_idx >= seq_len:
+                self.end_sequence()
+                return
 
             seq_ts += 20
