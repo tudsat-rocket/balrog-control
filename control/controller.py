@@ -88,18 +88,23 @@ def valve_sensor_callback(channel, position):
         case 0:
             n2o_fill_valve_sensor_list[0].append(datetime.now())
             n2o_fill_valve_sensor_list[1].append(position)
+            controller_singelton.adjust_valve_if_at_limit("N20FillValve", position)
         case 1:
             n2o_vent_valve_sensor_list[0].append(datetime.now())
             n2o_vent_valve_sensor_list[1].append(position)
+            controller_singelton.adjust_valve_if_at_limit("N20VentValve", position)
         case 2:
             n2o_main_valve_sensor_list[0].append(datetime.now())
             n2o_main_valve_sensor_list[1].append(position)
+            controller_singelton.adjust_valve_if_at_limit("N20MainValve", position)
         case 3:
             n2_pressure_valve_sensor_list[0].append(datetime.now())
             n2_pressure_valve_sensor_list[1].append(position)
+            controller_singelton.adjust_valve_if_at_limit("N2PressureValve", position)
         case 4:
             n2_purge_valve_sensor_list[0].append(datetime.now())
             n2_purge_valve_sensor_list[1].append(position)
+            controller_singelton.adjust_valve_if_at_limit("N2PurgeValve", position)
 
 def differential_pressure_callback( channel, current):
     #print("Channel: " + str(channel))
@@ -154,6 +159,8 @@ class Controller(Thread):
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
+        global controller_singelton
+        controller_singelton = self
 
 
     def run(self):
@@ -208,6 +215,18 @@ class Controller(Thread):
                                      )
                 return False
 
+    def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
+        print("Adjusting valve!")
+        actor = self.actors[valve]
+        brick = self.brick_stack.get_device(actor.get_br_uid())
+        if position == actor.max_position and actor.max_position > actor.min_position:
+            brick.set_position(actor.output, actor.max_position - 50)
+        elif position == actor.max_position:
+            brick.set_position(actor.output, actor.max_position + 50)
+        elif position == actor.min_position and actor.max_position > actor.min_position:
+            brick.set_position(actor.output, actor.min_position + 50)
+        elif position == actor.min_position:
+            brick.set_position(actor.output, actor.min_position - 50)
 
     def read_valve_states(self) -> None:
         sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
