@@ -877,8 +877,11 @@ class Controller(Thread):
             actors = balrog_config['actors']
 
             for actor in actors:
-                # print(actor)
-                self.actors[actor['name']] = Actor(actor['name'], actor['type'], actor['uid'], actor['output'])
+                # Convert actor type to ActorType enum
+                actor_type = ActorType[actor['type'].upper()]
+                self.actors[actor['name']] = Actor(
+                    actor['name'], actor_type, actor['uid'], actor['output'], actor.get('inverted', False)
+                )
 
         print(self.actors)
 

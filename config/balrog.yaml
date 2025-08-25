@@ -16,22 +16,27 @@ actors:
     type: SERVO
     uid: 2cPc
     output: 2
+    inverted: True
   - name: N20VentValve # rename from  NitrousVent
     type: SERVO
     uid: 2cPc
     output: 1
+    inverted: False
   - name: N20FillValve #renamed from NitrousFill
     type: SERVO
     uid: 2cPc
     output: 0
+    inverted: False
   - name: N2PressureValve #renamed from N2Pressure
     type: SERVO
     uid: 2cPc
     output: 3
+    inverted: False
   - name: N2PurgeValve #renmaned from N2Purge
     type: SERVO
     uid: 2cPc
     output: 4
+    inverted: FALSE
   - name: QuickDisconnect
     type: SERVO
     uid: 2cPc
