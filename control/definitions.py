@@ -15,6 +15,7 @@ class SensorType(StrEnum):
     TEMPERATURE = "TEMPERATURE"
     LOAD = "LOAD"
     DIFFERENTIAL_PRESSURE = "DIFFERENTIAL_PRESSURE"
+    SERVO_STATE = "SERVO_STATE"
 
 class ActionType(IntEnum):
     NOT_IMPLEMENTED = -1 
