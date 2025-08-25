@@ -169,6 +169,34 @@
                </property>
               </widget>
              </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>v</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Shortcut N2 Purge</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Esc</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>Shortcut N20 vent</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -189,47 +217,59 @@
             <property name="title">
              <string>Green State</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_9">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
-              <widget class="QPushButton" name="button_green_state">
-               <property name="text">
-                <string>Go to Green State</string>
+              <widget class="QFrame" name="frame_5">
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_selfcheck">
-               <property name="text">
-                <string>Perform Self Check (no action)</string>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_test_counter">
-               <property name="text">
-                <string>Test Counter</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_dump_sensors_to_file">
-               <property name="text">
-                <string>dump sensors to file</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_reset_sensors">
-               <property name="text">
-                <string>Reset Sensors</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_toggle_sensors">
-               <property name="text">
-                <string>Toggle(enable/Disable) Sensor</string>
-               </property>
+               <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QPushButton" name="button_green_state">
+                  <property name="text">
+                   <string>Go to Green State</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_toggle_sensors">
+                  <property name="text">
+                   <string>Toggle(enable/Disable) Sensor</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_dump_sensors_to_file">
+                  <property name="text">
+                   <string>dump sensors to file</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_reset_sensors">
+                  <property name="text">
+                   <string>Reset Sensors</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_selfcheck">
+                  <property name="text">
+                   <string>Perform Self Check (no action)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="button_test_counter">
+                  <property name="text">
+                   <string>Test Counter</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
              <item>
@@ -259,16 +299,75 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="edit_calibrate_load">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <widget class="QFrame" name="frame_3">
+                  <property name="frameShape">
+                   <enum>QFrame::Shape::StyledPanel</enum>
                   </property>
-                  <property name="toolTip">
-                   <string>input kown weight. If empty we use the value 0</string>
+                  <property name="frameShadow">
+                   <enum>QFrame::Shadow::Raised</enum>
                   </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <item>
+                    <widget class="QFrame" name="frame_6">
+                     <property name="frameShape">
+                      <enum>QFrame::Shape::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Shadow::Sunken</enum>
+                     </property>
+                     <property name="lineWidth">
+                      <number>0</number>
+                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_13">
+                      <item>
+                       <widget class="QLabel" name="label_10">
+                        <property name="text">
+                         <string>enter calibration weight</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="frame_7">
+                     <property name="frameShape">
+                      <enum>QFrame::Shape::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Shadow::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_8">
+                      <item>
+                       <widget class="QLineEdit" name="edit_calibrate_load">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="toolTip">
+                         <string>input kown weight. If empty we use the value 0</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_9">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string>g</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                </layout>
@@ -420,27 +519,6 @@
                 <string>Manual control</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="button_test_horn">
-                  <property name="text">
-                   <string>trigger Horn</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QPushButton" name="button_toggle_n2_purge_valve">
-                  <property name="text">
-                   <string>Toggle N2 Purge valve</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="button_close_all_valves">
-                  <property name="text">
-                   <string>Close all valves</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="0">
                  <widget class="QPushButton" name="button_toggle_n2o_main_valve">
                   <property name="text">
@@ -448,24 +526,13 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
-                 <widget class="QPushButton" name="button_toggle_quick_disconnect">
-                  <property name="text">
-                   <string>Toggle Quick Disconnect</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="3" column="1">
                  <widget class="QPushButton" name="button_toggle_n2_pressure_valve">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
                    <string>Toggle N2 Pressure valve</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
-                  <property name="text">
-                   <string>Toggle N20 fill valve</string>
                   </property>
                  </widget>
                 </item>
@@ -476,6 +543,57 @@
                   </property>
                   <property name="autoRepeat">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="button_toggle_arming">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(255, 190, 111);</string>
+                  </property>
+                  <property name="text">
+                   <string>Arming</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="button_close_all_valves">
+                  <property name="text">
+                   <string>Close all valves</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="button_toggle_n2_purge_valve">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Toggle N2 Purge valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="button_test_horn">
+                  <property name="text">
+                   <string>trigger Horn</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="button_toggle_quick_disconnect">
+                  <property name="text">
+                   <string>Toggle Quick Disconnect</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Toggle N20 fill valve</string>
                   </property>
                  </widget>
                 </item>
@@ -490,6 +608,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
                  <widget class="QPushButton" name="button_run_n20_purge_sequence">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(53, 132, 228);</string>
                   </property>
@@ -500,6 +621,9 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="button_run_ignition_sequence">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(224, 27, 36);</string>
                   </property>
@@ -591,7 +715,7 @@
                 <item>
                  <widget class="QPushButton" name="button_start_sequence">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
