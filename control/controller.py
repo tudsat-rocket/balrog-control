@@ -672,15 +672,21 @@ class Controller(Thread):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
-        # Clear existing sensor data before calibration
-        load_cell_1_sensor_list.clear()
+        # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+        load_cell_1_sensor_list[:] = [[], []]
 
-        if weight != "":
-            weight = int(weight)
-        elif weight == "-1":
-            weight = None
-        else:
+        # Normalize and parse weight input
+        w = (weight or "").strip()
+        if w == "-1":
+            weight = None  # tare
+        elif w == "":
             weight = 0
+        else:
+            try:
+                weight = int(w)
+            except ValueError:
+                # Fallback to 0 on invalid input
+                weight = 0
 
         uid = self.sensors["Thrust load cell"].get_br_uid()
         return self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
@@ -692,15 +698,21 @@ class Controller(Thread):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
-        # Clear existing sensor data before calibration
-        load_cell_2_sensor_list.clear()
+        # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+        load_cell_2_sensor_list[:] = [[], []]
 
-        if weight != "":
-            weight = int(weight)
-        elif weight == "-1":
-            weight = None
-        else:
+        # Normalize and parse weight input
+        w = (weight or "").strip()
+        if w == "-1":
+            weight = None  # tare
+        elif w == "":
             weight = 0
+        else:
+            try:
+                weight = int(w)
+            except ValueError:
+                # Fallback to 0 on invalid input
+                weight = 0
 
         uid = self.sensors["Nitrous load cell"].get_br_uid()
         return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
@@ -776,19 +788,20 @@ class Controller(Thread):
         # Disable all sensor callbacks before clearing the lists
         self.disable_all_sensor_callbacks()
 
-        pressure_0_sensor_list.clear()
-        pressure_1_sensor_list.clear()
-        pressure_2_sensor_list.clear()
-        pressure_3_sensor_list.clear()
-        differential_pressure_list.clear()
+        # Reinitialize lists (keep 2-list structure) so GUI clears plots on next update
+        pressure_0_sensor_list[:] = [[], []]
+        pressure_1_sensor_list[:] = [[], []]
+        pressure_2_sensor_list[:] = [[], []]
+        pressure_3_sensor_list[:] = [[], []]
+        differential_pressure_list[:] = [[], []]
 
         # temp
-        temperature_nitrous_sensor_list.clear()
-        temperature_engine_sensor_list.clear()
+        temperature_nitrous_sensor_list[:] = [[], []]
+        temperature_engine_sensor_list[:] = [[], []]
 
         # load cell
-        load_cell_1_sensor_list.clear()
-        load_cell_2_sensor_list.clear()
+        load_cell_1_sensor_list[:] = [[], []]
+        load_cell_2_sensor_list[:] = [[], []]
 
     def start_sequence(self) -> bool:
         """
