@@ -1006,10 +1006,11 @@ class Controller(Thread):
         if self.sequence is None:
             self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
             return
-        
+
+        seq_local = self.sequence.copy()
         seq_idx = 0
         seq_ts = 0
-        seq_len = len(self.sequence)
+        seq_len = len(seq_local)
 
         for i in interval_timer.IntervalTimer(0.02):
             # signal used to abort the sequence with a button
@@ -1017,8 +1018,8 @@ class Controller(Thread):
                 self.abort_signal.clear()
                 return
 
-            while seq_idx < seq_len and int(self.sequence[seq_idx][1]) <= seq_ts:
-                tpl = self.sequence[seq_idx]
+            while seq_idx < seq_len and int(seq_local[seq_idx][1]) <= seq_ts:
+                tpl = seq_local[seq_idx]
                 self.actors[tpl[0]].action(tpl[2], self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()))
                 seq_idx += 1
 
@@ -1035,3 +1036,5 @@ class Controller(Thread):
             if self.run_signal.is_set():
                 self.run_signal.clear()
                 self._sequence_worker()
+
+            sleep(0.1)
