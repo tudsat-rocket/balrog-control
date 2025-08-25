@@ -4,7 +4,7 @@ import os
 from typing import List, Tuple
 from .definitions import ActionType, str_to_action
 
-def parse_csv(file: os.path) -> List[Tuple[str, int, ActionType]]:
+def parse_csv(file: os.PathLike) -> List[Tuple[str, int, ActionType]]:
     """
     Parse a test definition from a CSV file.
     """
@@ -38,7 +38,7 @@ def parse_csv(file: os.path) -> List[Tuple[str, int, ActionType]]:
     return event_sequence
 
 
-def parse_yaml(file: os.path) -> List[Tuple[str, int, ActionType]]:
+def parse_yaml(file: os.PathLike) -> List[Tuple[str, int, ActionType]]:
     """
     Parse a test definition from a YAML file (TBI).
     """

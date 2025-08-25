@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from time import sleep
+from pathlib import Path
 
 import yaml
 import interval_timer
@@ -154,8 +155,8 @@ class Controller(Thread):
         self._construct_actors()
         self._construct_sensor()
         self.brick_stack = StackHandler()
-        self.ignition_sequence = parse_csv("config/operations/ignition_sequence.csv")
-        self.n2o_purge_sequence = parse_csv("config/operations/n20_purge_sequence.csv")
+        self.ignition_sequence = parse_csv(Path("config/operations/ignition_sequence.csv"))
+        self.n2o_purge_sequence = parse_csv(Path("config/operations/n20_purge_sequence.csv"))
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
@@ -183,6 +184,7 @@ class Controller(Thread):
                                   "hostname": "unkown",
                                   "port": "unkown"}
                                  )
+            return False  # Explicitly return False when disconnecting
         else:
             print(f"Connect to {host}:{port}")
             try:
@@ -237,10 +239,12 @@ class Controller(Thread):
             l[1].append(self.brick_stack.get_device(self.sensors[s].get_br_uid()).get_current_position(self.sensors[s].channel))
 
     def stack_state(self) -> dict[str, Any]:
-        pass
+        # Placeholder implementation to ensure a dictionary is always returned
+        return {"state": "stack_state_placeholder"}
 
     def valve_state(self) -> dict[str, Any]:
-        pass
+        # Placeholder implementation to ensure a dictionary is always returned
+        return {"state": "valve_state_placeholder"}
 
     def self_check(self) -> bool:
         if not self.connected:
@@ -647,7 +651,7 @@ class Controller(Thread):
             self.sequence = self.ignition_sequence
             self.run()
 
-    def load_test_definition(self, path: os.path) -> bool:
+    def load_test_definition(self, path: os.PathLike) -> bool:
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if path is not None:
@@ -938,7 +942,7 @@ class Controller(Thread):
         """
         returns the sensor callbacks to register for the tinkerforge boards
         pressure 1 and 2 are on the same board, so we have to use the same callback
-        the same of 3 and 4
+        the same of 3 and 4. If no callback is found, a no-op function is returned to avoid type issues.
         """
         match name:
             case "Pressure 0":
@@ -960,9 +964,9 @@ class Controller(Thread):
             case "N2OMainValveSensor" | "N2OFillValveSensor" | "N2OVentValveSensor" | "N2PurgeValveSensor" | "N2PressureValveSensor":
                 return valve_sensor_callback
             case _:
-                print(f"no callback found for {name}")
+                print(f"No callback found for {name}")
                 self.event_queue.put({"type": EventType.INFO_EVENT, "message": f"No callback found for {name}"})
-                return None
+                return lambda *args, **kwargs: None  # Return a no-op function
 
     def _construct_sensor(self) -> None:
         """
