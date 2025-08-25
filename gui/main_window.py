@@ -147,15 +147,15 @@ class NewMainWindow(ui_class, baseclass):
         # pressure
         self.plot_pressure_0.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_0.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_0.setLabel('left', 'Pressure 0 (bar)', color='#FFFFFF')
+        self.plot_pressure_0.setLabel('left', 'N2 Tank (P0) (bar)', color='#FFFFFF')
 
         self.plot_pressure_1.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_1.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_1.setLabel('left', 'Pressure 1 (bar)', color='#FFFFFF')
+        self.plot_pressure_1.setLabel('left', 'N2O Tank (P1) (bar)', color='#FFFFFF')
 
         self.plot_pressure_2.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_2.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_pressure_2.setLabel('left', 'Pressure 2 (bar)', color='#FFFFFF')
+        self.plot_pressure_2.setLabel('left', 'Pre-Chamber (P2) (bar)', color='#FFFFFF')
 
         # plot_differential_pressure
         self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
@@ -174,8 +174,8 @@ class NewMainWindow(ui_class, baseclass):
         # plot_load_cell
         self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (Kg)', color='#FFFFFF')
+        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (g)', color='#FFFFFF')
 
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (Kg)', color='#FFFFFF')
+        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (g)', color='#FFFFFF')
