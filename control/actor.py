@@ -7,6 +7,8 @@ class Actor:
     """
     Abstract representation of an actor
     """
+    SERVO_CLOSE = 6000 # max degree close
+    SERVO_OPEN = 0 # 0 is open
 
     def __init__(self, name: str = "", actor_type: ActorType = ActorType.DUMMY,
                  uid: str = "", output: int = 0, inverted: bool = False):
@@ -122,7 +124,7 @@ class Actor:
         """
         opens the servo to 90°
         """
-        position = 0  # 9000/100 degrees => 90 degrees
+        position = self.SERVO_OPEN
         if self.inverted:
             position *= -1
         servo_bricklet.set_position(self.get_output(), position)
@@ -140,11 +142,11 @@ class Actor:
 
         current_pos = servo_bricklet.get_current_position(self.get_output())
 
-        for i in range(current_pos, 0, -50): # 9000/100 degrees => 90 degrees
+        for i in range(current_pos, self.SERVO_OPEN, -50):
             position = i if not self.inverted else -i
             servo_bricklet.set_position(self.get_output(), position)
             # to slow down the servo opening
-            sleep(0.01) # 2s/9000 steps = 2s until open
+            sleep(0.01) # 2s until open
 
         #sleep(1)  # @TODO display servo after use?
         #servo_bricklet.set_enable(self.get_output(), False)
@@ -153,11 +155,9 @@ class Actor:
         servo_bricklet.set_enable(self.get_output(), True)
         current_pos = servo_bricklet.get_current_position(self.get_output())
 
-        for i in range(current_pos, 6750, -25):  # 2250/100 degrees => 22.5 degrees => 1/4 open
+        for i in range(current_pos, int(self.SERVO_CLOSE*0.75), -25):  # CLOSE*0.75 => 1/4 open
             position = i if not self.inverted else -i
-            # 9000 -2250 = 6750 => 1/4 open
             servo_bricklet.set_position(self.get_output(), position)
-            # 9000 -2250 = 6750 => 1/4 open
 
             # to slow down the servo opening
             sleep(0.022)  # 2s/2250 steps = 2s until open
@@ -166,9 +166,9 @@ class Actor:
 
     def servo_close(self, servo_bricklet) -> None:
         """
-        close is ops 9000
+        close is ops 6000
         """
-        servo_bricklet.set_position(self.get_output(), 9000) # 9000/100 degrees => 90 degrees
+        servo_bricklet.set_position(self.get_output(), self.SERVO_CLOSE)
         servo_bricklet.set_enable(self.get_output(), True)
 
     def servo_toggle(self, servo_bricklet) -> None:

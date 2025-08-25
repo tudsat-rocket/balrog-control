@@ -864,6 +864,9 @@ class Controller(Thread):
                     velocity = 0
                     acceleration = 0
                     deceleration = 0
+                    pwm_min = 500 # pwm values from datasheet
+                    pwm_max = 2500
+                    brick.set_pulse_width(actor.output, pwm_min, pwm_max)
                     brick.set_motion_configuration(actor.output, velocity, acceleration, deceleration)
 
 
