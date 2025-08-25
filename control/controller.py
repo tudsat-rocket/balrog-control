@@ -890,6 +890,9 @@ class Controller(Thread):
                     velocity = 0
                     acceleration = 0
                     deceleration = 0
+                    pwm_min = 500 # pwm values from datasheet
+                    pwm_max = 2500
+                    brick.set_pulse_width(actor.output, pwm_min, pwm_max)
                     brick.set_motion_configuration(actor.output, velocity, acceleration, deceleration)
 
 
@@ -904,9 +907,10 @@ class Controller(Thread):
 
             for actor in actors:
                 # Convert actor type to ActorType enum
-                actor_type = ActorType[actor['type'].upper()]
+                # actor_type = ActorType[actor['type'].upper()]
                 self.actors[actor['name']] = Actor(
-                    actor['name'], actor_type, actor['uid'], actor['output'], actor.get('inverted', False)
+                    actor['name'], actor['type'], actor['uid'], actor['output'],
+                    actor.get('min_position', -1), actor.get('max_position', -1)
                 )
 
         print(self.actors)
