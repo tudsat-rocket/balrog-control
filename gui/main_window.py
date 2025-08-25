@@ -1,8 +1,7 @@
 from curses.ascii import controlnames
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtUiTools import loadUiType
-from PySide6.QtGui import QShortcut, QKeySequence
 import pyqtgraph as pg
 
 from control.controller import Controller
@@ -41,7 +40,6 @@ class NewMainWindow(ui_class, baseclass):
         self.setupUi(self)
         self.setup_graphs()
         self.setup_buttons()
-        self.setup_shortcuts()
 
         # create plot curves
         self.pressure_curve_0 = self.plot_pressure_0.plot([], [], pen=pg.mkPen(color="r", width=1.5))
@@ -66,13 +64,28 @@ class NewMainWindow(ui_class, baseclass):
         self.event_timer.start(1000)
 
 
-    def setup_shortcuts(self):
-        open_n2o_vent_valve_shortcut = QShortcut(QKeySequence("v"), self)
-        open_n2o_vent_valve_shortcut.activated.connect(self.controller.open_as_long_pressed_n2o_vent_valve)
+    def keyPressEvent(self, event):
+        """
+        override the keypress handler to implement our shortcuts
+        """
+        # implement v shortcut for opening the vent valve as long as the key is pressed
+        if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
+            self.controller.toggle_n2o_vent_valve()
+        # implement the esc shortcut for opening the purge valve as long as the key us pressed
+        elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
+            self.controller.toggle_n2_purge_valve()
 
+        super().keyPressEvent(event)
 
-        open_n2_purge_valve_shortcut = QShortcut(QKeySequence("esc"), self)
-        open_n2_purge_valve_shortcut.activated.connect(self.controller.open_as_long_pressed_n2_purge_valve)
+    def keyReleaseEvent(self, event):
+        """
+        override the keyrelease handler to implement our shortcuts
+        """
+        if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
+            self.controller.toggle_n2o_vent_valve()
+        elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
+            self.controller.toggle_n2_purge_valve()
+        super().keyReleaseEvent(event)
 
     def setup_buttons(self):
         """
@@ -111,6 +124,7 @@ class NewMainWindow(ui_class, baseclass):
         self.button_toggle_n2_pressure_valve.clicked.connect(lambda: self.controller.toggle_n2_pressure_valve())
         self.button_toggle_quick_disconnect.clicked.connect(lambda: self.controller.toggle_quick_disconnect())
 
+        self.button_toggle_arming.clicked.connect(lambda: self.controller.toggle_arming())
 
         self.button_run_n20_purge_sequence.clicked.connect(lambda: self.controller.run_n2o_purge_sequence())
         self.button_run_ignition_sequence.clicked.connect(lambda: self.controller.run_ignition_sequence())

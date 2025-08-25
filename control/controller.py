@@ -120,6 +120,7 @@ class Controller(Thread):
     servo_quick_disconnect_open = False
     abort_sequence = False
 
+    armingState:bool = False
     currentState:State = State.GREEN_STATE
 
 
@@ -473,6 +474,7 @@ class Controller(Thread):
         """
         toggle the vent between open to close
         """
+        print("toggle vent valve")
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
@@ -486,12 +488,6 @@ class Controller(Thread):
                               "valve": "vent",
                               "state": self.servo_vent_open,
                               })
-
-    def open_as_long_pressed_n2o_vent_valve(self):
-        self.toggle_n2o_vent_valve()
-
-    def open_as_long_pressed_n2_purge_valve(self):
-        self.toggle_n2_purge_valve()
 
     def toggle_n2o_fill_valve(self):
         """
@@ -646,6 +642,21 @@ class Controller(Thread):
         uid = self.sensors["Nitrous load cell"].get_br_uid()
         return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
 
+    def toggle_arming(self):
+        """
+        Toggle the arming state. Only if arming is true, we can trigger the
+         purge valve, the fill valve, the pressure valve and the igniter
+        """
+        if self.armingState:
+            self.armingState = False
+        else:
+            self.armingState = True
+
+        self.event_queue.put({"type": EventType.ARMING_STATE_CHANGE,
+                              "new_state": self.armingState,
+                              })
+
+
     def verify_sequence(self) -> bool:
         if self.sequence is None:
             return False
@@ -714,7 +725,7 @@ class Controller(Thread):
 
     def start_sequence(self) -> bool:
         """
-        start the loaded sequence. Before the sequence is started, we trigger the horn and set the light on red
+        start the loaded sequence.
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
@@ -722,16 +733,6 @@ class Controller(Thread):
         print("Start sequence...")
         if self.sequence is not None:
             self.event_queue.put({"type": EventType.SEQUENCE_STARTED})
-
-            # --- prepare sequence ---
-            self.set_light_to_yellow()
-            # set light to red and trigger horn
-            # this is to ensure that everyone is aware of the sequence
-            print("Safety preparation")
-            self.test_horn()
-            self.set_light_to_red()
-            print("Wait 5s for everyone to be away")
-            sleep(5)
 
             # --- run sequence ---
             print("running sequence")
@@ -751,7 +752,6 @@ class Controller(Thread):
         self.disable_all_sensor_callbacks()
 
         # --- Finish sequence
-        self.set_light_to_yellow()
         # wait a moment to ensure every callback is done
         # print("waiting for callbacks to complete...")
         sleep(0.5)
@@ -782,11 +782,11 @@ class Controller(Thread):
         self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()))
 
         # visual and auditory warnings
+        # @TODO do we want to tigger the horn here?
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"].get_br_uid()))
-        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
+        #self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
 
         self.disable_all_sensor_callbacks()
-        self.set_light_to_yellow()
 
     def read_pressure_1(self):
         uid = self.sensors["Pressure 1"].get_br_uid()
