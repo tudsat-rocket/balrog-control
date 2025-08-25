@@ -510,8 +510,9 @@ class Controller(Thread):
     def toggle_n2_purge_valve(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
-        if not self.currentState == State.RED_STATE:
+        if not self.currentState == State.RED_STATE or not self.armingState: #@TODO test
             raise NotAllowedInThisState(self.event_queue)
+
 
         if self.servo_purge_open:
             self.close_n2_purge_valve()
