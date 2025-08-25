@@ -23,25 +23,25 @@ actors:
     uid: 2cPc
     output: 1
     min_position: 0
-    max_position: 6000
+    max_position: 6050 #max position do not change
   - name: N20FillValve #renamed from NitrousFill
     type: SERVO
     uid: 2cPc
     output: 0
     min_position: 0
-    max_position: 6000
+    max_position: 6050
   - name: N2PressureValve #renamed from N2Pressure
     type: SERVO
     uid: 2cPc
     output: 3
     min_position: 0
-    max_position: 6000
+    max_position: 5550
   - name: N2PurgeValve #renmaned from N2Purge
     type: SERVO
     uid: 2cPc
     output: 4
     min_position: 0
-    max_position: 6000
+    max_position: 5170
   - name: QuickDisconnect
     type: SERVO
     uid: 2cPc
