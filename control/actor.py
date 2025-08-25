@@ -79,6 +79,8 @@ class Actor:
                 return self.counter_start(brick)
             case ActionType.COUNTER_RESET:
                 return self.counter_reset(brick)
+            case ActionType.SERVO_OPEN_QUARTER_SLOW:
+                return self.servo_open_quarter_slow(brick)
             case _:
                 raise NotImplementedError
 
@@ -118,7 +120,7 @@ class Actor:
         """
         opens the servo to 90°
         """
-        servo_bricklet.set_position(self.get_output(), 9000) # 9000/100 degrees => 90 degrees
+        servo_bricklet.set_position(self.get_output(), 0) # 9000/100 degrees => 90 degrees
         servo_bricklet.set_enable(self.get_output(), True)
         sleep(1) #@TODO display servo after use?
         servo_bricklet.set_enable(self.get_output(), False)
@@ -126,23 +128,29 @@ class Actor:
     def servo_open_slow(self, servo_bricklet):
         """
         open the servo to 90° within 2s
+        open is pos 0
         """
         # @TODO test implementation
         servo_bricklet.set_enable(self.get_output(), True)
-        for i in range(9000): # 9000/100 degrees => 90 degrees
+
+        current_pos = servo_bricklet.get_current_position(self.get_output())
+        for i in range(current_pos, 0, -50): # 9000/100 degrees => 90 degrees
             servo_bricklet.set_position(self.get_output(), i)
             # to slow down the servo opening
-            sleep(0.00022) # 2s/9000 steps = 2s until open
+            sleep(0.01) # 2s/9000 steps = 2s until open
 
         #sleep(1)  # @TODO display servo after use?
         #servo_bricklet.set_enable(self.get_output(), False)
 
     def servo_open_quarter_slow(self, servo_bricklet):
         servo_bricklet.set_enable(self.get_output(), True)
-        for i in range(2250):  # 2250/100 degrees => 22.5 degrees => 1/4 open
+        current_pos = servo_bricklet.get_current_position(self.get_output())
+
+        for i in range(current_pos, 6750, -25):  # 2250/100 degrees => 22.5 degrees => 1/4 open
+            # 9000 -2250 = 6750 => 1/4 open
             servo_bricklet.set_position(self.get_output(), i)
             # to slow down the servo opening
-            sleep(0.00088)  # 2s/2250 steps = 2s until open
+            sleep(0.022)  # 2s/2250 steps = 2s until open
         # @TODO disable servo after use?
 
     def servo_safe_open(self, servo_bricklet) -> None:
@@ -150,19 +158,22 @@ class Actor:
         opens the servo to 90° until the current raised. We assume that a high current means that the servo reached the end stop
         """
         current = 0
-        postion = 0
-        max_position = 9000
+        postion = 9000
+        end_position = 0
         servo_bricklet.set_enable(self.get_output(), True)
         while current < 5:
             current = servo_bricklet.get_servo_current(self.get_output())
             servo_bricklet.set_position(self.get_output(), postion)
-            if postion < max_position:
-                postion = postion + 1
+            if postion > end_position:
+                postion = postion + -1
             else:
                 break
 
     def servo_close(self, servo_bricklet) -> None:
-        servo_bricklet.set_position(self.get_output(), 0) # 0/100 degrees => 0 degrees
+        """
+        close is ops 9000
+        """
+        servo_bricklet.set_position(self.get_output(), 9000) # 9000/100 degrees => 90 degrees
         servo_bricklet.set_enable(self.get_output(), True)
 
     def servo_toggle(self, servo_bricklet) -> None:
