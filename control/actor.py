@@ -7,11 +7,9 @@ class Actor:
     """
     Abstract representation of an actor
     """
-    SERVO_CLOSE = 6000 # max degree close
-    SERVO_OPEN = 0 # 0 is open
 
     def __init__(self, name: str = "", actor_type: ActorType = ActorType.DUMMY,
-                 uid: str = "", output: int = 0, inverted: bool = False):
+                 uid: str = "", output: int = 0, min_position: int = -1, max_position: int = -1):
 
         # human-readable name
         self.name = name
@@ -20,8 +18,8 @@ class Actor:
         self.br_uid = uid
         # nr. of output in case of multiple outputs, 0 else
         self.output = output
-        # whether the actor is inverted
-        self.inverted = inverted
+        self.min_position = min_position
+        self.max_position = max_position
 
     def set_actor_name(self, name: str) -> None:
         self.name = name
@@ -124,9 +122,7 @@ class Actor:
         """
         opens the servo to 90°
         """
-        position = self.SERVO_OPEN
-        if self.inverted:
-            position *= -1
+        position = self.min_position
         servo_bricklet.set_position(self.get_output(), position)
         servo_bricklet.set_enable(self.get_output(), True)
         sleep(1) #@TODO display servo after use?
@@ -142,9 +138,10 @@ class Actor:
 
         current_pos = servo_bricklet.get_current_position(self.get_output())
 
-        for i in range(current_pos, self.SERVO_OPEN, -50):
-            position = i if not self.inverted else -i
-            servo_bricklet.set_position(self.get_output(), position)
+        step_size = -50 if not self.max_position < self.min_position else 50
+
+        for i in range(current_pos, self.min_position, step_size):
+            servo_bricklet.set_position(self.get_output(), i)
             # to slow down the servo opening
             sleep(0.01) # 2s until open
 
@@ -152,12 +149,16 @@ class Actor:
         #servo_bricklet.set_enable(self.get_output(), False)
 
     def servo_open_quarter_slow(self, servo_bricklet):
+        """
+        do not use for main valve
+        """
         servo_bricklet.set_enable(self.get_output(), True)
         current_pos = servo_bricklet.get_current_position(self.get_output())
 
-        for i in range(current_pos, int(self.SERVO_CLOSE*0.75), -25):  # CLOSE*0.75 => 1/4 open
-            position = i if not self.inverted else -i
-            servo_bricklet.set_position(self.get_output(), position)
+        step_size = -25 if not self.max_position < self.min_position else 25
+
+        for i in range(current_pos, int(self.max_position*0.75), step_size):  # CLOSE*0.75 => 1/4 open
+            servo_bricklet.set_position(self.get_output(), i)
 
             # to slow down the servo opening
             sleep(0.022)  # 2s/2250 steps = 2s until open
@@ -168,7 +169,7 @@ class Actor:
         """
         close is ops 6000
         """
-        servo_bricklet.set_position(self.get_output(), self.SERVO_CLOSE)
+        servo_bricklet.set_position(self.get_output(), self.max_position)
         servo_bricklet.set_enable(self.get_output(), True)
 
     def servo_toggle(self, servo_bricklet) -> None:

@@ -881,9 +881,10 @@ class Controller(Thread):
 
             for actor in actors:
                 # Convert actor type to ActorType enum
-                actor_type = ActorType[actor['type'].upper()]
+                # actor_type = ActorType[actor['type'].upper()]
                 self.actors[actor['name']] = Actor(
-                    actor['name'], actor_type, actor['uid'], actor['output'], actor.get('inverted', False)
+                    actor['name'], actor['type'], actor['uid'], actor['output'],
+                    actor.get('min_position', -1), actor.get('max_position', -1)
                 )
 
         print(self.actors)
