@@ -174,8 +174,8 @@ class NewMainWindow(ui_class, baseclass):
         # plot_load_cell
         self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (Kg)', color='#FFFFFF')
+        self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (g)', color='#FFFFFF')
 
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
-        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (Kg)', color='#FFFFFF')
+        self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (g)', color='#FFFFFF')
