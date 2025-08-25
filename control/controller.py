@@ -83,15 +83,23 @@ def nitrous_load_cell_callback(weight):
     #load_cell_2_sensor_list[0].append(1)
     load_cell_2_sensor_list[1].append(weight)
 
-def n2o_main_servo_sensor_callback(channel, position):
-    print("N20 main valve callback")
-    n2o_main_servo_sensor_list[0].append(datetime.now())
-    n2o_main_servo_sensor_list[1].append(position)
-
-def n2_purge_servo_sensor_callback(channel, position):
-    print("N20 purge valve callback")
-    n2_purge_servo_sensor_list[0].append(datetime.now())
-    n2_purge_servo_sensor_list[1].append(position)
+def valve_sensor_callback(channel, position):
+    match channel:
+        case 0:
+            n2o_fill_valve_sensor_list[0].append(datetime.now())
+            n2o_fill_valve_sensor_list[1].append(position)
+        case 1:
+            n2o_vent_valve_sensor_list[0].append(datetime.now())
+            n2o_vent_valve_sensor_list[1].append(position)
+        case 2:
+            n2o_main_valve_sensor_list[0].append(datetime.now())
+            n2o_main_valve_sensor_list[1].append(position)
+        case 3:
+            n2_pressure_valve_sensor_list[0].append(datetime.now())
+            n2_pressure_valve_sensor_list[1].append(position)
+        case 4:
+            n2_purge_valve_sensor_list[0].append(datetime.now())
+            n2_purge_valve_sensor_list[1].append(position)
 
 def differential_pressure_callback( channel, current):
     #print("Channel: " + str(channel))
@@ -915,10 +923,8 @@ class Controller(Thread):
                 return thrust_load_cell_callback
             case "Nitrous load cell":
                 return nitrous_load_cell_callback
-            case "N20MainValveSensor":
-                return n2o_main_servo_sensor_callback
-            case "N2PurgeValveSensor":
-                return n2_purge_servo_sensor_callback
+            case "N2OMainValveSensor" | "N2OFillValveSensor" | "N2OVentValveSensor" | "N2PurgeValveSensor" | "N2PressureValveSensor":
+                return valve_sensor_callback
             case _:
                 print(f"no callback found for {name}")
                 self.event_queue.put({"type": EventType.INFO_EVENT, "message": f"No callback found for {name}"})

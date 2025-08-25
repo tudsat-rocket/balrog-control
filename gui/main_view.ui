@@ -221,10 +221,7 @@
              <item>
               <widget class="QFrame" name="frame_5">
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Shadow::Raised</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
@@ -301,19 +298,13 @@
                 <item>
                  <widget class="QFrame" name="frame_3">
                   <property name="frameShape">
-                   <enum>QFrame::Shape::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Shadow::Raised</enum>
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_9">
                    <item>
                     <widget class="QFrame" name="frame_6">
                      <property name="frameShape">
-                      <enum>QFrame::Shape::NoFrame</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Shadow::Sunken</enum>
+                      <enum>QFrame::NoFrame</enum>
                      </property>
                      <property name="lineWidth">
                       <number>0</number>
@@ -332,10 +323,7 @@
                    <item>
                     <widget class="QFrame" name="frame_7">
                      <property name="frameShape">
-                      <enum>QFrame::Shape::NoFrame</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Shadow::Raised</enum>
+                      <enum>QFrame::NoFrame</enum>
                      </property>
                      <layout class="QHBoxLayout" name="horizontalLayout_8">
                       <item>
@@ -402,56 +390,56 @@
             </property>
             <layout class="QFormLayout" name="formLayout_2">
              <item row="0" column="0">
-              <widget class="QLabel" name="label_valve_status_n20_main">
+              <widget class="QLabel" name="label_valve_status_n2o_main">
                <property name="text">
                 <string>N20 Main Valve</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLabel" name="label_valve_status_n20_main_state">
+              <widget class="QLabel" name="label_valve_status_n2o_main_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="label_valve_status_n20_vent">
+              <widget class="QLabel" name="label_valve_status_n2o_vent">
                <property name="text">
                 <string>N20 Vent Valve</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLabel" name="label_valve_status_n20_vent_state">
+              <widget class="QLabel" name="label_valve_status_n2o_vent_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="label_valve_status_n20_fill">
+              <widget class="QLabel" name="label_valve_status_n2o_fill">
                <property name="text">
                 <string>N20 Fill Valve</string>
                </property>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLabel" name="label_valve_status_n20_fill_state">
+              <widget class="QLabel" name="label_valve_status_n2o_fill_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="3" column="0">
-              <widget class="QLabel" name="label_valve_status_n20_release">
+              <widget class="QLabel" name="label_valve_status_n2_pressure">
                <property name="text">
-                <string>N20 pressure Valve</string>
+                <string>N2 Pressure Valve</string>
                </property>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLabel" name="label_valve_status_n20_release_state">
+              <widget class="QLabel" name="label_valve_status_n2_pressure_state">
                <property name="text">
                 <string>unknown</string>
                </property>
@@ -460,26 +448,12 @@
              <item row="4" column="0">
               <widget class="QLabel" name="label_valve_status_n2_purge">
                <property name="text">
-                <string>Purge valve</string>
+                <string>N2 Purge valve</string>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
               <widget class="QLabel" name="label_valve_status_n2_purge_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Quick Disconnect</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QLabel" name="label_2">
                <property name="text">
                 <string>unknown</string>
                </property>
@@ -522,7 +496,7 @@
                 <item row="1" column="0">
                  <widget class="QPushButton" name="button_toggle_n2o_main_valve">
                   <property name="text">
-                   <string>Toggle N20 main valve</string>
+                   <string>Toggle N2O Main Valve</string>
                   </property>
                  </widget>
                 </item>
@@ -533,16 +507,6 @@
                   </property>
                   <property name="text">
                    <string>Toggle N2 Pressure valve</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QToolButton" name="tool_button_open_n2o_vent_valve">
-                  <property name="text">
-                   <string>press to open N20 valve</string>
-                  </property>
-                  <property name="autoRepeat">
-                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -580,13 +544,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="button_toggle_quick_disconnect">
-                  <property name="text">
-                   <string>Toggle Quick Disconnect</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="3" column="2">
                  <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
                   <property name="enabled">
@@ -594,6 +551,16 @@
                   </property>
                   <property name="text">
                    <string>Toggle N20 fill valve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QToolButton" name="button_toggle_n2o_vent_valve">
+                  <property name="text">
+                   <string>Toggle N2O Vent Valve</string>
+                  </property>
+                  <property name="autoRepeat">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

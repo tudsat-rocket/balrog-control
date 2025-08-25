@@ -112,7 +112,6 @@ class Sensor:
             case SensorType.LOAD:
                 brick.register_callback(brick.CALLBACK_WEIGHT, self.callback)
             case SensorType.SERVO_STATE:
-                print("Setting up servo state")
                 brick.register_callback(brick.CALLBACK_POSITION_REACHED, self.callback)
 
     def enable_callback(self, brick):

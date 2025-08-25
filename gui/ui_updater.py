@@ -5,7 +5,7 @@ from idlelib.sidebar import EndLineDelegator
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 
 from control.definitions import EventType
-from shared.shared_queues import n2o_main_servo_sensor_list, n2_purge_servo_sensor_list
+from shared.shared_queues import n2o_main_valve_sensor_list, n2_purge_valve_sensor_list, n2o_vent_valve_sensor_list, n2o_fill_valve_sensor_list, n2_pressure_valve_sensor_list
 
 def read_events_values_from_queue(self):
     """
@@ -51,12 +51,21 @@ def update_ui(self):
 
 
 def update_valve_states(self):
-    if len(n2o_main_servo_sensor_list[1]) > 0:
-        state = n2o_main_servo_sensor_list[1][-1]
-        self.label_valve_status_n20_main_state.setText(str(state))
-    if len(n2_purge_servo_sensor_list[1]) > 0:
-        state = n2_purge_servo_sensor_list[1][-1]
+    if len(n2o_main_valve_sensor_list[1]) > 0:
+        state = n2o_main_valve_sensor_list[1][-1]
+        self.label_valve_status_n2o_main_state.setText(str(state))
+    if len(n2o_fill_valve_sensor_list[1]) > 0:
+        state = n2o_fill_valve_sensor_list[1][-1]
+        self.label_valve_status_n2o_fill_state.setText(str(state))
+    if len(n2o_vent_valve_sensor_list[1]) > 0:
+        state = n2o_vent_valve_sensor_list[1][-1]
+        self.lable_valve_status_n2o_vent_state.setText(str(state))
+    if len(n2_purge_valve_sensor_list[1]) > 0:
+        state = n2_purge_valve_sensor_list[1][-1]
         self.label_valve_status_n2_purge_state.setText(str(state))
+    if len(n2_pressure_valve_sensor_list[1]) > 0:
+        state = n2_pressure_valve_sensor_list[1][-1]
+        self.label_valve_status_n2_pressure_state.setText(str(state))
 
 def update_connection_state(self, connection_event):
     """
