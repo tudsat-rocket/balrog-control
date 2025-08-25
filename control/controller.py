@@ -216,17 +216,18 @@ class Controller(Thread):
                 return False
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
-        print("Adjusting valve!")
         actor = self.actors[valve]
+        adjust = 50
         brick = self.brick_stack.get_device(actor.get_br_uid())
+
         if position == actor.max_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.max_position - 50)
+            brick.set_position(actor.output, actor.max_position - adjust )
         elif position == actor.max_position:
-            brick.set_position(actor.output, actor.max_position + 50)
+            brick.set_position(actor.output, actor.max_position + adjust)
         elif position == actor.min_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.min_position + 50)
+            brick.set_position(actor.output, actor.min_position + adjust)
         elif position == actor.min_position:
-            brick.set_position(actor.output, actor.min_position - 50)
+            brick.set_position(actor.output, actor.min_position - adjust)
 
     def read_valve_states(self) -> None:
         sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
