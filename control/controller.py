@@ -192,8 +192,9 @@ class Controller(Thread):
                 try:
                     uid = self.actors["Light"].get_br_uid()
                     self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
+                    self.read_valve_states()
                 except Exception as e:
-                    print(f"Failed to turn on all lights: {e}")
+                    print(f"Failed to set initial state: {e}")
                 self.connected = True
                 return True
             except Exception as e:
@@ -206,6 +207,13 @@ class Controller(Thread):
                 return False
 
 
+    def read_valve_states(self) -> None:
+        sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
+        lists = [n2o_main_valve_sensor_list, n2o_fill_valve_sensor_list, n2o_vent_valve_sensor_list, n2_purge_valve_sensor_list, n2_pressure_valve_sensor_list]
+        for s, l in zip(sensor_names, lists):
+            print("Reading " + s)
+            l[0].append(datetime.now())
+            l[1].append(self.brick_stack.get_device(self.sensors[s].get_br_uid()).get_current_position(self.sensors[s].channel))
 
     def stack_state(self) -> dict[str, Any]:
         pass

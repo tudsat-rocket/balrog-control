@@ -59,7 +59,7 @@ def update_valve_states(self):
         self.label_valve_status_n2o_fill_state.setText(str(state))
     if len(n2o_vent_valve_sensor_list[1]) > 0:
         state = n2o_vent_valve_sensor_list[1][-1]
-        self.lable_valve_status_n2o_vent_state.setText(str(state))
+        self.label_valve_status_n2o_vent_state.setText(str(state))
     if len(n2_purge_valve_sensor_list[1]) > 0:
         state = n2_purge_valve_sensor_list[1][-1]
         self.label_valve_status_n2_purge_state.setText(str(state))
