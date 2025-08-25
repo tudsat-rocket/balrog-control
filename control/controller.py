@@ -148,7 +148,7 @@ class Controller(Thread):
     currentState:State = State.GREEN_STATE
 
 
-    def __init__(self, event_queue: Queue, thread_killer, abort_signal, run_signal):
+    def __init__(self, event_queue: Queue, thread_killer):
         super().__init__(target=None)
         self.actors = {}
         self.sensors = {}
@@ -160,14 +160,12 @@ class Controller(Thread):
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
-        self.abort_signal = abort_signal
-        self.run_signal = run_signal
         global controller_singelton
         controller_singelton = self
-        self.start()
+
 
     def run(self):
-        self._thread_loop()
+        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -639,7 +637,7 @@ class Controller(Thread):
 
         if self.n2o_purge_sequence is not None:
             self.sequence = self.n2o_purge_sequence
-            self.run_signal.set()
+            self.start()
 
     def run_ignition_sequence(self):
         """
@@ -652,7 +650,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
         if self.ignition_sequence is not None:
             self.sequence = self.ignition_sequence
-            self.run_signal.set()
+            self.start()
 
     def load_test_definition(self, path: os.PathLike) -> bool:
         if not self.connected:
@@ -809,7 +807,7 @@ class Controller(Thread):
 
             # --- run sequence ---
             print("running sequence")
-            self.run_signal.set()
+            self.start()
             return True
 
         else:
@@ -837,7 +835,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
 
         # stop the sequence worker
-        self.abort_signal.set()
+        self.thread_killer.set()
 
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
@@ -993,15 +991,14 @@ class Controller(Thread):
         if self.sequence is None:
             self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
             return
-        
+
         seq_idx = 0
         seq_ts = 0
         seq_len = len(self.sequence)
 
         for i in interval_timer.IntervalTimer(0.02):
             # signal used to abort the sequence with a button
-            if self.abort_signal.is_set():
-                self.abort_signal.clear()
+            if self.thread_killer.is_set():
                 return
 
             while seq_idx < seq_len and int(self.sequence[seq_idx][1]) <= seq_ts:
@@ -1014,11 +1011,3 @@ class Controller(Thread):
                 return
 
             seq_ts += 20
-
-    def _thread_loop(self):
-
-        while not self.thread_killer.is_set():
-
-            if self.run_signal.is_set():
-                self.run_signal.clear()
-                self._sequence_worker()
