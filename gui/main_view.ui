@@ -296,6 +296,13 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="button_close_all_valves">
+                  <property name="text">
+                   <string>Close all valves</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QFrame" name="frame_3">
                   <property name="frameShape">
                    <enum>QFrame::NoFrame</enum>
@@ -510,23 +517,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2">
-                 <widget class="QPushButton" name="button_toggle_arming">
-                  <property name="styleSheet">
-                   <string notr="true">background-color: rgb(255, 190, 111);</string>
-                  </property>
-                  <property name="text">
-                   <string>Arming</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="button_close_all_valves">
-                  <property name="text">
-                   <string>Close all valves</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="3" column="0">
                  <widget class="QPushButton" name="button_toggle_n2_purge_valve">
                   <property name="enabled">
@@ -534,13 +524,6 @@
                   </property>
                   <property name="text">
                    <string>Toggle N2 Purge valve</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="button_test_horn">
-                  <property name="text">
-                   <string>trigger Horn</string>
                   </property>
                  </widget>
                 </item>
@@ -561,6 +544,23 @@
                   </property>
                   <property name="autoRepeat">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QPushButton" name="button_test_horn">
+                  <property name="text">
+                   <string>trigger Horn</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="button_toggle_arming">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(255, 190, 111);</string>
+                  </property>
+                  <property name="text">
+                   <string>Arming</string>
                   </property>
                  </widget>
                 </item>

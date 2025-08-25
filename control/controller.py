@@ -188,14 +188,16 @@ class Controller(Thread):
                                      )
                 # set config for all bricks
                 self._set_configuration()
+                self.connected = True
                 # Turn all lights on after connecting
                 try:
                     uid = self.actors["Light"].get_br_uid()
                     self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
                     self.read_valve_states()
+                    self.enable_all_sensor_callbacks()
+                    self.close_all_valves()
                 except Exception as e:
                     print(f"Failed to set initial state: {e}")
-                self.connected = True
                 return True
             except Exception as e:
                 print(f"Failed to connect to {host}:{port}: {e}")
@@ -462,7 +464,7 @@ class Controller(Thread):
     def close_n2_purge_valve(self):
         uid = self.actors["N2PurgeValve"].get_br_uid()
         self.actors["N2PurgeValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
-        self.servo_purge_open = True
+        self.servo_purge_open = False
 
     def open_quick_disconnect(self):
         uid = self.actors["QuickDisconnect"].get_br_uid()
@@ -590,8 +592,6 @@ class Controller(Thread):
     def close_all_valves(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
-        if not self.currentState == State.RED_STATE:
-            raise NotAllowedInThisState(self.event_queue)
 
         self.close_n2o_main_valve()
         self.close_n2_pressure_valve()
