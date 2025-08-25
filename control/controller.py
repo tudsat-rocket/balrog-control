@@ -149,7 +149,7 @@ class Controller(Thread):
 
 
     def __init__(self, event_queue: Queue, thread_killer):
-        Thread.__init__(self, target=self._sequence_worker, args=(self,))
+        super().__init__(self)
         self.actors = {}
         self.sensors = {}
         self._construct_actors()
@@ -165,7 +165,7 @@ class Controller(Thread):
 
 
     def run(self):
-        super().run()
+        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -218,17 +218,18 @@ class Controller(Thread):
                 return False
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
-        print("Adjusting valve!")
         actor = self.actors[valve]
+        adjust = 50
         brick = self.brick_stack.get_device(actor.get_br_uid())
+
         if position == actor.max_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.max_position - 50)
+            brick.set_position(actor.output, actor.max_position - adjust )
         elif position == actor.max_position:
-            brick.set_position(actor.output, actor.max_position + 50)
+            brick.set_position(actor.output, actor.max_position + adjust)
         elif position == actor.min_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.min_position + 50)
+            brick.set_position(actor.output, actor.min_position + adjust)
         elif position == actor.min_position:
-            brick.set_position(actor.output, actor.min_position - 50)
+            brick.set_position(actor.output, actor.min_position - adjust)
 
     def read_valve_states(self) -> None:
         sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
@@ -636,7 +637,7 @@ class Controller(Thread):
 
         if self.n2o_purge_sequence is not None:
             self.sequence = self.n2o_purge_sequence
-            self.run()
+            self.start()
 
     def run_ignition_sequence(self):
         """
@@ -649,7 +650,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
         if self.ignition_sequence is not None:
             self.sequence = self.ignition_sequence
-            self.run()
+            self.start()
 
     def load_test_definition(self, path: os.PathLike) -> bool:
         if not self.connected:
@@ -805,7 +806,7 @@ class Controller(Thread):
             print("running sequence")
             # start the sequence
             self.enable_all_sensor_callbacks()
-            self.run()
+            self.start()
             return True
 
         else:
