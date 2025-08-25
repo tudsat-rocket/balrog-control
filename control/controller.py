@@ -149,7 +149,7 @@ class Controller(Thread):
 
 
     def __init__(self, event_queue: Queue, thread_killer):
-        Thread.__init__(self, target=self._sequence_worker, args=(self,))
+        super().__init__(self)
         self.actors = {}
         self.sensors = {}
         self._construct_actors()
@@ -165,7 +165,7 @@ class Controller(Thread):
 
 
     def run(self):
-        super().run()
+        self._sequence_worker()
 
     def join(self, timeout = None):
         super().join()
@@ -637,7 +637,7 @@ class Controller(Thread):
 
         if self.n2o_purge_sequence is not None:
             self.sequence = self.n2o_purge_sequence
-            self.run()
+            self.start()
 
     def run_ignition_sequence(self):
         """
@@ -650,7 +650,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
         if self.ignition_sequence is not None:
             self.sequence = self.ignition_sequence
-            self.run()
+            self.start()
 
     def load_test_definition(self, path: os.PathLike) -> bool:
         if not self.connected:
@@ -809,7 +809,7 @@ class Controller(Thread):
             print("running sequence")
             # start the sequence
             self.enable_all_sensor_callbacks()
-            self.run()
+            self.start()
             return True
 
         else:
