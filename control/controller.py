@@ -148,7 +148,7 @@ class Controller(Thread):
     currentState:State = State.GREEN_STATE
 
 
-    def __init__(self, event_queue: Queue, thread_killer):
+    def __init__(self, event_queue: Queue, thread_killer, abort_signal, run_signal):
         super().__init__(target=None)
         self.actors = {}
         self.sensors = {}
@@ -160,12 +160,14 @@ class Controller(Thread):
         self.sequence = None
         self.event_queue = event_queue
         self.thread_killer = thread_killer
+        self.abort_signal = abort_signal
+        self.run_signal = run_signal
         global controller_singelton
         controller_singelton = self
-
+        self.start()
 
     def run(self):
-        self._sequence_worker()
+        self._thread_loop()
 
     def join(self, timeout = None):
         super().join()
@@ -637,7 +639,7 @@ class Controller(Thread):
 
         if self.n2o_purge_sequence is not None:
             self.sequence = self.n2o_purge_sequence
-            self.start()
+            self.run_signal.set()
 
     def run_ignition_sequence(self):
         """
@@ -650,7 +652,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
         if self.ignition_sequence is not None:
             self.sequence = self.ignition_sequence
-            self.start()
+            self.run_signal.set()
 
     def load_test_definition(self, path: os.PathLike) -> bool:
         if not self.connected:
@@ -673,18 +675,20 @@ class Controller(Thread):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
-        # Clear existing sensor data before calibration
+        # Clear existing sensor data before calibration (keep 2-list structure so GUI clears plot)
         load_cell_1_sensor_list[:] = [[],[]]
         self.event_queue.put({"type": EventType.RESET_PLOTS,
                               })
 
 
-        if weight != "":
-            weight = int(weight)
-        elif weight == "-1":
-            weight = None
-        else:
+        # Normalize and parse weight input
+        w = (weight or "").strip()
+        if w == "-1":
+            weight = None  # tare
+        elif w == "":
             weight = 0
+        else:
+            weight = int(w)
 
         uid = self.sensors["Thrust load cell"].get_br_uid()
         return self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
@@ -696,20 +700,24 @@ class Controller(Thread):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
-        # Clear existing sensor data before calibration
-        #self.disable_all_sensor_callbacks()
-        load_cell_2_sensor_list[:] = [[],[]]
-        self.event_queue.put({"type": EventType.RESET_PLOTS,})
 
-        if weight != "":
-            weight = int(weight)
-        elif weight == "-1":
-            weight = None
+        # Normalize and parse weight input
+        w = (weight or "").strip()
+        if w == "-1":
+            weight = None  # tare
+        elif w == "":
+            weight = 0
         else:
             weight = 0
 
         uid = self.sensors["Nitrous load cell"].get_br_uid()
-        return self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
+        value = self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
+
+        # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+        load_cell_2_sensor_list[:] = [[], []]
+        self.event_queue.put({"type": EventType.RESET_PLOTS, })
+
+        return value
 
     def toggle_arming(self):
         """
@@ -785,19 +793,20 @@ class Controller(Thread):
         # Disable all sensor callbacks before clearing the lists
         self.disable_all_sensor_callbacks()
 
-        pressure_0_sensor_list.clear()
-        pressure_1_sensor_list.clear()
-        pressure_2_sensor_list.clear()
-        pressure_3_sensor_list.clear()
-        differential_pressure_list.clear()
+        # Reinitialize lists (keep 2-list structure) so GUI clears plots on next update
+        pressure_0_sensor_list[:] = [[], []]
+        pressure_1_sensor_list[:] = [[], []]
+        pressure_2_sensor_list[:] = [[], []]
+        pressure_3_sensor_list[:] = [[], []]
+        differential_pressure_list[:] = [[], []]
 
         # temp
-        temperature_nitrous_sensor_list.clear()
-        temperature_engine_sensor_list.clear()
+        temperature_nitrous_sensor_list[:] = [[], []]
+        temperature_engine_sensor_list[:] = [[], []]
 
         # load cell
-        load_cell_1_sensor_list.clear()
-        load_cell_2_sensor_list.clear()
+        load_cell_1_sensor_list[:] = [[], []]
+        load_cell_2_sensor_list[:] = [[], []]
 
     def start_sequence(self) -> bool:
         """
@@ -812,7 +821,7 @@ class Controller(Thread):
 
             # --- run sequence ---
             print("running sequence")
-            self.start()
+            self.run_signal.set()
             return True
 
         else:
@@ -840,7 +849,7 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
 
         # stop the sequence worker
-        self.thread_killer.set()
+        self.abort_signal.set()
 
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
@@ -996,14 +1005,15 @@ class Controller(Thread):
         if self.sequence is None:
             self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
             return
-
+        
         seq_idx = 0
         seq_ts = 0
         seq_len = len(self.sequence)
 
         for i in interval_timer.IntervalTimer(0.02):
             # signal used to abort the sequence with a button
-            if self.thread_killer.is_set():
+            if self.abort_signal.is_set():
+                self.abort_signal.clear()
                 return
 
             while seq_idx < seq_len and int(self.sequence[seq_idx][1]) <= seq_ts:
@@ -1016,3 +1026,11 @@ class Controller(Thread):
                 return
 
             seq_ts += 20
+
+    def _thread_loop(self):
+
+        while not self.thread_killer.is_set():
+
+            if self.run_signal.is_set():
+                self.run_signal.clear()
+                self._sequence_worker()
