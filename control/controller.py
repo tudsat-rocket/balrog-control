@@ -34,14 +34,14 @@ def temperature_nitrous_callback(temperature):
     #temperature_nitrous_sensor_queue.put(temperature)
     temperature_nitrous_sensor_list[0].append(datetime.now())
     #temperature_nitrous_sensor_list[0].append(1)
-    temperature_nitrous_sensor_list[1].append(temperature)
+    temperature_nitrous_sensor_list[1].append(temperature / 100.0)
 
 def temperature_engine_callback(temperature):
     #print("Temperature: " + str(temperature / 100.0) + " °C")
     #temperature_engine_sensor_queue.put(temperature)
     temperature_engine_sensor_list[0].append(datetime.now())
     #temperature_engine_sensor_list[0].append(1)
-    temperature_engine_sensor_list[1].append(temperature)
+    temperature_engine_sensor_list[1].append(temperature / 100.0)
 
 def pressure_0_1_callback(channel, current):
     #print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
