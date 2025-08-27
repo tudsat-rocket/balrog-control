@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1920</width>
+    <width>1766</width>
     <height>1094</height>
    </rect>
   </property>
@@ -564,6 +564,13 @@
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="button_toggle_quick_disconnect">
+                  <property name="text">
+                   <string>Toggle Quick Disconnect</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
@@ -723,7 +730,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1920</width>
+     <width>1766</width>
      <height>24</height>
     </rect>
    </property>

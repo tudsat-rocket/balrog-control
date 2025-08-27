@@ -494,12 +494,12 @@ class Controller(Thread):
 
     def open_quick_disconnect(self):
         uid = self.actors["QuickDisconnect"].get_br_uid()
-        self.actors["QuickDisconnect"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.actors["QuickDisconnect"].action(ActionType.SOLENOID_OPEN, self.brick_stack.get_device(uid))
         self.servo_quick_disconnect_open = True
 
     def close_quick_disconnect(self):
         uid = self.actors["QuickDisconnect"].get_br_uid()
-        self.actors["QuickDisconnect"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["QuickDisconnect"].action(ActionType.SOLENOID_CLOSE, self.brick_stack.get_device(uid))
         self.servo_quick_disconnect_open = False
 
     def toggle_n2o_main_valve(self):
