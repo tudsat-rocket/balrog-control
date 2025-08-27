@@ -75,14 +75,14 @@ def thrust_load_cell_callback(weight):
     #load_cell_1_sensor_queue.put(weight)
     load_cell_1_sensor_list[0].append(datetime.now())
     #load_cell_1_sensor_list[0].append(1)
-    load_cell_1_sensor_list[1].append(weight)
+    load_cell_1_sensor_list[1].append(weight / 1000.0)
 
 def nitrous_load_cell_callback(weight):
     #print("Weight nitrous: " + str(weight) + " g")
     #load_cell_2_sensor_queue.put(weight)
     load_cell_2_sensor_list[0].append(datetime.now())
     #load_cell_2_sensor_list[0].append(1)
-    load_cell_2_sensor_list[1].append(weight)
+    load_cell_2_sensor_list[1].append(weight / 1000.0)
 
 def valve_sensor_callback(channel, position):
     match channel:
