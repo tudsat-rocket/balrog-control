@@ -664,60 +664,50 @@ class Controller(Thread):
             print(f"Error {path} is not a valid path")
             return False
 
-    def calibrate_thrust_load(self, weight):
+    def calibrate_thrust_load(self, input_weight: str, clear_callback) -> None:
         """
         calibrates the thrust load cell with the given weight
-        depended on the given weight the following methods are called:
-        weight: "": we use 0
-        weight: "-1" use the tare function of the load cell
-        weight: >0 use the given weight
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
-        # Clear existing sensor data before calibration (keep 2-list structure so GUI clears plot)
-        load_cell_1_sensor_list[:] = [[],[]]
-        self.event_queue.put({"type": EventType.RESET_PLOTS,
-                              })
+        try:
+            calibration_weight = int(float(input_weight) * 1000)
+            uid = self.sensors["Thrust load cell"].get_br_uid()
+            self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), calibration_weight)
+            # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+            load_cell_1_sensor_list[:] = [[], []]
+            self.event_queue.put({"type": EventType.RESET_PLOTS, })
+            clear_callback()
+        except:
+            self.event_queue.put({"type": EventType.INFO_EVENT,
+                        "title": "Invalid calibration value",
+                        "message": f"The given value of \"{input_weight}\" is invalid.",
+                }
+            )
 
-
-        # Normalize and parse weight input
-        w = (weight or "").strip()
-        if w == "-1":
-            weight = None  # tare
-        elif w == "":
-            weight = 0
-        else:
-            weight = int(w)
-
-        uid = self.sensors["Thrust load cell"].get_br_uid()
-        return self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
-
-    def calibrate_nitrous_load(self, weight):
+    def calibrate_nitrous_load(self, input_weight: str, clear_callback) -> None:
         """
         calibrates the nitrous load cell with the given weight
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
+        try:
+            calibration_weight = int(float((input_weight or "").strip()) * 1000)
+            uid = self.sensors["Nitrous load cell"].get_br_uid()
+            self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), calibration_weight)
+            # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+            load_cell_2_sensor_list[:] = [[], []]
+            self.event_queue.put({"type": EventType.RESET_PLOTS, })
+            clear_callback()
+        except:
+            self.event_queue.put({"type": EventType.INFO_EVENT,
+                        "title": "Invalid calibration value",
+                        "message": f"The given value of \"{input_weight}\" is invalid.",
+                }
+            )
 
-        # Normalize and parse weight input
-        w = (weight or "").strip()
-        if w == "-1":
-            weight = None  # tare
-        elif w == "":
-            weight = 0
-        else:
-            weight = 0
-
-        uid = self.sensors["Nitrous load cell"].get_br_uid()
-        value = self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), weight)
-
-        # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
-        load_cell_2_sensor_list[:] = [[], []]
-        self.event_queue.put({"type": EventType.RESET_PLOTS, })
-
-        return value
 
     def toggle_arming(self):
         """

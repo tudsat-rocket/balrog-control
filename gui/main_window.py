@@ -102,8 +102,9 @@ class NewMainWindow(ui_class, baseclass):
         self.button_toggle_sensors.clicked.connect(lambda: self.controller.toggle_sensors())
         self.button_test_counter.clicked.connect(lambda: self.controller.test_counter())
 
-        self.button_calibrate_thrust_load.clicked.connect(lambda: self.controller.calibrate_thrust_load(self.edit_calibrate_load.text()))
-        self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(self.edit_calibrate_load.text()))
+        clear_load_calibration_text_callback = lambda: self.edit_calibrate_load.clear()
+        self.button_calibrate_thrust_load.clicked.connect(lambda: self.controller.calibrate_thrust_load(self.edit_calibrate_load.text(), clear_load_calibration_text_callback) )
+        self.button_calibrate_nitrous_load.clicked.connect(lambda: self.controller.calibrate_nitrous_load(self.edit_calibrate_load.text(), clear_load_calibration_text_callback))
 
         # green state
         self.button_green_state.clicked.connect(lambda: self.controller.request_go_to_green_state())
