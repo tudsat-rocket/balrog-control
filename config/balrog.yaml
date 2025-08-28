@@ -44,8 +44,8 @@ actors:
     max_position: 5070
   - name: QuickDisconnect
     type: SOLENOID
-    uid: 2cPc
-    output: 5
+    uid: 2f6L
+    output: 1
     min_position: 0
     max_position: 6000
   - name: SegmentDisplay
