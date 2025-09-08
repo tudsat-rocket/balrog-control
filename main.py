@@ -29,12 +29,13 @@ if __name__ == "__main__":
     thread_killer = Event()
     abort_signal = Event()
     run_signal = Event()
+    connected_signal = Event()
 
     event_queue = queue.Queue()
 
     # start multithreaded environment to separate UI from data handling
 
-    controller = Controller(event_queue, thread_killer, abort_signal, run_signal)
+    controller = Controller(event_queue, thread_killer, abort_signal, run_signal, connected_signal)
 
     data_handler = Thread(target=data_handler, args=(thread_killer,connected_signal))
     data_handler.start()
@@ -46,6 +47,7 @@ if __name__ == "__main__":
     main_window = NewMainWindow(event_queue, controller)
     main_window.show()
     rc = app.exec()
+
 
 
     # join the threads again
