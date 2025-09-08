@@ -58,11 +58,11 @@ class NewMainWindow(ui_class, baseclass):
         self.timer = QTimer()
         self.timer.timeout.connect(lambda: update_plots(self))
         self.timer.timeout.connect(lambda: update_valve_states(self))
-        self.timer.start(1000) # @TODO with 200, the UI begins to get laggy
+        self.timer.start(200) # @TODO with 200, the UI begins to get laggy
 
         self.event_timer = QTimer()
         self.event_timer.timeout.connect(lambda: update_ui(self))
-        self.event_timer.start(1000)
+        self.event_timer.start(200)
 
 
     def keyPressEvent(self, event):
