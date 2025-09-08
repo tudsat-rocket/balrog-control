@@ -16,7 +16,7 @@ from control.sensor import Sensor
 from queue import Queue
 from control.dump_sensor_to_file import dump_sensor_to_file
 
-from shared.shared_queues import *
+from shared.shared_lists import *
 
 def current_to_pressure(current):
     """
@@ -148,7 +148,7 @@ class Controller(Thread):
     currentState:State = State.GREEN_STATE
 
 
-    def __init__(self, event_queue: Queue, thread_killer, abort_signal, run_signal):
+    def __init__(self, event_queue: Queue, thread_killer, abort_signal, run_signal, connected_signal):
         super().__init__(target=None)
         self.actors = {}
         self.sensors = {}
@@ -162,6 +162,7 @@ class Controller(Thread):
         self.thread_killer = thread_killer
         self.abort_signal = abort_signal
         self.run_signal = run_signal
+        self.connected_signal = connected_signal
         global controller_singelton
         controller_singelton = self
         self.start()
@@ -181,6 +182,7 @@ class Controller(Thread):
         if self.connected:
             self.brick_stack.stop_connection()
             self.connected = False
+            self.connected_signal.clear()
             self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
                                   "status": "Disconnected",
                                   "hostname": "unkown",
@@ -200,6 +202,7 @@ class Controller(Thread):
                 # set config for all bricks
                 self._set_configuration()
                 self.connected = True
+                self.connected_signal.set()
                 # Turn all lights on after connecting
                 try:
                     uid = self.actors["Light"].get_br_uid()
@@ -859,42 +862,6 @@ class Controller(Thread):
         #self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
 
         self.disable_all_sensor_callbacks()
-
-    def read_pressure_1(self):
-        uid = self.sensors["Pressure 1"].get_br_uid()
-        return self.sensors["Pressure 1"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_pressure_2(self):
-        uid = self.sensors["Pressure 2"].get_br_uid()
-        return self.sensors["Pressure 2"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_pressure_3(self):
-        uid = self.sensors["Pressure 3"].get_br_uid()
-        return self.sensors["Pressure 3"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_pressure_4(self):
-        uid = self.sensors["Pressure 4"].get_br_uid()
-        return self.sensors["Pressure 4"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_temperature_1(self):
-        uid = self.sensors["Temperatur Nitrous"].get_br_uid()
-        return self.sensors["Temperatur Nitrous"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_temperature_2(self):
-        uid = self.sensors["Temperatur Engine"].get_br_uid()
-        return self.sensors["Temperatur Engine"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_load_cell_1(self):
-        uid = self.sensors["Thrust load cell"].get_br_uid()
-        return self.sensors["Thrust load cell"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_load_cell_2(self):
-        uid = self.sensors["Nitrous load cell"].get_br_uid()
-        return self.sensors["Nitrous load cell"].read_sensor(self.brick_stack.get_device(uid))
-
-    def read_differential_pressure(self):
-        uid = self.sensors["Differential Nitrous pressure"].get_br_uid()
-        return self.sensors["Differential Nitrous pressure"].read_sensor(self.brick_stack.get_device(uid))
 
     # ++++++
     # Internal methods

@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import csv
-from shared.shared_queues import *
+from shared.shared_lists import *
 
 def get_value_or_minus(index, list):
     if index >= len(list[0]):
