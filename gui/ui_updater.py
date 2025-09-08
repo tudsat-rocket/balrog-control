@@ -5,7 +5,7 @@ from idlelib.sidebar import EndLineDelegator
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 
 from control.definitions import EventType
-from shared.shared_queues import n2o_main_valve_sensor_list, n2_purge_valve_sensor_list, n2o_vent_valve_sensor_list, n2o_fill_valve_sensor_list, n2_pressure_valve_sensor_list
+from shared.shared_lists import *
 
 def read_events_values_from_queue(self):
     """

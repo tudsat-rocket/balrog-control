@@ -1,6 +1,4 @@
-import queue
-from shared.shared_queues import *
-
+from shared.shared_lists import *
 
 
 def create_time_list(length):
