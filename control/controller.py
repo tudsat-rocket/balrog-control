@@ -714,6 +714,8 @@ class Controller(Thread):
         Toggle the arming state. Only if arming is true, we can trigger the
          purge valve, the fill valve, the pressure valve and the igniter
         """
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
         if self.armingState:
             self.armingState = False
         else:
