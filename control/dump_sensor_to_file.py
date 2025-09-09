@@ -37,7 +37,7 @@ def dump_sensor_to_file():
                      "Time N2OFillValve", "N2OFillValveState",
                      "Time N2OVentVavlve", "N2OVentValveState",
                      "Time N2PurgeValve", "N2PurgeValveState",
-                     "TIme N2PressureValve", "N2PressureValveState"])
+                     "Time N2PressureValve", "N2PressureValveState"])
     time = 0
 
     # find max length of sensors

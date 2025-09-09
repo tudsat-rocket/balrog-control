@@ -42,6 +42,14 @@ class Actor:
     def set_output(self, output) -> None:
         self.output = output
 
+    def friendly_valve_state_name(self, state: int) -> str:
+        if state == self.min_position:
+            return "Open"
+        elif state == self.max_position:
+            return "Closed"
+        else:
+            "Unknown"
+
     def action(self, action: ActionType, brick) -> None:
         match action:
             case ActionType.SOUND_HORN:
