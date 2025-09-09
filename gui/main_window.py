@@ -149,7 +149,6 @@ class NewMainWindow(ui_class, baseclass):
         self.plot_pressure_0.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_0.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
         self.plot_pressure_0.setLabel('left', 'N2 Tank (P0) (bar)', color='#FFFFFF')
-        self.plot_pressure_0.setAutoPan()
 
         self.plot_pressure_1.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_1.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
