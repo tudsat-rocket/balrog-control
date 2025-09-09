@@ -209,7 +209,7 @@ class Controller(Thread):
                     self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
                     self.read_valve_states()
                     self.enable_all_sensor_callbacks()
-                    self.close_all_valves()
+                    self.close_all_valves() # @todo this opens the valves at startup due to a thinkerforge thing
                 except Exception as e:
                     print(f"Failed to set initial state: {e}")
                 return True
@@ -527,6 +527,7 @@ class Controller(Thread):
                              )
         return True
 
+
     def toggle_n2o_vent_valve(self):
         """
         toggle the vent between open to close
@@ -829,8 +830,8 @@ class Controller(Thread):
         # --- Finish sequence
         # wait a moment to ensure every callback is done
         # print("waiting for callbacks to complete...")
-        sleep(0.5)
-        dump_sensor_to_file()
+        #sleep(0.5)
+        #dump_sensor_to_file() no needed anymore
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
         return True
 
@@ -874,6 +875,8 @@ class Controller(Thread):
             brick = self.brick_stack.get_device(actor.get_br_uid())
 
             match actor.type:
+                case ActorType.TRIGGER:
+                    brick.set_configuration(actor.output, 'o', False)
                 case ActorType.LIGHT:
                     brick.set_configuration(actor.output,'o', False)
                     brick.set_configuration(actor.output + 1, 'o', False)
