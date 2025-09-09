@@ -1,5 +1,3 @@
-from curses.ascii import controlnames
-
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtUiTools import loadUiType
 import pyqtgraph as pg
@@ -83,7 +81,7 @@ class NewMainWindow(ui_class, baseclass):
         override the keyrelease handler to implement our shortcuts
         """
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
-            self.controller.toggle_n2o_vent_valve()
+             self.controller.toggle_n2o_vent_valve()
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
             self.controller.toggle_n2_purge_valve()
         super().keyReleaseEvent(event)
