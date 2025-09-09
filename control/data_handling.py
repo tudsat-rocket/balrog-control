@@ -13,24 +13,20 @@ class DataHandler:
         self.write_header()
 
     @staticmethod
-    def get_value_or_minus(index, list):
+    def get_value_or_minus(list):
+        index = len(list[0])-1
         if index >= len(list[1]) or index < 0:
             return [-1, 1]
         else:
             return list[1][index]
 
     @staticmethod
-    def get_time_or_minus(index, list):
+    def get_time_or_minus(list):
+        index = len(list[0])-1
         if index >= len(list[0]) or index < 0:
             return [-1, 1]
         else:
             return list[0][index]
-
-    def get_latest_value_pair(self, list):
-        """
-        get a pair of the latest timestamp and value
-        """
-        return str(self.get_time_or_minus(len(list[0])-1, list)), self.get_value_or_minus(len(list[0])-1, list)
 
     @staticmethod
     def create_file(self):
@@ -74,24 +70,48 @@ class DataHandler:
         """
         self.writer.writerow(
             [
-                self.get_latest_value_pair(pressure_0_sensor_list),
-                self.get_latest_value_pair(pressure_1_sensor_list),
-                self.get_latest_value_pair(pressure_2_sensor_list),
+                self.get_time_or_minus(pressure_0_sensor_list),
+                self.get_value_or_minus(pressure_0_sensor_list),
 
-                self.get_latest_value_pair(temperature_nitrous_sensor_list),
-                self.get_latest_value_pair(temperature_engine_sensor_list),
+                self.get_time_or_minus(pressure_1_sensor_list),
+                self.get_value_or_minus(pressure_1_sensor_list),
 
-                self.get_latest_value_pair(load_cell_1_sensor_list),
-                self.get_latest_value_pair(load_cell_2_sensor_list),
+                self.get_time_or_minus(pressure_2_sensor_list),
+                self.get_value_or_minus(pressure_2_sensor_list),
 
-                self.get_latest_value_pair(differential_pressure_list),
+                self.get_time_or_minus(pressure_2_sensor_list),
+                self.get_value_or_minus(pressure_2_sensor_list),
 
-                self.get_latest_value_pair(n2o_main_valve_sensor_list),
-                self.get_latest_value_pair(n2o_fill_valve_sensor_list),
-                self.get_latest_value_pair(n2o_vent_valve_sensor_list),
-                self.get_latest_value_pair(n2_purge_valve_sensor_list),
-                self.get_latest_value_pair(n2o_main_valve_sensor_list),
-                self.get_latest_value_pair(n2_pressure_valve_sensor_list),
+                self.get_time_or_minus(temperature_nitrous_sensor_list),
+                self.get_value_or_minus(temperature_nitrous_sensor_list),
+
+                self.get_time_or_minus(temperature_engine_sensor_list),
+                self.get_value_or_minus(temperature_engine_sensor_list),
+
+                self.get_time_or_minus(load_cell_1_sensor_list),
+                self.get_value_or_minus(load_cell_1_sensor_list),
+
+                self.get_time_or_minus(differential_pressure_list),
+                self.get_value_or_minus(differential_pressure_list),
+
+                self.get_time_or_minus(n2o_main_valve_sensor_list),
+                self.get_value_or_minus(n2o_main_valve_sensor_list),
+
+                self.get_time_or_minus(n2o_fill_valve_sensor_list),
+                self.get_value_or_minus(n2o_fill_valve_sensor_list),
+
+                self.get_time_or_minus(n2o_vent_valve_sensor_list),
+                self.get_value_or_minus(n2o_vent_valve_sensor_list),
+
+                self.get_time_or_minus(n2_purge_valve_sensor_list),
+                self.get_value_or_minus(n2_purge_valve_sensor_list),
+
+                self.get_time_or_minus(n2o_main_valve_sensor_list),
+                self.get_value_or_minus(n2o_main_valve_sensor_list),
+
+                self.get_time_or_minus(n2_pressure_valve_sensor_list),
+                self.get_value_or_minus(n2_pressure_valve_sensor_list),
+
         ])
 
     def load(self):
