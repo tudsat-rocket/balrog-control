@@ -23,7 +23,6 @@ def data_handler(thread_killer, connected_signal):
         handler.save()
         sleep(0.1) # @todo
 
-
 if __name__ == "__main__":
     # define shared queue between threads to communicate sensor values
     thread_killer = Event()
@@ -47,8 +46,6 @@ if __name__ == "__main__":
     main_window = NewMainWindow(event_queue, controller)
     main_window.show()
     rc = app.exec()
-
-
 
     # join the threads again
     thread_killer.set()
