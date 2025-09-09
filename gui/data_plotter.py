@@ -12,6 +12,7 @@ def create_time_list(length):
 def set_x_range(view_buffer, plot, data_list):
     if len(data_list[0]) > view_buffer:
         plot.setAutoPan(x=True) # this allows a smooth pan, while you still can manually scroll
+        plot.setAutoVisible(y=True)
         #plot.setXRange(len(data_list[0]) - view_buffer, len(data_list[0]) - 1)
 
 
