@@ -11,7 +11,7 @@ actors:
   - name: Igniter
     type: TRIGGER
     uid: 2f6L
-    output: 0
+    output: 8
   - name: N20MainValve #renmaed from NitrousMain
     type: SERVO
     uid: 2cPc

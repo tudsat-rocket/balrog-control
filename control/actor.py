@@ -225,10 +225,10 @@ class Actor:
         brick.set_selected_value(self.output + 2, True)
 
     def pull_trigger(self, brick) -> None:
-        pass
+        brick.set_selected_value(self.output, True)
 
     def release_trigger(self, brick) -> None:
-        pass
+        brick.set_selected_value(self.output, False)
 
     def counter_start(self, segment_display_brick) -> None:
         segment_display_brick.start_counter(0, 9999, 1, 10)
