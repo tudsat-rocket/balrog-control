@@ -1,4 +1,4 @@
-
+import yaml
 
 # pressure
 pressure_0_sensor_list = [[],[]]
@@ -22,3 +22,10 @@ n2o_vent_valve_sensor_list = [[],[]]
 n2_pressure_valve_sensor_list = [[],[]]
 n2_purge_valve_sensor_list = [[],[]]
 
+balrog_cfg = None
+with open('config/balrog.yaml', 'r') as f:
+    balrog_cfg = yaml.load(f, Loader=yaml.SafeLoader)
+    actors_dict = {}
+    for actor in balrog_cfg["actors"]:
+        actors_dict[actor["name"]] = actor
+    balrog_cfg["actors"] = actors_dict

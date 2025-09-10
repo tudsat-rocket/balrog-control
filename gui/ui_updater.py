@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 
 from control.definitions import EventType
 from shared.shared_lists import *
+from control.controller import Controller
 
 def read_events_values_from_queue(self):
     """
@@ -53,21 +54,35 @@ def update_ui(self):
 
 
 def update_valve_states(self):
+
+    def friendly_valve_state_name(actor: str, state: int) -> str:
+        if state == balrog_cfg["actors"][actor]["min_position"]:
+            return "Open"
+        elif state == balrog_cfg["actors"][actor]["max_position"]:
+            return "Closed"
+        else:
+            return "Unknown"
+
     if len(n2o_main_valve_sensor_list[1]) > 0:
         state = n2o_main_valve_sensor_list[1][-1]
-        self.label_valve_status_n2o_main_state.setText(str(state))
+        friendly_name  = friendly_valve_state_name("N20MainValve", state)
+        self.label_valve_status_n2o_main_state.setText(f"{friendly_name} ({state})")
     if len(n2o_fill_valve_sensor_list[1]) > 0:
         state = n2o_fill_valve_sensor_list[1][-1]
-        self.label_valve_status_n2o_fill_state.setText(str(state))
+        friendly_name  = friendly_valve_state_name("N20FillValve", state)
+        self.label_valve_status_n2o_fill_state.setText(f"{friendly_name} ({state})")
     if len(n2o_vent_valve_sensor_list[1]) > 0:
         state = n2o_vent_valve_sensor_list[1][-1]
-        self.label_valve_status_n2o_vent_state.setText(str(state))
+        friendly_name  = friendly_valve_state_name("N20VentValve", state)
+        self.label_valve_status_n2o_vent_state.setText(f"{friendly_name} ({state})")
     if len(n2_purge_valve_sensor_list[1]) > 0:
         state = n2_purge_valve_sensor_list[1][-1]
-        self.label_valve_status_n2_purge_state.setText(str(state))
+        friendly_name  = friendly_valve_state_name("N2PurgeValve", state)
+        self.label_valve_status_n2_purge_state.setText(f"{friendly_name} ({state})")
     if len(n2_pressure_valve_sensor_list[1]) > 0:
         state = n2_pressure_valve_sensor_list[1][-1]
-        self.label_valve_status_n2_pressure_state.setText(str(state))
+        friendly_name  = friendly_valve_state_name("N2PressureValve", state)
+        self.label_valve_status_n2_pressure_state.setText(f"{friendly_name} ({state})")
 
 def update_connection_state(self, connection_event):
     """
