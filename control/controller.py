@@ -89,23 +89,23 @@ def valve_sensor_callback(channel, position):
         case 0:
             n2o_fill_valve_sensor_list[0].append(datetime.now())
             n2o_fill_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N20FillValve", position)
+            Controller.the().adjust_valve_if_at_limit("N20FillValve", position)
         case 1:
             n2o_vent_valve_sensor_list[0].append(datetime.now())
             n2o_vent_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N20VentValve", position)
+            Controller.the().adjust_valve_if_at_limit("N20VentValve", position)
         case 2:
             n2o_main_valve_sensor_list[0].append(datetime.now())
             n2o_main_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N20MainValve", position)
+            Controller.the().adjust_valve_if_at_limit("N20MainValve", position)
         case 3:
             n2_pressure_valve_sensor_list[0].append(datetime.now())
             n2_pressure_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N2PressureValve", position)
+            Controller.the().adjust_valve_if_at_limit("N2PressureValve", position)
         case 4:
             n2_purge_valve_sensor_list[0].append(datetime.now())
             n2_purge_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N2PurgeValve", position)
+            Controller.the().adjust_valve_if_at_limit("N2PurgeValve", position)
 
 def differential_pressure_callback( channel, current):
     #print("Channel: " + str(channel))
@@ -132,6 +132,8 @@ class NotAllowedInThisState(Exception):
                               "message": "This action is not allowed in the current state. Please change the state first",
                         }
                     )
+
+_controller_instance = None
 
 class Controller(Thread):
     sensor_enabled = False
@@ -163,8 +165,8 @@ class Controller(Thread):
         self.abort_signal = abort_signal
         self.run_signal = run_signal
         self.connected_signal = connected_signal
-        global controller_singelton
-        controller_singelton = self
+        global _controller_instance
+        _controller_instance= self
         self.start()
 
     def run(self):
@@ -172,6 +174,9 @@ class Controller(Thread):
 
     def join(self, timeout = None):
         super().join()
+
+    def the():
+        return _controller_instance
 
 
     # ++++++++++++
