@@ -115,6 +115,11 @@ def differential_pressure_callback( channel, current):
     #differential_pressure_list[0].append(1)
     differential_pressure_list[1].append(current)
 
+def quick_disconnect_callback(channel, _changed, value):
+    if channel == 4:
+        n2o_qd_state_list[0].append(datetime.now())
+        n2o_qd_state_list[1].append(value)        
+
 class NotConnectedException(Exception):
     def __init__(self, event_queue, **kwargs):
         print("Not connected. Please connect to the test bench first!")
@@ -617,11 +622,9 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
 
         if self.servo_quick_disconnect_open:
-            self.open_quick_disconnect()
-            self.servo_quick_disconnect_open = False
-        else:
             self.close_quick_disconnect()
-            self.servo_quick_disconnect_open = True
+        else:
+            self.open_quick_disconnect()
 
         self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
                               "valve": "quick_disconnect",
@@ -947,6 +950,8 @@ class Controller(Thread):
                 return nitrous_load_cell_callback
             case "N2OMainValveState" | "N2OFillValveState" | "N2OVentValveState" | "N2PurgeValveState" | "N2PressureValveState":
                 return valve_sensor_callback
+            case "N2OQuickDisconnectState":
+                return quick_disconnect_callback
             case _:
                 print(f"No callback found for {name}")
                 self.event_queue.put({"type": EventType.INFO_EVENT, "message": f"No callback found for {name}"})

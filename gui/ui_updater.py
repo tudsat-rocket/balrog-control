@@ -88,8 +88,16 @@ def update_valve_states(self):
         self.label_valve_status_n2_purge_state.setText(f"{friendly_name} ({state})")
     if len(n2_pressure_valve_sensor_list[1]) > 0:
         state = n2_pressure_valve_sensor_list[1][-1]
-        friendly_name  = friendly_valve_state_name("N2PressureValve", state)
+        friendly_name = friendly_valve_state_name("N2PressureValve", state)
         self.label_valve_status_n2_pressure_state.setText(f"{friendly_name} ({state})")
+    #if len(n2o_qd_state_list[1]) > 0:
+        #state = n2o_qd_state_list[1][-1]
+    #TODO Hans: Callback is not working for some reason, use this workaround for now
+    io_bricklet =  self.controller.brick_stack.get_device(self.controller.actors["QuickDisconnect"].get_br_uid())
+    state = io_bricklet.get_value()[4]
+    friendly_name = "Open" if state else "Closed"
+    self.label_valve_state_n2o_qd.setText(f"{friendly_name} ({state})")
+
 
     update_servo_current("N20MainValve", self.label_valve_current_n2o_main)
     update_servo_current("N20FillValve", self.label_valve_current_n2o_fill)

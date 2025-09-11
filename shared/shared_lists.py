@@ -22,6 +22,9 @@ n2o_vent_valve_sensor_list = [[],[]]
 n2_pressure_valve_sensor_list = [[],[]]
 n2_purge_valve_sensor_list = [[],[]]
 
+n2o_qd_state_list = [[],[]]
+
+
 balrog_cfg = None
 with open('config/balrog.yaml', 'r') as f:
     balrog_cfg = yaml.load(f, Loader=yaml.SafeLoader)

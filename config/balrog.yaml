@@ -121,3 +121,8 @@ sensors:
     uid: 2cPc
     channel: 3
     period: -1
+  - name: N2OQuickDisconnectState
+    type: SOLENOID_STATE
+    uid: 2f6L
+    channel: 4
+    period: 5

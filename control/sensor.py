@@ -113,6 +113,8 @@ class Sensor:
                 brick.register_callback(brick.CALLBACK_WEIGHT, self.callback)
             case SensorType.SERVO_STATE:
                 brick.register_callback(brick.CALLBACK_POSITION_REACHED, self.callback)
+            case SensorType.SOLENOID_STATE:
+                brick.register_callback(brick.CALLBACK_INPUT_VALUE, self.callback)
 
     def enable_callback(self, brick):
         """
@@ -130,6 +132,8 @@ class Sensor:
                 brick.set_weight_callback_configuration(self.period, True, "x", 0, 0)
             case SensorType.SERVO_STATE:
                 brick.set_position_reached_callback_configuration(self.channel, True)
+            case SensorType.SOLENOID_STATE:
+                brick.set_input_value_callback_configuration(self.channel, self.period, False)
 
     def disable_callback(self, brick):
         """
@@ -145,7 +149,8 @@ class Sensor:
                 brick.set_weight_callback_configuration(0, False, "x", 0, 0)
             case SensorType.SERVO_STATE:
                 brick.set_position_reached_callback_configuration(self.channel, False)
-
+            case SensorType.SOLENOID_STATE:
+                brick.set_input_value_callback_configuration(self.channel, 0, False)
 
 
     def calibrate_load(self, brick, weight=None) -> None:
