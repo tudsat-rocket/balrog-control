@@ -122,12 +122,12 @@ class Sensor:
         match self.type:
             case SensorType.TEMPERATURE:
                 # parameters are periode in ms, value_has_to_change, Threshold (x =disabled), min, max
-                brick.set_temperature_callback_configuration(self.period, False, "x", 0, 0)
+                brick.set_temperature_callback_configuration(self.period, True, "x", 0, 0)
             case SensorType.PRESSURE:
                 # parameters are: channel, periode in ms, threshold, min, max
-                brick.set_current_callback_configuration(self.channel, self.period, False, "x", 0, 0)
+                brick.set_current_callback_configuration(self.channel, self.period, True, "x", 0, 0)
             case SensorType.LOAD:
-                brick.set_weight_callback_configuration(self.period, False, "x", 0, 0)
+                brick.set_weight_callback_configuration(self.period, True, "x", 0, 0)
             case SensorType.SERVO_STATE:
                 brick.set_position_reached_callback_configuration(self.channel, True)
 
