@@ -141,20 +141,6 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="label_status_master_id">
-               <property name="text">
-                <string>Master ID</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLabel" name="label_status_master_id_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
-             </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_status_port">
                <property name="text">
@@ -169,10 +155,17 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
-              <widget class="QLabel" name="label_8">
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_status_master_id">
                <property name="text">
-                <string>v</string>
+                <string>Master ID</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="label_status_master_id_state">
+               <property name="text">
+                <string>unknown</string>
                </property>
               </widget>
              </item>
@@ -194,6 +187,13 @@
               <widget class="QLabel" name="label_7">
                <property name="text">
                 <string>Shortcut N20 vent</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>v</string>
                </property>
               </widget>
              </item>
@@ -296,6 +296,9 @@
                 </item>
                 <item>
                  <spacer name="verticalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
                   <property name="sizeType">
                    <enum>QSizePolicy::Fixed</enum>
                   </property>
@@ -371,78 +374,156 @@
           <item>
            <widget class="QGroupBox" name="group_valve_status">
             <property name="title">
-             <string>Vavle Status</string>
+             <string>Valve Status</string>
             </property>
-            <layout class="QFormLayout" name="formLayout_2">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_valve_status_n2o_main">
-               <property name="text">
-                <string>N20 Main Valve</string>
-               </property>
-              </widget>
-             </item>
+            <layout class="QFormLayout">
              <item row="0" column="1">
-              <widget class="QLabel" name="label_valve_status_n2o_main_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_valve_status_n2o_vent">
-               <property name="text">
-                <string>N20 Vent Valve</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLabel" name="label_valve_status_n2o_vent_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_valve_status_n2o_fill">
-               <property name="text">
-                <string>N20 Fill Valve</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="label_valve_status_n2o_fill_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="label_valve_status_n2_pressure">
-               <property name="text">
-                <string>N2 Pressure Valve</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLabel" name="label_valve_status_n2_pressure_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_valve_status_n2_purge">
-               <property name="text">
-                <string>N2 Purge valve</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLabel" name="label_valve_status_n2_purge_state">
-               <property name="text">
-                <string>unknown</string>
-               </property>
-              </widget>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <item row="2" column="2">
+                <widget class="QLabel" name="label_valve_current_n2o_vent">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_valve_status_n2o_fill">
+                 <property name="text">
+                  <string>Fill (N2O)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_valve_status_n2_pressure">
+                 <property name="text">
+                  <string>Pressure (N2O)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLabel" name="label_valve_status_n2o_vent_state">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="2">
+                <widget class="QLabel" name="label_valve_current_n2o_fill">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLabel" name="label_valve_status_n2o_main_state">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="2">
+                <widget class="QLabel" name="label_valve_current_n2_purge">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QLabel" name="label_valve_current_n2_pressure">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_valve_status_n2o_vent">
+                 <property name="text">
+                  <string>Vent (N2O)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_valve_status_n2_purge">
+                 <property name="text">
+                  <string>Purge (N2O)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLabel" name="label_valve_current_n2o_main">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QLabel" name="label_valve_status_n2_purge_state">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QLabel" name="label_valve_status_n2o_fill_state">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QLabel" name="label_valve_status_n2_pressure_state">
+                 <property name="text">
+                  <string>N/A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_valve_status_n2o_main">
+                 <property name="text">
+                  <string>Main (N2O)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_valve_name_header">
+                 <property name="text">
+                  <string>**Valve**</string>
+                 </property>
+                 <property name="textFormat">
+                  <enum>Qt::MarkdownText</enum>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLabel" name="label_valve_state_header">
+                 <property name="text">
+                  <string>**State**</string>
+                 </property>
+                 <property name="textFormat">
+                  <enum>Qt::MarkdownText</enum>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="label_valve_current_header">
+                 <property name="text">
+                  <string>**Current (mA)**</string>
+                 </property>
+                 <property name="textFormat">
+                  <enum>Qt::MarkdownText</enum>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </widget>

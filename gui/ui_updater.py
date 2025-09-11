@@ -32,8 +32,6 @@ def update_ui(self):
     match event['type']:
         case EventType.CONNECTION_STATUS_UPDATE:
             update_connection_state(self, event)
-        # case EventType.VALVE_STATUS_UPDATE:
-        #     update_valve_state(self, event)
         case EventType.SEQUENCE_STARTED:
             update_sequence_state(self, False)
             clear_data_cache(self)
@@ -54,6 +52,13 @@ def update_ui(self):
 
 
 def update_valve_states(self):
+
+    #Hans: Servo bricklet is identical for all servos    
+    servo_bricklet =  self.controller.brick_stack.get_device(self.controller.actors["N20MainValve"].get_br_uid())
+
+    def update_servo_current(actor: str, label) -> None:
+        current = servo_bricklet.get_servo_current(self.controller.actors[actor].get_output())
+        label.setText(f"{current}")
 
     def friendly_valve_state_name(actor: str, state: int) -> str:
         if state == balrog_cfg["actors"][actor]["min_position"]:
@@ -86,6 +91,12 @@ def update_valve_states(self):
         friendly_name  = friendly_valve_state_name("N2PressureValve", state)
         self.label_valve_status_n2_pressure_state.setText(f"{friendly_name} ({state})")
 
+    update_servo_current("N20MainValve", self.label_valve_current_n2o_main)
+    update_servo_current("N20FillValve", self.label_valve_current_n2o_fill)
+    update_servo_current("N20VentValve", self.label_valve_current_n2o_vent)
+    update_servo_current("N2PurgeValve", self.label_valve_current_n2_purge)
+    update_servo_current("N2PressureValve", self.label_valve_current_n2_pressure)
+
 def update_connection_state(self, connection_event):
     """
     update the labels to display the current connection status
@@ -114,16 +125,6 @@ def update_sequence_state(self, enabled:bool):
     self.button_reload_sequence.setEnabled(enabled)
 
     self.button_abort_sequence.setEnabled(not enabled)
-
-def update_valve_state(self, event):
-    print(event)
-    match event['valve']:
-        case "main":
-            self.label_valve_status_n20_main_state.setText(str(event['state']))
-        case "vent":
-            self.label_valve_status_n20_vent_state.setText(str(event['state']))
-        case "fill":
-            self.label_valve_status_n20_fill_state.setText(str(event['state']))
 
 def show_info_event(self, info_event):
     """

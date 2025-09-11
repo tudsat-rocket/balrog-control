@@ -246,7 +246,7 @@ class Controller(Thread):
             brick.set_position(actor.output, actor.min_position - adjust)
 
     def read_valve_states(self) -> None:
-        sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
+        sensor_names = ["N2OMainValveState", "N2OFillValveState", "N2OVentValveState", "N2PurgeValveState", "N2PressureValveState"]
         lists = [n2o_main_valve_sensor_list, n2o_fill_valve_sensor_list, n2o_vent_valve_sensor_list, n2_purge_valve_sensor_list, n2_pressure_valve_sensor_list]
         for s, l in zip(sensor_names, lists):
             print("Reading " + s)
@@ -945,7 +945,7 @@ class Controller(Thread):
                 return thrust_load_cell_callback
             case "Nitrous load cell":
                 return nitrous_load_cell_callback
-            case "N2OMainValveSensor" | "N2OFillValveSensor" | "N2OVentValveSensor" | "N2PurgeValveSensor" | "N2PressureValveSensor":
+            case "N2OMainValveState" | "N2OFillValveState" | "N2OVentValveState" | "N2PurgeValveState" | "N2PressureValveState":
                 return valve_sensor_callback
             case _:
                 print(f"No callback found for {name}")
