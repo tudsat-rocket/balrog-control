@@ -60,6 +60,8 @@ def update_valve_states(self):
             return "Open"
         elif state == balrog_cfg["actors"][actor]["max_position"]:
             return "Closed"
+        elif abs(balrog_cfg["actors"][actor]["min_position"]) < abs(state) < abs(balrog_cfg["actors"][actor]["max_position"]):
+            return "Partially Open"
         else:
             return "Unknown"
 

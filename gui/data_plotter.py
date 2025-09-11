@@ -65,7 +65,7 @@ def update_plots(self):
         self.load_cell_nitrous_curve.setData(load_cell2)
         del load_cell2
 
-    view_buffer = 500
+    view_buffer = 10000
 
     set_x_range(view_buffer, self.plot_pressure_0, pressure_0_sensor_list)
     set_x_range(view_buffer, self.plot_pressure_1, pressure_1_sensor_list)

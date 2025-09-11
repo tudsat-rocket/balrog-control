@@ -229,7 +229,7 @@ class Controller(Thread):
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
         actor = self.actors[valve]
-        adjust = 50
+        adjust = 0
         brick = self.brick_stack.get_device(actor.get_br_uid())
 
         if position == actor.max_position and actor.max_position > actor.min_position:
