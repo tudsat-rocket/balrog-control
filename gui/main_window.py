@@ -145,41 +145,41 @@ class NewMainWindow(ui_class, baseclass):
         """
         # pressure
         self.plot_pressure_0.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_pressure_0.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_0.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_pressure_0.setLabel('left', 'N2 Tank (P0) (bar)', color='#FFFFFF')
 
         self.plot_pressure_1.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_pressure_1.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_1.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_pressure_1.setLabel('left', 'N2O Tank (P1) (bar)', color='#FFFFFF')
 
 
         self.plot_pressure_2.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_pressure_2.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_pressure_2.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_pressure_2.setLabel('left', 'Pre-Chamber (P2) (bar)', color='#FFFFFF')
 
 
         # plot_differential_pressure
         self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_differential_pressure.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_differential_pressure.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_differential_pressure.setLabel('left', 'Differential Pressure (bar)', color='#FFFFFF')
 
 
         # plot_thermocouple
         self.plot_thermocouple_nitrous.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_thermocouple_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_thermocouple_nitrous.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_thermocouple_nitrous.setLabel('left', 'Temperature Nitrous (°C)', color='#FFFFFF')
 
         self.plot_thermocouple_engine.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_thermocouple_engine.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_thermocouple_engine.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_thermocouple_engine.setLabel('left', 'Temperature Engine (°C)', color='#FFFFFF')
 
 
         # plot_load_cell
         self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_load_cell_nitrous.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_load_cell_nitrous.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_load_cell_nitrous.setLabel('left', 'Load Cell Nitrous Tank (kg)', color='#FFFFFF')
 
 
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_load_cell_thrust.setLabel('bottom', 'Time (ms)', color='#FFFFFF')
+        self.plot_load_cell_thrust.setLabel('bottom', 'Time (s)', color='#FFFFFF')
         self.plot_load_cell_thrust.setLabel('left', 'Load Cell Thrust (kg)', color='#FFFFFF')

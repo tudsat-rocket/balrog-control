@@ -49,7 +49,7 @@
                 <item>
                  <widget class="QLineEdit" name="edit_host">
                   <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                   <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
                    <string>10.42.0.81</string>
@@ -66,7 +66,7 @@
                 <item>
                  <widget class="QLineEdit" name="edit_port">
                   <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::ClickFocus</enum>
+                   <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
                    <string>4223</string>
@@ -85,7 +85,7 @@
                 <item>
                  <widget class="QPushButton" name="button_connect">
                   <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::NoFocus</enum>
+                   <enum>Qt::NoFocus</enum>
                   </property>
                   <property name="text">
                    <string>Connect</string>
@@ -206,7 +206,7 @@
        <item>
         <widget class="QFrame" name="frame_2">
          <property name="frameShape">
-          <enum>QFrame::Shape::NoFrame</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
@@ -227,7 +227,7 @@
              <item>
               <widget class="QFrame" name="frame_5">
                <property name="frameShape">
-                <enum>QFrame::Shape::NoFrame</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
@@ -284,7 +284,7 @@
                 </sizepolicy>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::NoFrame</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_11">
                 <item>
@@ -296,11 +296,8 @@
                 </item>
                 <item>
                  <spacer name="verticalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
-                  </property>
                   <property name="sizeType">
-                   <enum>QSizePolicy::Policy::Preferred</enum>
+                   <enum>QSizePolicy::Fixed</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -478,7 +475,7 @@
           <item>
            <widget class="QFrame" name="frame_4">
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
@@ -733,11 +730,11 @@
    <property name="minimumSize">
     <size>
      <width>500</width>
-     <height>140</height>
+     <height>240</height>
     </size>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFeature::NoDockWidgetFeatures</set>
+    <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string comment="Sensor Plots"/>
@@ -765,28 +762,108 @@
         <string/>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="2" column="0">
-         <widget class="PlotWidget" name="plot_pressure_2" native="true"/>
-        </item>
-        <item row="3" column="0">
-         <widget class="PlotWidget" name="plot_load_cell_thrust" native="true"/>
-        </item>
-        <item row="4" column="1">
-         <widget class="PlotWidget" name="plot_thermocouple_engine" native="true"/>
-        </item>
-        <item row="0" column="1">
-         <widget class="PlotWidget" name="plot_pressure_1" native="true"/>
-        </item>
-        <item row="3" column="1">
+        <item row="5" column="1">
          <widget class="PlotWidget" name="plot_load_cell_nitrous" native="true"/>
         </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="current_value_load_cell_thrust">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
+         <widget class="QLabel" name="current_value_n2_tank">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="PlotWidget" name="plot_thermocouple_engine" native="true"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="PlotWidget" name="plot_pressure_1" native="true"/>
+        </item>
+        <item row="1" column="0">
          <widget class="PlotWidget" name="plot_pressure_0" native="true"/>
         </item>
-        <item row="4" column="0">
+        <item row="2" column="1">
+         <widget class="QLabel" name="current_value_differential_pressure">
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLabel" name="current_value_temperature_engine">
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLabel" name="current_value_load_cell_nitrous">
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="current_value_n2o_tank">
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="PlotWidget" name="plot_pressure_2" native="true"/>
+        </item>
+        <item row="5" column="0">
+         <widget class="PlotWidget" name="plot_load_cell_thrust" native="true"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="current_value_pre_chamber_pressure">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
          <widget class="PlotWidget" name="plot_thermocouple_nitrous" native="true"/>
         </item>
-        <item row="2" column="1">
+        <item row="6" column="0">
+         <widget class="QLabel" name="current_value_temperature_nitrous">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>N/A</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
          <widget class="PlotWidget" name="plot_differential_pressure" native="true"/>
         </item>
        </layout>
