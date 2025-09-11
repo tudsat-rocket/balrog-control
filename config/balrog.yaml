@@ -16,8 +16,8 @@ actors:
     type: SERVO
     uid: 2cPc
     output: 2
-    min_position: 0
-    max_position: -8772
+    min_position: -8700
+    max_position: 0
   - name: N20VentValve # rename from  NitrousVent
     type: SERVO
     uid: 2cPc
