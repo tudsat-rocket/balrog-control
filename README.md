@@ -20,7 +20,7 @@ The brick daemon (brickd) provides the API-bindings for communicating with the T
 All python dependencies are maintained as a conda environment in a `environment.yaml` file. After installation of [Conda](https://conda.org/) or a comparable distribution (eg. [Mircomamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)), install with:
 
 ```
-conda env create -f environment.yml
+conda env create -f environment.yaml
 ```
 
 ---
