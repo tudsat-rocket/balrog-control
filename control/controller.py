@@ -141,6 +141,7 @@ class Controller(Thread):
     servo_main_open = False
     servo_pressure_open = False
     servo_purge_open = False
+    solenoid_quick_disconnect_open = False
     servo_quick_disconnect_open = False
     abort_sequence = False
 
@@ -495,14 +496,24 @@ class Controller(Thread):
         self.actors["N2PurgeValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
         self.servo_purge_open = False
 
-    def open_quick_disconnect(self):
-        uid = self.actors["QuickDisconnect"].get_br_uid()
-        self.actors["QuickDisconnect"].action(ActionType.SOLENOID_OPEN, self.brick_stack.get_device(uid))
-        self.servo_quick_disconnect_open = True
+    def open_quick_disconnect_solenoid(self):
+        uid = self.actors["QuickDisconnectSolenoid"].get_br_uid()
+        self.actors["QuickDisconnectSolenoid"].action(ActionType.SOLENOID_OPEN, self.brick_stack.get_device(uid))
+        self.solenoid_quick_disconnect_open = True
 
-    def close_quick_disconnect(self):
-        uid = self.actors["QuickDisconnect"].get_br_uid()
-        self.actors["QuickDisconnect"].action(ActionType.SOLENOID_CLOSE, self.brick_stack.get_device(uid))
+    def close_quick_disconnect_solenoid(self):
+        uid = self.actors["QuickDisconnectSolenoid"].get_br_uid()
+        self.actors["QuickDisconnectSolenoid"].action(ActionType.SOLENOID_CLOSE, self.brick_stack.get_device(uid))
+        self.solenoid_quick_disconnect_open = False
+
+    def open_quick_disconnect_servo(self):
+        uid = self.actors["QuickDisconnectServo"].get_br_uid()
+        self.actors["QuickDisconnectServo"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.servo_quick_disconnect_open = False
+
+    def close_quick_disconnect_servo(self):
+        uid = self.actors["QuickDisconnectServo"].get_br_uid()
+        self.actors["QuickDisconnectServo"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
         self.servo_quick_disconnect_open = False
 
     def toggle_n2o_main_valve(self):
@@ -601,21 +612,43 @@ class Controller(Thread):
                               "state": self.servo_pressure_open,
                               })
 
-    def toggle_quick_disconnect(self):
+    def toggle_quick_disconnect_solenoid(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
+        if self.solenoid_quick_disconnect_open:
+            self.open_quick_disconnect_solenoid()
+            self.solenoid_quick_disconnect_open = False
+        else:
+            self.close_quick_disconnect_solenoid()
+            self.solenoid_quick_disconnect_open = True
+
+        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE, #@TODO
+                              "valve": "quick_disconnect",
+                              "state": self.solenoid_quick_disconnect_open,
+                              })
+
+    def toggle_quick_disconnect_servo(self):
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+        if self.solenoid_quick_disconnect_open:
+            # the solenoid has to be closed to allow the servo to open
+            raise NotAllowedInThisState(self.event_queue)
+
         if self.servo_quick_disconnect_open:
-            self.open_quick_disconnect()
+            self.open_quick_disconnect_servo()
             self.servo_quick_disconnect_open = False
         else:
-            self.close_quick_disconnect()
+            self.close_quick_disconnect_servo()
             self.servo_quick_disconnect_open = True
 
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
-                              "valve": "quick_disconnect",
+        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE, #@TODO (Nucleus): this is not a valve
+                              "valve": "quick_disconnect_servo",
                               "state": self.servo_quick_disconnect_open,
                               })
 
@@ -628,7 +661,7 @@ class Controller(Thread):
         self.close_n2o_fill_valve()
         self.close_n2_purge_valve()
         self.close_n2o_vent_valve()
-        self.close_quick_disconnect()
+        self.close_quick_disconnect_solenoid()
 
 
     def run_n2o_purge_sequence(self):
