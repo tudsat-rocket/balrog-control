@@ -42,10 +42,16 @@ actors:
     output: 4
     min_position: 0
     max_position: 5070
-  - name: QuickDisconnect
+  - name: QuickDisconnectSolenoid
     type: SOLENOID
     uid: 2f6L
     output: 4
+    min_position: 0
+    max_position: 6000
+  - name: QuickDisconnectServo
+    type: SERVO
+    uid: 2cPc
+    output: 5
     min_position: 0
     max_position: 6000
   - name: SegmentDisplay

@@ -552,9 +552,22 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QPushButton" name="button_toggle_quick_disconnect">
+                 <widget class="QPushButton" name="button_toggle_quick_disconnect_solenoid">
+                  <property name="toolTip">
+                   <string>Toggle quick disconnet Solenoid</string>
+                  </property>
                   <property name="text">
-                   <string>Toggle Quick Disconnect</string>
+                   <string>Toggle QD solenoid</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="button_toggle_quick_disconnect_servo">
+                  <property name="toolTip">
+                   <string>Toggle Quick Disconnct servo</string>
+                  </property>
+                  <property name="text">
+                   <string>Toggle QD servo</string>
                   </property>
                  </widget>
                 </item>

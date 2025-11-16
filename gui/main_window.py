@@ -122,7 +122,8 @@ class NewMainWindow(ui_class, baseclass):
         self.button_toggle_n2o_vent_valve.clicked.connect(lambda: self.controller.toggle_n2o_vent_valve())
         self.button_toggle_n2_purge_valve.clicked.connect(lambda: self.controller.toggle_n2_purge_valve())
         self.button_toggle_n2_pressure_valve.clicked.connect(lambda: self.controller.toggle_n2_pressure_valve())
-        self.button_toggle_quick_disconnect.clicked.connect(lambda: self.controller.toggle_quick_disconnect())
+        self.button_toggle_quick_disconnect_solenoid.clicked.connect(lambda: self.controller.toggle_quick_disconnect_solenoid())
+        self.button_toggle_quick_disconnect_servo.clicked.connect(lambda: self.controller.toggle_quick_disconnect_servo())
 
         self.button_toggle_arming.clicked.connect(lambda: self.controller.toggle_arming())
 
