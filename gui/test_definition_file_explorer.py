@@ -1,7 +1,5 @@
 from PySide6.QtWidgets import QFileDialog
-
 from control.controller import Controller
-from control.test_definition_parsing import parse_csv
 
 
 def open_file_dialog(self, controller: Controller):
