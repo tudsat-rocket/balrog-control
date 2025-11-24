@@ -926,6 +926,8 @@ class Controller(Thread):
                     pwm_max = 2500
                     brick.set_pulse_width(actor.output, pwm_min, pwm_max)
                     brick.set_motion_configuration(actor.output, velocity, acceleration, deceleration)
+                case ActorType.SOLENOID:
+                    brick.set_configuration(actor.output, 'o', False)
 
 
     def _construct_actors(self) -> None:
