@@ -895,8 +895,6 @@ class Controller(Thread):
         self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"].get_br_uid()))
         #self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
 
-        self.disable_all_sensor_callbacks()
-
     # ++++++
     # Internal methods
     # ++++++
