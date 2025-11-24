@@ -1,4 +1,13 @@
-from shared.shared_lists import *
+from shared.shared_lists import (
+    pressure_0_sensor_list,
+    pressure_1_sensor_list,
+    pressure_2_sensor_list,
+    differential_pressure_list,
+    temperature_nitrous_sensor_list,
+    temperature_engine_sensor_list,
+    load_cell_1_sensor_list,
+    load_cell_2_sensor_list,
+)
 
 
 def create_time_list(length):

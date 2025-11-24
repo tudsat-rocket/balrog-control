@@ -159,7 +159,7 @@ class Controller(Thread):
         self.ignition_sequence = parse_csv(Path("config/operations/ignition_sequence.csv"))
         self.n2o_purge_sequence = parse_csv(Path("config/operations/n20_purge_sequence.csv"))
         self.sequence = None
-        self.event_queue = event_queue
+        self.event_queue:Queue = event_queue
         self.thread_killer = thread_killer
         self.abort_signal = abort_signal
         self.run_signal = run_signal

@@ -1,6 +1,7 @@
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtUiTools import loadUiType
 import pyqtgraph as pg
+from queue import Queue
 
 from control.controller import Controller
 from .test_definition_file_explorer import open_file_dialog, reload_file
@@ -11,7 +12,7 @@ ui_class, baseclass = loadUiType("gui/main_view.ui")
 
 
 class NewMainWindow(ui_class, baseclass):
-    def __init__(self, event_queue, controller):
+    def __init__(self, event_queue: Queue, controller):
         super().__init__()
         self.showMaximized()
 
@@ -117,7 +118,7 @@ class NewMainWindow(ui_class, baseclass):
         )
         self.button_test_counter.clicked.connect(lambda: self.controller.test_counter())
 
-        clear_load_calibration_text_callback = lambda: self.edit_calibrate_load.clear()
+        clear_load_calibration_text_callback = self.edit_calibrate_load.clear
         self.button_calibrate_thrust_load.clicked.connect(
             lambda: self.controller.calibrate_thrust_load(
                 self.edit_calibrate_load.text(), clear_load_calibration_text_callback

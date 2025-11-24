@@ -1,5 +1,4 @@
 import sys
-import queue
 from queue import Queue
 
 from time import sleep
@@ -8,7 +7,6 @@ from control.controller import Controller
 from control.data_handling import DataHandler
 from gui.main_window import NewMainWindow
 from PySide6.QtWidgets import QApplication
-from random import randint
 
 
 def data_handler(thread_killer, connected_signal):
@@ -30,7 +28,7 @@ if __name__ == "__main__":
     run_signal = Event()
     connected_signal = Event()
 
-    event_queue = queue.Queue()
+    event_queue:Queue = Queue()
 
     # start multithreaded environment to separate UI from data handling
 
