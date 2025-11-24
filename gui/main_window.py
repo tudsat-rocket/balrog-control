@@ -76,10 +76,8 @@ class NewMainWindow(ui_class, baseclass):
         self.event_timer.timeout.connect(lambda: update_ui(self))
         self.event_timer.start(100)
 
-    def keyPressEvent(self, event):
-        """
-        override the keypress handler to implement our shortcuts
-        """
+    def key_press_event(self, event):
+        """Override the keypress handler to implement our shortcuts"""
         # implement v shortcut for opening the vent valve as long as the key is pressed
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
             self.controller.toggle_n2o_vent_valve()
@@ -87,22 +85,18 @@ class NewMainWindow(ui_class, baseclass):
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
             self.controller.toggle_n2_purge_valve()
 
-        super().keyPressEvent(event)
+        super().key_press_event(event)
 
-    def keyReleaseEvent(self, event):
-        """
-        override the keyrelease handler to implement our shortcuts
-        """
+    def key_release_event(self, event):
+        """Override the keyrelease handler to implement our shortcuts."""
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
             self.controller.toggle_n2o_vent_valve()
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
             self.controller.toggle_n2_purge_valve()
-        super().keyReleaseEvent(event)
+        super().key_release_event(event)
 
-    def setup_buttons(self):
-        """
-        Connect the click of a buttons to a methode
-        """
+    def setup_buttons(self) -> None:
+        """Connect the click of a buttons to a methode."""
         # Connection handler
         self.button_connect.clicked.connect(
             lambda: self.controller.connect(
@@ -132,81 +126,80 @@ class NewMainWindow(ui_class, baseclass):
 
         # green state
         self.button_green_state.clicked.connect(
-            lambda: self.controller.request_go_to_green_state()
+            lambda: self.controller.request_go_to_green_state(),
         )
         self.button_dump_sensors_to_file.clicked.connect(
-            lambda: self.controller.dump_sensors_to_file()
+            lambda: self.controller.dump_sensors_to_file(),
         )
+
         self.button_reset_sensors.clicked.connect(
-            lambda: self.controller.reset_sensors()
+            lambda: self.controller.reset_sensors(),
         )
 
         # yellow state
         self.button_yellow_state.clicked.connect(
-            lambda: self.controller.request_go_to_yellow_state()
+            lambda: self.controller.request_go_to_yellow_state(),
         )
 
         # red state
         self.button_red_state.clicked.connect(
-            lambda: self.controller.request_go_to_red_state()
+            lambda: self.controller.request_go_to_red_state(),
         )
         self.button_close_all_valves.clicked.connect(
-            lambda: self.controller.close_all_valves()
+            lambda: self.controller.close_all_valves(),
         )
         self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
 
         self.button_toggle_n2o_main_valve.clicked.connect(
-            lambda: self.controller.toggle_n2o_main_valve()
+            lambda: self.controller.toggle_n2o_main_valve(),
         )
         self.button_toggle_n2o_fill_valve.clicked.connect(
-            lambda: self.controller.toggle_n2o_fill_valve()
+            lambda: self.controller.toggle_n2o_fill_valve(),
         )
         self.button_toggle_n2o_vent_valve.clicked.connect(
-            lambda: self.controller.toggle_n2o_vent_valve()
+            lambda: self.controller.toggle_n2o_vent_valve(),
         )
         self.button_toggle_n2_purge_valve.clicked.connect(
-            lambda: self.controller.toggle_n2_purge_valve()
+            lambda: self.controller.toggle_n2_purge_valve(),
         )
         self.button_toggle_n2_pressure_valve.clicked.connect(
-            lambda: self.controller.toggle_n2_pressure_valve()
+            lambda: self.controller.toggle_n2_pressure_valve(),
         )
         self.button_toggle_quick_disconnect_solenoid.clicked.connect(
-            lambda: self.controller.toggle_quick_disconnect_solenoid()
+            lambda: self.controller.toggle_quick_disconnect_solenoid(),
         )
         self.button_toggle_quick_disconnect_servo.clicked.connect(
-            lambda: self.controller.toggle_quick_disconnect_servo()
+            lambda: self.controller.toggle_quick_disconnect_servo(),
         )
 
         self.button_toggle_arming.clicked.connect(
-            lambda: self.controller.toggle_arming()
+            lambda: self.controller.toggle_arming(),
         )
 
         self.button_run_n20_purge_sequence.clicked.connect(
-            lambda: self.controller.run_n2o_purge_sequence()
+            lambda: self.controller.run_n2o_purge_sequence(),
         )
         self.button_run_ignition_sequence.clicked.connect(
-            lambda: self.controller.run_ignition_sequence()
+            lambda: self.controller.run_ignition_sequence(),
         )
         # self.button_open_vent_valve.
 
         # Sequence loader
         self.button_start_sequence.clicked.connect(
-            lambda: self.controller.start_sequence()
+            lambda: self.controller.start_sequence(),
         )
         self.button_open_sequence.clicked.connect(
-            lambda: open_file_dialog(self, self.controller)
+            lambda: open_file_dialog(self, self.controller,)
         )
         self.button_reload_sequence.clicked.connect(
-            lambda: reload_file(self, self.controller)
+            lambda: reload_file(self, self.controller,)
         )
 
         # Abort
         self.button_abort_sequence.clicked.connect(lambda: self.controller.abort())
 
-    def setup_graphs(self):
-        """
-        define the labels and other settings for the graphs
-        """
+    def setup_graphs(self) -> None:
+        """Define the labels and other settings for the graphs."""
         # pressure
         self.plot_pressure_0.showGrid(x=True, y=True, alpha=0.3)
         self.plot_pressure_0.setLabel("bottom", "Time (ms)", color="#FFFFFF")
@@ -224,31 +217,41 @@ class NewMainWindow(ui_class, baseclass):
         self.plot_differential_pressure.showGrid(x=True, y=True, alpha=0.3)
         self.plot_differential_pressure.setLabel("bottom", "Time (ms)", color="#FFFFFF")
         self.plot_differential_pressure.setLabel(
-            "left", "Differential Pressure (bar)", color="#FFFFFF"
+            "left",
+            "Differential Pressure (bar)",
+            color="#FFFFFF",
         )
 
         # plot_thermocouple
         self.plot_thermocouple_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_thermocouple_nitrous.setLabel("bottom", "Time (ms)", color="#FFFFFF")
         self.plot_thermocouple_nitrous.setLabel(
-            "left", "Temperature Nitrous (°C)", color="#FFFFFF"
+            "left",
+            "Temperature Nitrous (°C)",
+            color="#FFFFFF",
         )
 
         self.plot_thermocouple_engine.showGrid(x=True, y=True, alpha=0.3)
         self.plot_thermocouple_engine.setLabel("bottom", "Time (ms)", color="#FFFFFF")
         self.plot_thermocouple_engine.setLabel(
-            "left", "Temperature Engine (°C)", color="#FFFFFF"
+            "left",
+            "Temperature Engine (°C)",
+            color="#FFFFFF",
         )
 
         # plot_load_cell
         self.plot_load_cell_nitrous.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_nitrous.setLabel("bottom", "Time (ms)", color="#FFFFFF")
         self.plot_load_cell_nitrous.setLabel(
-            "left", "Load Cell Nitrous Tank (kg)", color="#FFFFFF"
+            "left",
+            "Load Cell Nitrous Tank (kg)",
+            color="#FFFFFF",
         )
 
         self.plot_load_cell_thrust.showGrid(x=True, y=True, alpha=0.3)
         self.plot_load_cell_thrust.setLabel("bottom", "Time (ms)", color="#FFFFFF")
         self.plot_load_cell_thrust.setLabel(
-            "left", "Load Cell Thrust (kg)", color="#FFFFFF"
+            "left",
+            "Load Cell Thrust (kg)",
+            color="#FFFFFF",
         )
