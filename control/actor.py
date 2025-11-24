@@ -182,6 +182,7 @@ class Actor:
         io_brick.set_selected_value(self.get_output(), False)
 
     def solenoid_toggle(self, brick) -> None:
+        print("solenoid toggle is not implemented")
         pass
 
     def sound_horn(self, brick) -> None:
