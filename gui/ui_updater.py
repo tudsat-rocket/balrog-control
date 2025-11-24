@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 from control.definitions import EventType
 from shared.shared_lists import *
 
+
 def read_events_values_from_queue(self):
     """
     consume the newest values from the sensor queues
@@ -28,7 +29,7 @@ def update_ui(self):
         # queue is empty, Nothing to do.
         return
 
-    match event['type']:
+    match event["type"]:
         case EventType.CONNECTION_STATUS_UPDATE:
             update_connection_state(self, event)
         # case EventType.VALVE_STATUS_UPDATE:
@@ -69,19 +70,21 @@ def update_valve_states(self):
         state = n2_pressure_valve_sensor_list[1][-1]
         self.label_valve_status_n2_pressure_state.setText(str(state))
 
+
 def update_connection_state(self, connection_event):
     """
     update the labels to display the current connection status
     """
-    self.label_status_connection_state.setText(connection_event['status'])
-    self.label_status_hostname_state.setText(connection_event['hostname'])
-    self.label_status_port_state.setText(str(connection_event['port']))
-    if connection_event['status'] == "Connected":
+    self.label_status_connection_state.setText(connection_event["status"])
+    self.label_status_hostname_state.setText(connection_event["hostname"])
+    self.label_status_port_state.setText(str(connection_event["port"]))
+    if connection_event["status"] == "Connected":
         self.button_connect.setText("Disconnect")
-    elif connection_event['status'] == "Disconnected":
+    elif connection_event["status"] == "Disconnected":
         self.button_connect.setText("Connect")
 
-def update_sequence_state(self, enabled:bool):
+
+def update_sequence_state(self, enabled: bool):
     """
     enable and disable the buttons to start a sequence or do abort a sequence
     """
@@ -91,22 +94,24 @@ def update_sequence_state(self, enabled:bool):
 
     self.button_selfcheck.setEnabled(enabled)
     self.button_test_horn.setEnabled(enabled)
-    #self.button_test_light.setEnabled(enabled)
+    # self.button_test_light.setEnabled(enabled)
 
     self.button_open_sequence.setEnabled(enabled)
     self.button_reload_sequence.setEnabled(enabled)
 
     self.button_abort_sequence.setEnabled(not enabled)
 
+
 def update_valve_state(self, event):
     print(event)
-    match event['valve']:
+    match event["valve"]:
         case "main":
-            self.label_valve_status_n20_main_state.setText(str(event['state']))
+            self.label_valve_status_n20_main_state.setText(str(event["state"]))
         case "vent":
-            self.label_valve_status_n20_vent_state.setText(str(event['state']))
+            self.label_valve_status_n20_vent_state.setText(str(event["state"]))
         case "fill":
-            self.label_valve_status_n20_fill_state.setText(str(event['state']))
+            self.label_valve_status_n20_fill_state.setText(str(event["state"]))
+
 
 def show_info_event(self, info_event):
     """
@@ -115,11 +120,12 @@ def show_info_event(self, info_event):
     # @TODO(Nucleus): redesign with pyside designer
     dlg = QDialog(self)
     dlg.setWindowTitle(info_event["title"])
-    message = QLabel(info_event['message'])
+    message = QLabel(info_event["message"])
     layout = QVBoxLayout()
     layout.addWidget(message)
     dlg.setLayout(layout)
     dlg.exec()
+
 
 def show_confirmation_event(self, confirmation_event):
     """
@@ -127,7 +133,7 @@ def show_confirmation_event(self, confirmation_event):
     """
     dlg = QDialog(self)
     dlg.setWindowTitle(confirmation_event["title"])
-    message = QLabel(confirmation_event['message'])
+    message = QLabel(confirmation_event["message"])
     buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     buttonBox.accepted.connect(confirmation_event["confirm"])
     buttonBox.accepted.connect(dlg.accept)
@@ -147,11 +153,12 @@ def show_sequence_error(self, error_event):
     # @TODO(Nucleus): redesign with pyside designer
     dlg = QDialog(self)
     dlg.setWindowTitle("something went wrong")
-    message = QLabel(error_event['message'])
+    message = QLabel(error_event["message"])
     layout = QVBoxLayout()
     layout.addWidget(message)
     dlg.setLayout(layout)
     dlg.exec()
+
 
 def clear_data_cache(self):
     """
@@ -170,23 +177,37 @@ def clear_data_cache(self):
     self.load_cell_2_data = []
     self.differential_pressure_data = []
 
+
 def update_state(self, event):
     match event["new_state"]:
         case State.GREEN_STATE:
-            self.group_state_green.setStyleSheet("background-color: rgb(143, 240, 164);")
+            self.group_state_green.setStyleSheet(
+                "background-color: rgb(143, 240, 164);"
+            )
 
-            self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_yellow.setStyleSheet(
+                "background-color: rgb(255, 255, 255);"
+            )
             self.group_state_red.setStyleSheet("background-color: rgb(255, 255, 255);")
         case State.YELLOW_STATE:
-            self.group_state_yellow.setStyleSheet("background-color: rgb(249, 240, 107);")
+            self.group_state_yellow.setStyleSheet(
+                "background-color: rgb(249, 240, 107);"
+            )
 
-            self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_green.setStyleSheet(
+                "background-color: rgb(255, 255, 255);"
+            )
             self.group_state_red.setStyleSheet("background-color: rgb(255, 255, 255);")
         case State.RED_STATE:
             self.group_state_red.setStyleSheet("background-color: rgb(255, 160, 160);")
 
-            self.group_state_yellow.setStyleSheet("background-color: rgb(255, 255, 255);")
-            self.group_state_green.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.group_state_yellow.setStyleSheet(
+                "background-color: rgb(255, 255, 255);"
+            )
+            self.group_state_green.setStyleSheet(
+                "background-color: rgb(255, 255, 255);"
+            )
+
 
 def update_arming_state(self, event):
     match event["new_state"]:
@@ -205,12 +226,13 @@ def update_arming_state(self, event):
             self.button_toggle_n2o_fill_valve.setEnabled(False)
             self.button_start_sequence.setEnabled(False)
 
+
 def reset_plots(self):
-    #self.pressure_curve_0.clear()
-    #self.pressure_curve_2.clear()
-    #self.pressure_curve_1.clear()
-    #self.differential_pressure_curve.clear()
-    #self.thermocouple_engine_curve.clear()
-    #self.thermocouple_nitrous_curve.clear()
+    # self.pressure_curve_0.clear()
+    # self.pressure_curve_2.clear()
+    # self.pressure_curve_1.clear()
+    # self.differential_pressure_curve.clear()
+    # self.thermocouple_engine_curve.clear()
+    # self.thermocouple_nitrous_curve.clear()
     self.load_cell_nitrous_curve.clear()
     self.load_cell_thrust_curve.clear()

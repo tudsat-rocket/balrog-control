@@ -3,7 +3,8 @@ from PySide6.QtWidgets import QFileDialog
 from control.controller import Controller
 from control.test_definition_parsing import parse_csv
 
-def open_file_dialog(self, controller:Controller):
+
+def open_file_dialog(self, controller: Controller):
     """
     Show a file dialog to select a sequence file
     """
@@ -16,7 +17,7 @@ def open_file_dialog(self, controller:Controller):
         self.label_sequence_file_name.setText("No file selected.")
 
 
-def reload_file(self, controller:Controller):
+def reload_file(self, controller: Controller):
     """
     Reload the same filename again
     """

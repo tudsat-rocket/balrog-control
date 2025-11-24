@@ -2,6 +2,7 @@ from datetime import datetime
 import csv
 import os
 
+
 def start_logging(self):
     """
     create a new logfile for new sensor values
@@ -14,6 +15,7 @@ def start_logging(self):
     self.log_file = open(filepath, "w", newline="")
     self.writer = csv.writer(self.log_file)
     self.writer.writerow(["Time", "Pressure 1", "Current"])
+
 
 def end_logging(self):
     """
