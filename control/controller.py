@@ -837,6 +837,9 @@ class Controller(Thread):
         load_cell_1_sensor_list[:] = [[], []]
         load_cell_2_sensor_list[:] = [[], []]
 
+        # enable callbacks again
+        self.enable_all_sensor_callbacks()
+
     def start_sequence(self) -> bool:
         """
         start the loaded sequence.
