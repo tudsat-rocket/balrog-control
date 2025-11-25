@@ -1,17 +1,21 @@
 import sys
 from queue import Queue
-
+from threading import Event, Thread
 from time import sleep
-from threading import Thread, Event
+
+from PySide6.QtWidgets import QApplication
+
 from control.controller import Controller
 from control.data_handling import DataHandler
 from gui.main_window import NewMainWindow
-from PySide6.QtWidgets import QApplication
 
 
-def data_handler(thread_killer, connected_signal):
-    """
-    data handler in thread, store latest data in CSV
+def data_handler(thread_killer, connected_signal) -> None:
+    """Handle the sensor data thread, store latest data in CSV.
+
+    This calls a long as the thread_killer flag is not set,
+    the save method to store the latest sensor values
+    in the csv file.
     """
     handler = DataHandler()
     connected_signal.wait()
@@ -19,7 +23,8 @@ def data_handler(thread_killer, connected_signal):
         # store the latest data in CSV
         connected_signal.wait()
         handler.save()
-        sleep(0.1) # @todo
+        sleep(0.1)  # @todo
+
 
 if __name__ == "__main__":
     # define shared queue between threads to communicate sensor values
@@ -28,13 +33,15 @@ if __name__ == "__main__":
     run_signal = Event()
     connected_signal = Event()
 
-    event_queue:Queue = Queue()
+    event_queue: Queue = Queue()
 
     # start multithreaded environment to separate UI from data handling
 
-    controller = Controller(event_queue, thread_killer, abort_signal, run_signal, connected_signal)
+    controller = Controller(
+        event_queue, thread_killer, abort_signal, run_signal, connected_signal
+    )
 
-    data_handler = Thread(target=data_handler, args=(thread_killer,connected_signal))
+    data_handler = Thread(target=data_handler, args=(thread_killer, connected_signal))
     data_handler.start()
 
     """

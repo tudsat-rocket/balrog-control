@@ -1,20 +1,30 @@
 import time
 from time import sleep
 
-from control.definitions import ActorType, ActionType
+from tinkerforge.bricklet_io16_v2 import BrickletIO16V2
+from tinkerforge.bricklet_segment_display_4x7_v2 import BrickletSegmentDisplay4x7V2
+from tinkerforge.bricklet_servo_v2 import BrickletServoV2
+from tinkerforge.ip_connection import Device as TkDevice
+
+from control.definitions import ActionType, ActorType
+
 
 class Actor:
-    """
-    Abstract representation of an actor
-    """
+    """Abstract representation of an actor"""
 
-    def __init__(self, name: str = "", actor_type: ActorType = ActorType.DUMMY,
-                 uid: str = "", output: int = 0, min_position: int = -1, max_position: int = -1):
-
+    def __init__(
+        self,
+        name: str = "",
+        actor_type: ActorType = ActorType.DUMMY,
+        uid: str = "",
+        output: int = 0,
+        min_position: int = -1,
+        max_position: int = -1,
+    ):
         # human-readable name
         self.name = name
         self.type = actor_type
-        # uid of bricklet responsible for controlling the actor 
+        # uid of bricklet responsible for controlling the actor
         self.br_uid = uid
         # nr. of output in case of multiple outputs, 0 else
         self.output = output
@@ -23,7 +33,7 @@ class Actor:
 
     def set_actor_name(self, name: str) -> None:
         self.name = name
-    
+
     def get_actor_type(self) -> ActorType:
         return self.type
 
@@ -31,10 +41,10 @@ class Actor:
         self.type = actor_type
 
     def get_br_uid(self) -> str:
-        return self.br_uid 
+        return self.br_uid
 
     def set_br_uid(self, uid: str) -> None:
-        self.br_uid = uid 
+        self.br_uid = uid
 
     def get_output(self):
         return self.output
@@ -42,7 +52,11 @@ class Actor:
     def set_output(self, output) -> None:
         self.output = output
 
-    def action(self, action: ActionType, brick) -> None:
+    def action(self, action: ActionType, brick: TkDevice) -> None:
+        """Execute the given action on the given brick.
+
+        Depending on the ActionType different brick actions are called.
+        """
         match action:
             case ActionType.SOUND_HORN:
                 print("sound horn")
@@ -86,7 +100,14 @@ class Actor:
             case _:
                 raise NotImplementedError
 
-    def check(self, brick):
+    def check(self, brick: TkDevice):
+        """Check all Actors.
+
+        This executes a self-check depending on its own type.
+        A servo and solenoid will be opened and closed again.
+        A light will be on and off.
+        A segment display will start and stop the counting.
+        """
         match self.type:
             case ActorType.SERVO:
                 self.action(ActionType.SERVO_OPEN, brick)
@@ -117,20 +138,14 @@ class Actor:
             case _:
                 return False
 
-
-    def servo_open(self, servo_bricklet) -> None:
-        """
-        opens the servo to 90°
-        """
+    def servo_open(self, servo_bricklet: BrickletServoV2) -> None:
+        """Opens the servo to 90°"""
         position = self.min_position
         servo_bricklet.set_position(self.get_output(), position)
         servo_bricklet.set_enable(self.get_output(), True)
-        #sleep(1) #@TODO display servo after use?
-        #servo_bricklet.set_enable(self.get_output(), False)
 
-    def servo_open_slow(self, servo_bricklet):
-        """
-        open the servo to 90° within 2s
+    def servo_open_slow(self, servo_bricklet: BrickletServoV2):
+        """Open the servo to 90° within 2s
         open is pos 0
         """
         # @TODO test implementation
@@ -143,99 +158,95 @@ class Actor:
         for i in range(current_pos, self.min_position, step_size):
             servo_bricklet.set_position(self.get_output(), i)
             # to slow down the servo opening
-            sleep(0.01) # 2s until open
+            sleep(0.01)  # 2s until open
 
-        #sleep(1)  # @TODO display servo after use?
-        #servo_bricklet.set_enable(self.get_output(), False)
-
-    def servo_open_quarter_slow(self, servo_bricklet):
-        """
-        do not use for main valve
-        """
+    def servo_open_quarter_slow(self, servo_bricklet: BrickletServoV2):
+        """Do not use for main valve"""
         servo_bricklet.set_enable(self.get_output(), True)
         current_pos = servo_bricklet.get_current_position(self.get_output())
 
         step_size = -25 if not self.max_position < self.min_position else 25
 
-        for i in range(current_pos, int(self.max_position*0.6), step_size):  # CLOSE*0.6 => ~ 1/4 open
+        for i in range(
+            current_pos, int(self.max_position * 0.6), step_size
+        ):  # CLOSE*0.6 => ~ 1/4 open
             servo_bricklet.set_position(self.get_output(), i)
 
             # to slow down the servo opening
             sleep(0.022)  # 2s/2250 steps = 2s until open
-        # @TODO disable servo after use?
 
-
-    def servo_close(self, servo_bricklet) -> None:
-        """
-        close is ops 6000
-        """
+    def servo_close(self, servo_bricklet: BrickletServoV2) -> None:
+        """Close is ops 6000"""
         servo_bricklet.set_position(self.get_output(), self.max_position)
         servo_bricklet.set_enable(self.get_output(), True)
 
-    def servo_toggle(self, servo_bricklet) -> None:
+    def servo_toggle(self, servo_bricklet: BrickletServoV2) -> None:
         pass
 
-    def solenoid_open(self, io_brick) -> None:
+    def solenoid_open(self, io_brick: BrickletIO16V2) -> None:
         io_brick.set_selected_value(self.get_output(), True)
 
-    def solenoid_close(self, io_brick) -> None:
+    def solenoid_close(self, io_brick: BrickletIO16V2) -> None:
         io_brick.set_selected_value(self.get_output(), False)
 
-    def solenoid_toggle(self, brick) -> None:
+    def solenoid_toggle(self, brick: BrickletIO16V2) -> None:
         print("solenoid toggle is not implemented")
         pass
 
-    def sound_horn(self, brick) -> None:
-        brick.set_monoflop(self.output, True, 5000) # sound horn for 5s = 5000ms
+    def sound_horn(self, brick: BrickletIO16V2) -> None:
+        brick.set_monoflop(self.output, True, 5000)  # sound horn for 5s = 5000ms
 
-    def light_on(self, brick) -> None:
+    def light_on(self, brick: BrickletIO16V2) -> None:
         # not used anymore
         pass
 
-    def light_off(self, brick) -> None:
+    def light_off(self, brick: BrickletIO16V2) -> None:
         brick.set_selected_value(self.output, False)
         brick.set_selected_value(self.output, False)
         brick.set_selected_value(self.output + 2, False)
 
-    def light_toggle(self, brick) -> None:
+    def light_toggle(self, brick: BrickletIO16V2) -> None:
         pass
 
-    def light_green(self, brick) -> None:
+    def light_green(self, brick: BrickletIO16V2) -> None:
         brick.set_selected_value(self.output + 2, True)
         # turn all other off
         brick.set_selected_value(self.output + 0, False)
         brick.set_selected_value(self.output + 1, False)
 
-    def light_yellow(self, brick) -> None:
+    def light_yellow(self, brick: BrickletIO16V2) -> None:
         # turn red light on
-        brick.set_selected_value(self.output +1, True)
+        brick.set_selected_value(self.output + 1, True)
         # turn all other off
         brick.set_selected_value(self.output + 0, False)
         brick.set_selected_value(self.output + 2, False)
 
-    def light_red(self, brick) -> None:
+    def light_red(self, brick: BrickletIO16V2) -> None:
         # turn red light on
         brick.set_selected_value(self.output, True)
         # turn all other off
         brick.set_selected_value(self.output + 1, False)
         brick.set_selected_value(self.output + 2, False)
 
-    def light_all(self, brick) -> None:
+    def light_all(self, brick: BrickletIO16V2) -> None:
         brick.set_selected_value(self.output, True)
         brick.set_selected_value(self.output + 1, True)
         brick.set_selected_value(self.output + 2, True)
 
-    def pull_trigger(self, brick) -> None:
+    def pull_trigger(self, brick: BrickletIO16V2) -> None:
         brick.set_selected_value(self.output, True)
 
-    def release_trigger(self, brick) -> None:
+    def release_trigger(self, brick: BrickletIO16V2) -> None:
         brick.set_selected_value(self.output, False)
 
-    def counter_start(self, segment_display_brick) -> None:
+    def counter_start(self, segment_display_brick: BrickletSegmentDisplay4x7V2) -> None:
         segment_display_brick.start_counter(0, 9999, 1, 10)
 
-    def counter_stop(self, segment_display_brick) -> None:
-        segment_display_brick.set_numeric_value(segment_display_brick.get_numeric_value(), 0)
+    def counter_stop(self, segment_display_brick: BrickletSegmentDisplay4x7V2) -> None:
+        # @TODO(Nucleus): Unresolved attribute
+        segment_display_brick.set_numeric_value(
+            segment_display_brick.get_numeric_value(), 0
+        )
 
-    def counter_reset(self, segment_display_brick) -> None:
-        segment_display_brick.set_numeric_value([0,0,0,0])
+    def counter_reset(self, segment_display_brick: BrickletSegmentDisplay4x7V2) -> None:
+        segment_display_brick.set_numeric_value([0, 0, 0, 0])

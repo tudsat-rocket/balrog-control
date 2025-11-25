@@ -1,137 +1,74 @@
 import os
 from datetime import datetime
-from time import sleep
 from pathlib import Path
-
-import yaml
-import interval_timer
-
-from threading import Thread
-from typing import Any
-from control.brick_handling import StackHandler
-from control.definitions import ActionType, EventType, ActorType, State
-from control.test_definition_parsing import parse_csv
-from control.actor import Actor
-from control.sensor import Sensor
 from queue import Queue
+from threading import Thread
+from time import sleep
+from typing import Any
+
+import interval_timer
+import yaml
+
+from control.actor import Actor
+from control.brick_handling import StackHandler
+from control.definitions import ActionType, ActorType, EventType, State
 from control.dump_sensor_to_file import dump_sensor_to_file
+from control.sensor import Sensor
+from control.sensor_callbacks import (
+    nitrous_load_cell_callback,
+    pressure_0_1_callback,
+    pressure_2_3_callback,
+    temperature_engine_callback,
+    temperature_nitrous_callback,
+    thrust_load_cell_callback,
+    valve_sensor_callback,
+)
+from control.test_definition_parsing import parse_csv
+from shared.shared_lists import (
+    differential_pressure_list,
+    load_cell_1_sensor_list,
+    load_cell_2_sensor_list,
+    n2_pressure_valve_sensor_list,
+    n2_purge_valve_sensor_list,
+    n2o_fill_valve_sensor_list,
+    n2o_main_valve_sensor_list,
+    n2o_vent_valve_sensor_list,
+    pressure_0_sensor_list,
+    pressure_1_sensor_list,
+    pressure_2_sensor_list,
+    pressure_3_sensor_list,
+    temperature_engine_sensor_list,
+    temperature_nitrous_sensor_list,
+)
 
-from shared.shared_lists import *
-
-def current_to_pressure(current):
-    """
-    apply linear translation of current to pressure
-    """
-    # 100 = m*20.006 - m*4.001 =
-    # 6.248047485
-    # 0 = 6.248047485*4.001 => 24.992191
-    # => f(x) = 6.248047485*current-24.992191
-    # @todo verify calculation
-    return 6.248047485*(current/1000000.0)-24.992191
-
-def temperature_nitrous_callback(temperature):
-    #print("Temperature: " + str(temperature / 100.0) + " °C")
-    #temperature_nitrous_sensor_queue.put(temperature)
-    temperature_nitrous_sensor_list[0].append(datetime.now())
-    #temperature_nitrous_sensor_list[0].append(1)
-    temperature_nitrous_sensor_list[1].append(temperature / 100.0)
-
-def temperature_engine_callback(temperature):
-    #print("Temperature: " + str(temperature / 100.0) + " °C")
-    #temperature_engine_sensor_queue.put(temperature)
-    temperature_engine_sensor_list[0].append(datetime.now())
-    #temperature_engine_sensor_list[0].append(1)
-    temperature_engine_sensor_list[1].append(temperature / 100.0)
-
-def pressure_0_1_callback(channel, current):
-    #print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
-    #print("----")
-    #pressure_1_sensor_queue.put(current)
-    if channel == 0:
-
-        pressure_0_sensor_list[0].append(datetime.now())
-        #pressure_0_sensor_list[0].append(1)
-        pressure_0_sensor_list[1].append(current_to_pressure(current))
-    elif channel == 1:
-        pressure_1_sensor_list[0].append(datetime.now())
-        #pressure_1_sensor_list[0].append(1)
-        pressure_1_sensor_list[1].append(current_to_pressure(current))
-
-
-def pressure_2_3_callback(channel, current):
-    #print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
-    #pressure_3_sensor_queue.put(current)
-    if channel == 0:
-        differential_pressure_list[0].append(datetime.now())
-        #differential_pressure_list[0].append(1)
-        differential_pressure_list[1].append(current_to_pressure(current))
-    elif channel == 1:
-        pressure_2_sensor_list[0].append(datetime.now())
-        #pressure_2_sensor_list[0].append(1)
-        pressure_2_sensor_list[1].append(current_to_pressure(current))
-
-def thrust_load_cell_callback(weight):
-    #print("Weight thrust: " + str(weight) + " g")
-    #load_cell_1_sensor_queue.put(weight)
-    load_cell_1_sensor_list[0].append(datetime.now())
-    #load_cell_1_sensor_list[0].append(1)
-    load_cell_1_sensor_list[1].append(weight / 1000.0)
-
-def nitrous_load_cell_callback(weight):
-    #print("Weight nitrous: " + str(weight) + " g")
-    #load_cell_2_sensor_queue.put(weight)
-    load_cell_2_sensor_list[0].append(datetime.now())
-    #load_cell_2_sensor_list[0].append(1)
-    load_cell_2_sensor_list[1].append(weight / 1000.0)
-
-def valve_sensor_callback(channel, position):
-    match channel:
-        case 0:
-            n2o_fill_valve_sensor_list[0].append(datetime.now())
-            n2o_fill_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N20FillValve", position)
-        case 1:
-            n2o_vent_valve_sensor_list[0].append(datetime.now())
-            n2o_vent_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N20VentValve", position)
-        case 2:
-            n2o_main_valve_sensor_list[0].append(datetime.now())
-            n2o_main_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N20MainValve", position)
-        case 3:
-            n2_pressure_valve_sensor_list[0].append(datetime.now())
-            n2_pressure_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N2PressureValve", position)
-        case 4:
-            n2_purge_valve_sensor_list[0].append(datetime.now())
-            n2_purge_valve_sensor_list[1].append(position)
-            controller_singelton.adjust_valve_if_at_limit("N2PurgeValve", position)
-
-def differential_pressure_callback( channel, current):
-    #print("Channel: " + str(channel))
-    #print("Current: " + str(current / 1000000.0) + " mA")
-    #differential_pressure_queue.put(current)
-    differential_pressure_list[0].append(datetime.now())
-    #differential_pressure_list[0].append(1)
-    differential_pressure_list[1].append(current)
 
 class NotConnectedException(Exception):
     def __init__(self, event_queue, **kwargs):
         print("Not connected. Please connect to the test bench first!")
-        event_queue.put({"type": EventType.INFO_EVENT,
-                              "title": "Not connected",
-                              "message": "Please connect to the test bench first!",
-                        }
-                    )
+        event_queue.put(
+            {
+                "type": EventType.INFO_EVENT,
+                "title": "Not connected",
+                "message": "Please connect to the test bench first!",
+            }
+        )
+
 
 class NotAllowedInThisState(Exception):
     def __init__(self, event_queue, **kwargs):
-        print("This action is not allowed in the current state. Please change the state first")
-        event_queue.put({"type": EventType.INFO_EVENT,
-                              "title": "Not allowed",
-                              "message": "This action is not allowed in the current state. Please change the state first",
-                        }
-                    )
+        print(
+            "This action is not allowed in the current state. "
+            "Please change the state first"
+        )
+        event_queue.put(
+            {
+                "type": EventType.INFO_EVENT,
+                "title": "Not allowed",
+                "message": "This action is not allowed in the current state. "
+                "Please change the state first",
+            }
+        )
+
 
 class Controller(Thread):
     sensor_enabled = False
@@ -145,35 +82,43 @@ class Controller(Thread):
     servo_quick_disconnect_open = False
     abort_sequence = False
 
-    armingState:bool = False
-    currentState:State = State.GREEN_STATE
+    armingState: bool = False
+    currentState: State = State.GREEN_STATE
 
-
-    def __init__(self, event_queue: Queue, thread_killer, abort_signal, run_signal, connected_signal):
+    def __init__(
+        self,
+        event_queue: Queue,
+        thread_killer,
+        abort_signal,
+        run_signal,
+        connected_signal,
+    ):
         super().__init__(target=None)
         self.actors = {}
+        # @TODO(Nucleus): use correct type annotation "name": str, "sensor": Sensor
         self.sensors = {}
         self._construct_actors()
         self._construct_sensor()
         self.brick_stack = StackHandler()
-        self.ignition_sequence = parse_csv(Path("config/operations/ignition_sequence.csv"))
-        self.n2o_purge_sequence = parse_csv(Path("config/operations/n20_purge_sequence.csv"))
+        self.ignition_sequence = parse_csv(
+            Path("config/operations/ignition_sequence.csv")
+        )
+        self.n2o_purge_sequence = parse_csv(
+            Path("config/operations/n20_purge_sequence.csv")
+        )
         self.sequence = None
-        self.event_queue:Queue = event_queue
+        self.event_queue: Queue = event_queue
         self.thread_killer = thread_killer
         self.abort_signal = abort_signal
         self.run_signal = run_signal
         self.connected_signal = connected_signal
-        global controller_singelton
-        controller_singelton = self
         self.start()
 
     def run(self):
         self._thread_loop()
 
-    def join(self, timeout = None):
+    def join(self, timeout=None):
         super().join()
-
 
     # ++++++++++++
     # Gui API
@@ -184,22 +129,29 @@ class Controller(Thread):
             self.brick_stack.stop_connection()
             self.connected = False
             self.connected_signal.clear()
-            self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
-                                  "status": "Disconnected",
-                                  "hostname": "unkown",
-                                  "port": "unkown"}
-                                 )
+            self.event_queue.put(
+                {
+                    "type": EventType.CONNECTION_STATUS_UPDATE,
+                    "status": "Disconnected",
+                    "hostname": "unkown",
+                    "port": "unkown",
+                }
+            )
             return False  # Explicitly return False when disconnecting
         else:
             print(f"Connect to {host}:{port}")
             try:
-                # @TODO the UI freezes while waiting for a new connection, could be solved with signals.
+                # @TODO the UI freezes while waiting for a new connection.
+                #  This could be solved with signals.
                 self.brick_stack.start_connection(host, port)
-                self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
-                                      "status": "Connected",
-                                      "hostname": host,
-                                      "port": port}
-                                     )
+                self.event_queue.put(
+                    {
+                        "type": EventType.CONNECTION_STATUS_UPDATE,
+                        "status": "Connected",
+                        "hostname": host,
+                        "port": port,
+                    }
+                )
                 # set config for all bricks
                 self._set_configuration()
                 self.connected = True
@@ -207,20 +159,27 @@ class Controller(Thread):
                 # Turn all lights on after connecting
                 try:
                     uid = self.actors["Light"].get_br_uid()
-                    self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
+                    self.actors["Light"].action(
+                        ActionType.LIGHT_ALL, self.brick_stack.get_device(uid)
+                    )
                     self.read_valve_states()
                     self.enable_all_sensor_callbacks()
-                    self.close_all_valves() # @todo this opens the valves at startup due to a thinkerforge thing
+                    # @TODO(Nucleus): this opens the valves at startup
+                    #  due to a thinkerforge thing
+                    self.close_all_valves()
                 except Exception as e:
                     print(f"Failed to set initial state: {e}")
                 return True
             except Exception as e:
                 print(f"Failed to connect to {host}:{port}: {e}")
-                self.event_queue.put({"type": EventType.CONNECTION_STATUS_UPDATE,
-                                      "status": "Connection failed",
-                                      "hostname": host,
-                                      "port": port}
-                                     )
+                self.event_queue.put(
+                    {
+                        "type": EventType.CONNECTION_STATUS_UPDATE,
+                        "status": "Connection failed",
+                        "hostname": host,
+                        "port": port,
+                    }
+                )
                 return False
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
@@ -229,7 +188,7 @@ class Controller(Thread):
         brick = self.brick_stack.get_device(actor.get_br_uid())
 
         if position == actor.max_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.max_position - adjust )
+            brick.set_position(actor.output, actor.max_position - adjust)
         elif position == actor.max_position:
             brick.set_position(actor.output, actor.max_position + adjust)
         elif position == actor.min_position and actor.max_position > actor.min_position:
@@ -238,12 +197,30 @@ class Controller(Thread):
             brick.set_position(actor.output, actor.min_position - adjust)
 
     def read_valve_states(self) -> None:
-        sensor_names = ["N2OMainValveSensor", "N2OFillValveSensor", "N2OVentValveSensor", "N2PurgeValveSensor", "N2PressureValveSensor"]
-        lists = [n2o_main_valve_sensor_list, n2o_fill_valve_sensor_list, n2o_vent_valve_sensor_list, n2_purge_valve_sensor_list, n2_pressure_valve_sensor_list]
-        for s, l in zip(sensor_names, lists):
-            print("Reading " + s)
-            l[0].append(datetime.now())
-            l[1].append(self.brick_stack.get_device(self.sensors[s].get_br_uid()).get_current_position(self.sensors[s].channel))
+        sensor_names = [
+            "N2OMainValveSensor",
+            "N2OFillValveSensor",
+            "N2OVentValveSensor",
+            "N2PurgeValveSensor",
+            "N2PressureValveSensor",
+        ]
+        lists = [
+            n2o_main_valve_sensor_list,
+            n2o_fill_valve_sensor_list,
+            n2o_vent_valve_sensor_list,
+            n2_purge_valve_sensor_list,
+            n2_pressure_valve_sensor_list,
+        ]
+        # use strict=True to raise a ValueError if the
+        # iterables are of non-uniform length.
+        for sensor, sensor_list in zip(sensor_names, lists, strict=True):
+            print("Reading " + sensor)
+            sensor_list[0].append(datetime.now())
+            sensor_list[1].append(
+                self.brick_stack.get_device(
+                    self.sensors[sensor].get_br_uid()
+                ).get_current_position(self.sensors[sensor].channel)
+            )
 
     def stack_state(self) -> dict[str, Any]:
         # Placeholder implementation to ensure a dictionary is always returned
@@ -257,186 +234,217 @@ class Controller(Thread):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         print("Performing self check...")
-        self.event_queue.put({"type": EventType.INFO_EVENT,
-                              "status": "Self Check"}
-                             )
+        self.event_queue.put({"type": EventType.INFO_EVENT, "status": "Self Check"})
 
         for actor in self.actors:
             rc = actor.check(self.brick_stack.get_device(actor.get_br_uid()))
             if not rc:
-                self.event_queue.put({"type": EventType.INFO_EVENT,
-                                      "status": "Self check failed"})
+                self.event_queue.put(
+                    {"type": EventType.INFO_EVENT, "status": "Self check failed"}
+                )
                 return False
 
-        self.event_queue.put({"type": EventType.INFO_EVENT,
-                              "status": "Self check passed"})
+        self.event_queue.put(
+            {"type": EventType.INFO_EVENT, "status": "Self check passed"}
+        )
         return True
 
-    def get_servo_position(self):
-        """
-        Returns a list with all servo. If a servo is open, the entry is True, if the Servo has position 0, the valve is False
+    def get_servo_position(self) -> list[bool]:
+        """Returns a list with all server positions.
+
+        If a servo is open, the entry is True,
+        if the Servo has position 0, the value is False.
         """
         uid = self.actors["N20MainValve"].get_br_uid()
-        servo_bricklet =  self.brick_stack.get_device(uid)
+        servo_bricklet = self.brick_stack.get_device(uid)
         # each is list of length 10
-        enabled, current_position, current_velocity, current, input_voltage = servo_bricklet.get_status()
+        enabled, current_position, current_velocity, current, input_voltage = (
+            servo_bricklet.get_status()
+        )
         result = []
         for i in range(len(current_position)):
             result[i] = current_position[i] == 0
         return result
 
-    def check_all_servos_closed(self):
-        """
-        check if all servos are closed. Return True if all servo are closed, return False if at least one servo is open
+    def check_all_servos_closed(self) -> bool:
+        """Check if all servos are closed.
+
+        Check if all servos are closed. Return True if all servo are closed,
+        return False if at least one servo is open.
         """
         servo_state = self.get_servo_position()
-        for i in servo_state:
-            if i:
-                return False
-        # every servo is closed
-        return True
+        return all(not i for i in servo_state)
 
     def request_go_to_green_state(self):
+        """Request to to to the green state.
+
+        This requires that all valves are closed and
+        no bottle are connected anymore. There is no danger anymore
+        To go into green state, we have to be in the yellow state before.
+        It is not allowed to change from red to green directly.
         """
-        This requires that all valves are closed and no bottle are connected anymore. There is no danger anymore
-        To go into green state, we have to be in the yellow state before. We can not chnage from red to green
-        """
-        if not self.currentState == State.YELLOW_STATE:
-            self.event_queue.put({"type": EventType.CONFIRMATION_EVENT,
-                                  "title": "Confirm Procedure Override",
-                                  "message": f"Do you really want to go to GREEN state directly? Procedure demands transition is made only from YELLOW state.\n (Current State: {self.currentState})",
-                                  "cancel": lambda: None,
-                                  "confirm": lambda: self.go_to_green_state()}
-                                 )
+        if self.currentState != State.YELLOW_STATE:
+            self.event_queue.put(
+                {
+                    "type": EventType.CONFIRMATION_EVENT,
+                    "title": "Confirm Procedure Override",
+                    "message": f"Do you really want to go to GREEN state directly? "
+                    f"Procedure demands transition is made "
+                    f"only from YELLOW state."
+                    f"\n (Current State: {self.currentState})",
+                    "cancel": lambda: None,
+                    "confirm": lambda: self.go_to_green_state(),
+                }
+            )
         else:
             self.go_to_green_state()
-        
+
     def go_to_green_state(self):
-        """
-        This requires that all valves are closed and no bottle are connected anymore. There is no danger anymore
-        To go into green state, we have to be in the yellow state before. We can not chnage from red to green
+        """Go to the green state.
+
+        This requires that all valves are closed and
+        no bottle are connected anymore. There is no danger anymore
+        To go into green state, we have to be in the yellow state before.
+        It is not allowed to change from red to green directly.
         """
         self.set_light_to_green()
         self.currentState = State.GREEN_STATE
-        self.event_queue.put({"type": EventType.STATE_CHANGE,
-                              "new_state": State.GREEN_STATE
-                              }
-                             )
+        self.event_queue.put(
+            {"type": EventType.STATE_CHANGE, "new_state": State.GREEN_STATE}
+        )
 
     def request_go_to_yellow_state(self):
-        """
-        For this, all valves have to be closed. If not every valve is closed, this will trigger an alert dialog and
-        will not set the light to yellow
+        """Request to go into the yellow state.
+
+        For this, all valves have to be closed. If not every valve is closed,
+        this will trigger an alert dialog and will not set the light to yellow.
         """
         # check if all valves are closed and only enter his mode if this is true
-
         if not self.check_all_servos_closed:
-            self.event_queue.put({"type": EventType.CONFIRMATION_EVENT,
-                                  "title": "Confirm Procedure Override",
-                                  "message": "WARNING: SOME VALVES ARE OPEN!!! Do you really want to go to YELLOW state.",
-                                  "cancel": lambda: None,
-                                  "confirm": lambda: self.go_to_yellow_state()}
-                                 )
-        else: 
+            self.event_queue.put(
+                {
+                    "type": EventType.CONFIRMATION_EVENT,
+                    "title": "Confirm Procedure Override",
+                    "message": "WARNING: SOME VALVES ARE OPEN!!! "
+                    "Do you really want to go to YELLOW state.",
+                    "cancel": lambda: None,
+                    "confirm": lambda: self.go_to_yellow_state(),
+                }
+            )
+        else:
             self.go_to_yellow_state()
 
     def go_to_yellow_state(self):
         self.set_light_to_yellow()
         self.currentState = State.YELLOW_STATE
-        self.event_queue.put({"type": EventType.STATE_CHANGE,
-                                "new_state": State.YELLOW_STATE
-                                }
-                                )
+        self.event_queue.put(
+            {"type": EventType.STATE_CHANGE, "new_state": State.YELLOW_STATE}
+        )
 
     def request_go_to_red_state(self):
+        """Request: Go to red state.
+
+        This enabled the dangerous operations. Might require confirmation.
         """
-        Requsest: Go to red state. This enabled the dangerous operations. Might require confirmation
-        """
-        if not self.currentState == State.YELLOW_STATE:
-            self.event_queue.put({"type": EventType.CONFIRMATION_EVENT,
-                                  "title": "Confirm Procedure Override",
-                                  "message": f"Do you really want to go to RED state directly? Procedure demands transition is made only from YELLOW state. \n (Current State: {self.currentState})",
-                                  "cancel": lambda: None,
-                                  "confirm": lambda: self.go_to_red_state()}
-                                 )
+        if self.currentState != State.YELLOW_STATE:
+            self.event_queue.put(
+                {
+                    "type": EventType.CONFIRMATION_EVENT,
+                    "title": "Confirm Procedure Override",
+                    "message": f"Do you really want to go to RED state directly?"
+                    f" Procedure demands transition is made only from"
+                    f" YELLOW state. \n (Current State: {self.currentState})",
+                    "cancel": lambda: None,
+                    "confirm": lambda: self.go_to_red_state(),
+                }
+            )
         else:
             self.go_to_red_state()
 
     def go_to_red_state(self):
-        """
-        Go to red state. This enabled the dangerous operations
-        """
+        """Go to red state. This enabled the dangerous operations"""
         self.set_light_to_red()
         self.currentState = State.RED_STATE
-        self.event_queue.put({"type": EventType.STATE_CHANGE,
-                                "new_state": State.RED_STATE
-                                }
-                                )
+        self.event_queue.put(
+            {"type": EventType.STATE_CHANGE, "new_state": State.RED_STATE}
+        )
 
     def test_light(self) -> bool:
-        """
-        toggles every light color for 1s and turns off all lights afterward
-        """
+        """Toggles every light color for 1s and turns off all lights afterward"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
         uid = self.actors["Light"].get_br_uid()
-        self.actors["Light"].action(ActionType.LIGHT_ALL, self.brick_stack.get_device(uid))
-        self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_ALL, self.brick_stack.get_device(uid)
+        )
+        self.actors["Light"].action(
+            ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid)
+        )
         sleep(1)
-        self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid)
+        )
         sleep(1)
-        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_RED, self.brick_stack.get_device(uid)
+        )
         sleep(1)
-        self.actors["Light"].action(ActionType.LIGHT_OFF, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_OFF, self.brick_stack.get_device(uid)
+        )
         return True
 
     def set_light_to_red(self) -> None:
-        """
-        Sets the light to Red
-        """
+        """Sets the light to Red"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         uid = self.actors["Light"].get_br_uid()
-        self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_RED, self.brick_stack.get_device(uid)
+        )
 
     def set_light_to_yellow(self):
-        """
-        Set the light to yellow
-        """
+        """Set the light to yellow"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         uid = self.actors["Light"].get_br_uid()
-        self.actors["Light"].action(ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_YELLOW, self.brick_stack.get_device(uid)
+        )
 
     def set_light_to_green(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         uid = self.actors["Light"].get_br_uid()
-        self.actors["Light"].action(ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid))
+        self.actors["Light"].action(
+            ActionType.LIGHT_GREEN, self.brick_stack.get_device(uid)
+        )
 
     def test_horn(self) -> bool:
-        """
-        trigger the horn
-        """
+        """Trigger the horn"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
         uid = self.actors["Horn"].get_br_uid()
-        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(uid))
+        self.actors["Horn"].action(
+            ActionType.SOUND_HORN, self.brick_stack.get_device(uid)
+        )
         return True
 
     def test_counter(self):
-        """
-        resets and start the counter on the segment display
-        """
+        """Resets and start the counter on the segment display"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         uid = self.actors["SegmentDisplay"].get_br_uid()
-        self.actors["SegmentDisplay"].action(ActionType.COUNTER_RESET, self.brick_stack.get_device(uid))
-        self.actors["SegmentDisplay"].action(ActionType.COUNTER_START, self.brick_stack.get_device(uid))
+        self.actors["SegmentDisplay"].action(
+            ActionType.COUNTER_RESET, self.brick_stack.get_device(uid)
+        )
+        self.actors["SegmentDisplay"].action(
+            ActionType.COUNTER_START, self.brick_stack.get_device(uid)
+        )
         return True
 
     #####
@@ -445,81 +453,105 @@ class Controller(Thread):
 
     def open_n2o_main_valve(self):
         uid = self.actors["N20MainValve"].get_br_uid()
-        self.actors["N20MainValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.actors["N20MainValve"].action(
+            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
+        )
         self.servo_main_open = True
 
     def close_n2o_main_valve(self):
         uid = self.actors["N20MainValve"].get_br_uid()
-        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["N20MainValve"].action(
+            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.servo_main_open = False
 
     def open_n2o_fill_valve(self):
-        """
-        This valve should be opened slow
-        """
+        """This valve should be opened slow"""
         uid = self.actors["N20FillValve"].get_br_uid()
-        self.actors["N20FillValve"].action(ActionType.SERVO_OPEN_SLOW, self.brick_stack.get_device(uid))
+        self.actors["N20FillValve"].action(
+            ActionType.SERVO_OPEN_SLOW, self.brick_stack.get_device(uid)
+        )
         self.servo_nitrous_fill_open = True
 
     def close_n2o_fill_valve(self):
         uid = self.actors["N20FillValve"].get_br_uid()
-        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["N20FillValve"].action(
+            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.servo_nitrous_fill_open = False
 
     def open_n2_pressure_valve(self):
         uid = self.actors["N2PressureValve"].get_br_uid()
-        self.actors["N2PressureValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.actors["N2PressureValve"].action(
+            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
+        )
         self.servo_pressure_open = True
 
     def close_n2_pressure_valve(self):
         uid = self.actors["N2PressureValve"].get_br_uid()
-        self.actors["N2PressureValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["N2PressureValve"].action(
+            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.servo_pressure_open = False
 
     def open_n2o_vent_valve(self):
         uid = self.actors["N20VentValve"].get_br_uid()
-        self.actors["N20VentValve"].action(ActionType.SERVO_OPEN_QUARTER_SLOW, self.brick_stack.get_device(uid))
+        self.actors["N20VentValve"].action(
+            ActionType.SERVO_OPEN_QUARTER_SLOW, self.brick_stack.get_device(uid)
+        )
         self.servo_vent_open = True
 
     def close_n2o_vent_valve(self):
         uid = self.actors["N20VentValve"].get_br_uid()
-        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["N20VentValve"].action(
+            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.servo_vent_open = False
 
     def open_n2_purge_valve(self):
         uid = self.actors["N2PurgeValve"].get_br_uid()
-        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.actors["N2PurgeValve"].action(
+            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
+        )
         self.servo_purge_open = True
 
     def close_n2_purge_valve(self):
         uid = self.actors["N2PurgeValve"].get_br_uid()
-        self.actors["N2PurgeValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["N2PurgeValve"].action(
+            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.servo_purge_open = False
 
     def open_quick_disconnect_solenoid(self):
         uid = self.actors["QuickDisconnectSolenoid"].get_br_uid()
-        self.actors["QuickDisconnectSolenoid"].action(ActionType.SOLENOID_OPEN, self.brick_stack.get_device(uid))
+        self.actors["QuickDisconnectSolenoid"].action(
+            ActionType.SOLENOID_OPEN, self.brick_stack.get_device(uid)
+        )
         self.solenoid_quick_disconnect_open = True
 
     def close_quick_disconnect_solenoid(self):
         uid = self.actors["QuickDisconnectSolenoid"].get_br_uid()
-        self.actors["QuickDisconnectSolenoid"].action(ActionType.SOLENOID_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["QuickDisconnectSolenoid"].action(
+            ActionType.SOLENOID_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.solenoid_quick_disconnect_open = False
 
     def open_quick_disconnect_servo(self):
         uid = self.actors["QuickDisconnectServo"].get_br_uid()
-        self.actors["QuickDisconnectServo"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(uid))
+        self.actors["QuickDisconnectServo"].action(
+            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
+        )
         self.servo_quick_disconnect_open = False
 
     def close_quick_disconnect_servo(self):
         uid = self.actors["QuickDisconnectServo"].get_br_uid()
-        self.actors["QuickDisconnectServo"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid))
+        self.actors["QuickDisconnectServo"].action(
+            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
+        )
         self.servo_quick_disconnect_open = False
 
     def toggle_n2o_main_valve(self):
-        """
-        toggle the main valve from open to close
-        """
+        """Toggle the main valve from open to close"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
@@ -531,18 +563,17 @@ class Controller(Thread):
         else:
             self.open_n2o_main_valve()
 
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
-                              "valve": "main",
-                              "state": self.servo_main_open,
-                                }
-                             )
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "main",
+                "state": self.servo_main_open,
+            }
+        )
         return True
 
-
     def toggle_n2o_vent_valve(self):
-        """
-        toggle the vent between open to close
-        """
+        """Toggle the vent between open to close"""
         print("toggle vent valve")
         if not self.connected:
             raise NotConnectedException(self.event_queue)
@@ -553,15 +584,16 @@ class Controller(Thread):
             self.close_n2o_vent_valve()
         else:
             self.open_n2o_vent_valve()
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
-                              "valve": "vent",
-                              "state": self.servo_vent_open,
-                              })
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "vent",
+                "state": self.servo_vent_open,
+            }
+        )
 
     def toggle_n2o_fill_valve(self):
-        """
-        toggle the fill valve between open to close
-        """
+        """Toggle the fill valve between open to close"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
@@ -571,17 +603,21 @@ class Controller(Thread):
             self.close_n2o_fill_valve()
         else:
             self.open_n2o_fill_valve()
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
-                              "valve": "fill",
-                              "state": self.servo_nitrous_fill_open,
-                              })
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "fill",
+                "state": self.servo_nitrous_fill_open,
+            }
+        )
 
     def toggle_n2_purge_valve(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
-        if not self.currentState == State.RED_STATE or not self.armingState: #@TODO test
+        if (
+            not self.currentState == State.RED_STATE or not self.armingState
+        ):  # @TODO test
             raise NotAllowedInThisState(self.event_queue)
-
 
         if self.servo_purge_open:
             self.close_n2_purge_valve()
@@ -590,10 +626,13 @@ class Controller(Thread):
             self.open_n2_purge_valve()
             self.servo_purge_open = True
 
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
-                              "valve": "purge",
-                              "state": self.servo_purge_open,
-                              })
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "purge",
+                "state": self.servo_purge_open,
+            }
+        )
 
     def toggle_n2_pressure_valve(self):
         if not self.connected:
@@ -607,10 +646,13 @@ class Controller(Thread):
         else:
             self.open_n2_pressure_valve()
             self.servo_pressure_open = True
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE,
-                              "valve": "pressure",
-                              "state": self.servo_pressure_open,
-                              })
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "pressure",
+                "state": self.servo_pressure_open,
+            }
+        )
 
     def toggle_quick_disconnect_solenoid(self):
         if not self.connected:
@@ -625,10 +667,13 @@ class Controller(Thread):
             self.close_quick_disconnect_solenoid()
             self.solenoid_quick_disconnect_open = True
 
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE, #@TODO
-                              "valve": "quick_disconnect",
-                              "state": self.solenoid_quick_disconnect_open,
-                              })
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,  # @TODO
+                "valve": "quick_disconnect",
+                "state": self.solenoid_quick_disconnect_open,
+            }
+        )
 
     def toggle_quick_disconnect_servo(self):
         if not self.connected:
@@ -647,10 +692,14 @@ class Controller(Thread):
             self.close_quick_disconnect_servo()
             self.servo_quick_disconnect_open = True
 
-        self.event_queue.put({"type": EventType.VALVE_STATUS_UPDATE, #@TODO (Nucleus): this is not a valve
-                              "valve": "quick_disconnect_servo",
-                              "state": self.servo_quick_disconnect_open,
-                              })
+        self.event_queue.put(
+            {
+                # @TODO (Nucleus): this is a servo and not a valve
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "quick_disconnect_servo",
+                "state": self.servo_quick_disconnect_open,
+            }
+        )
 
     def close_all_valves(self):
         if not self.connected:
@@ -663,10 +712,8 @@ class Controller(Thread):
         self.close_n2o_vent_valve()
         self.close_quick_disconnect_solenoid()
 
-
     def run_n2o_purge_sequence(self):
-        """
-        run the purge sequence
+        """Run the purge sequence
         only allowed in rea state
         """
         if not self.connected:
@@ -679,8 +726,7 @@ class Controller(Thread):
             self.run_signal.set()
 
     def run_ignition_sequence(self):
-        """
-        run the ignition sequence
+        """Run the ignition sequence
         this is a dangerous operation and is only allowed in red state
         """
         if not self.connected:
@@ -702,30 +748,38 @@ class Controller(Thread):
             return False
 
     def calibrate_thrust_load(self, input_weight: str, clear_callback) -> None:
-        """
-        calibrates the thrust load cell with the given weight
-        """
+        """Calibrates the thrust load cell with the given weight"""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
         try:
             calibration_weight = int(float(input_weight) * 1000)
             uid = self.sensors["Thrust load cell"].get_br_uid()
-            self.sensors["Thrust load cell"].calibrate_load(self.brick_stack.get_device(uid), calibration_weight)
-            # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+            self.sensors["Thrust load cell"].calibrate_load(
+                self.brick_stack.get_device(uid), calibration_weight
+            )
+            # Reset existing sensor data before calibration
+            # (keep 2-list structure so GUI clears plot)
             load_cell_1_sensor_list[:] = [[], []]
-            self.event_queue.put({"type": EventType.RESET_PLOTS, })
+            self.event_queue.put(
+                {
+                    "type": EventType.RESET_PLOTS,
+                }
+            )
             clear_callback()
-        except:
-            self.event_queue.put({"type": EventType.INFO_EVENT,
-                        "title": "Invalid calibration value",
-                        "message": f"The given value of \"{input_weight}\" is invalid.",
+        except Exception:
+            self.event_queue.put(
+                {
+                    "type": EventType.INFO_EVENT,
+                    "title": "Invalid calibration value",
+                    "message": f'The given value of "{input_weight}" is invalid.',
                 }
             )
 
     def calibrate_nitrous_load(self, input_weight: str, clear_callback) -> None:
-        """
-        calibrates the nitrous load cell with the given weight
+        """Calibrates the nitrous load cell with the given weight.
+
+        @TODO(Nucleus): We could merge both calibrate methods together.
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
@@ -733,23 +787,30 @@ class Controller(Thread):
         try:
             calibration_weight = int(float((input_weight or "").strip()) * 1000)
             uid = self.sensors["Nitrous load cell"].get_br_uid()
-            self.sensors["Nitrous load cell"].calibrate_load(self.brick_stack.get_device(uid), calibration_weight)
-            # Reset existing sensor data before calibration (keep 2-list structure so GUI clears plot)
+            self.sensors["Nitrous load cell"].calibrate_load(
+                self.brick_stack.get_device(uid), calibration_weight
+            )
+            # Reset existing sensor data before calibration
+            # (keep 2-list structure so GUI clears plot)
             load_cell_2_sensor_list[:] = [[], []]
-            self.event_queue.put({"type": EventType.RESET_PLOTS, })
+            self.event_queue.put(
+                {
+                    "type": EventType.RESET_PLOTS,
+                }
+            )
             clear_callback()
-        except:
-            self.event_queue.put({"type": EventType.INFO_EVENT,
-                        "title": "Invalid calibration value",
-                        "message": f"The given value of \"{input_weight}\" is invalid.",
+        except Exception:
+            self.event_queue.put(
+                {
+                    "type": EventType.INFO_EVENT,
+                    "title": "Invalid calibration value",
+                    "message": f'The given value of "{input_weight}" is invalid.',
                 }
             )
 
-
     def toggle_arming(self):
-        """
-        Toggle the arming state. Only if arming is true, we can trigger the
-         purge valve, the fill valve, the pressure valve and the igniter
+        """Toggle the arming state. Only if arming is true, we can trigger the
+        purge valve, the fill valve, the pressure valve and the igniter
         """
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
@@ -758,27 +819,34 @@ class Controller(Thread):
         else:
             self.armingState = True
 
-        self.event_queue.put({"type": EventType.ARMING_STATE_CHANGE,
-                              "new_state": self.armingState,
-                              })
-
+        self.event_queue.put(
+            {
+                "type": EventType.ARMING_STATE_CHANGE,
+                "new_state": self.armingState,
+            }
+        )
 
     def verify_sequence(self) -> bool:
         if self.sequence is None:
-            self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence loaded."})
+            self.event_queue.put(
+                {"type": EventType.SEQUENCE_ERROR, "message": "No sequence loaded."}
+            )
             return False
 
         for step in self.sequence:
-            if step[0] not in self.actors.keys():
-                self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": f"Actor {step[0]} not found."})
+            if step[0] not in self.actors:
+                self.event_queue.put(
+                    {
+                        "type": EventType.SEQUENCE_ERROR,
+                        "message": f"Actor {step[0]} not found.",
+                    }
+                )
                 return False
 
         return True
 
     def enable_all_sensor_callbacks(self):
-        """
-        Enable the callbacks and start the sensor reading
-        """
+        """Enable the callbacks and start the sensor reading"""
         print("enable sensors")
         for sensor in self.sensors.values():
             uid = sensor.get_br_uid()
@@ -788,17 +856,16 @@ class Controller(Thread):
                 print(f"could not enable sensor {sensor.get_br_uid()}", e)
 
     def disable_all_sensor_callbacks(self):
-        """
-        Disable all callbacks. No new sensor values will be added
-        """
+        """Disable all callbacks. No new sensor values will be added"""
         print("disable sensors")
         for sensor in self.sensors.values():
             uid = sensor.get_br_uid()
             sensor.disable_callback(self.brick_stack.get_device(uid))
 
     def toggle_sensors(self):
-        """
-        Toggles the sensor callbacks on and off. This starts  and stops the data recording / plotting
+        """Toggles the sensor callbacks on and off.
+
+        This starts  and stops the data recording / plotting.
         """
         if not self.connected:
             raise NotConnectedException(self.event_queue)
@@ -813,9 +880,7 @@ class Controller(Thread):
             self.sensor_enabled = False
 
     def dump_sensors_to_file(self):
-        """
-        wrapper for the dumping method from import
-        """
+        """Wrapper for the dumping method from import"""
         dump_sensor_to_file()
 
     def reset_sensors(self):
@@ -841,9 +906,7 @@ class Controller(Thread):
         self.enable_all_sensor_callbacks()
 
     def start_sequence(self) -> bool:
-        """
-        start the loaded sequence.
-        """
+        """Start the loaded sequence."""
         if not self.connected:
             raise NotConnectedException(self.event_queue)
 
@@ -858,25 +921,31 @@ class Controller(Thread):
 
         else:
             self.event_queue.put(
-                {"type": EventType.SEQUENCE_ERROR, "message": "No Sequence found. Please load a sequence first"})
+                {
+                    "type": EventType.SEQUENCE_ERROR,
+                    "message": "No Sequence found. Please load a sequence first",
+                }
+            )
             return False
 
     def end_sequence(self) -> bool:
-
         # --- Finish sequence
         # wait a moment to ensure every callback is done
         # print("waiting for callbacks to complete...")
-        #sleep(0.5)
-        #dump_sensor_to_file() no needed anymore
+        # sleep(0.5)
+        # dump_sensor_to_file() no needed anymore
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
         return True
 
-
     def abort(self) -> None:
+        """Abort the sequence.
+
+        This aborts the currently running sequence.
+        An abort is only possible if we are in the red-state.
+        This was requested by Tyler due to priority
+        of security of personnel at test site.
         """
-        abort the sequence
-        """
-        # Requested by Tyler: Abort only in RED_STATE due to priority of security of personnel at test site.
+        # Abort only in RED_STATE
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
@@ -886,17 +955,31 @@ class Controller(Thread):
         self.event_queue.put({"type": EventType.SEQUENCE_STOPPED})
 
         # Close All Valves
-        self.actors["N20MainValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20MainValve"].get_br_uid()))
-        self.actors["N20VentValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20VentValve"].get_br_uid()))
-        self.actors["N20FillValve"].action(ActionType.SERVO_CLOSE, self.brick_stack.get_device(self.actors["N20FillValve"].get_br_uid()))
+        self.actors["N20MainValve"].action(
+            ActionType.SERVO_CLOSE,
+            self.brick_stack.get_device(self.actors["N20MainValve"].get_br_uid()),
+        )
+        self.actors["N20VentValve"].action(
+            ActionType.SERVO_CLOSE,
+            self.brick_stack.get_device(self.actors["N20VentValve"].get_br_uid()),
+        )
+        self.actors["N20FillValve"].action(
+            ActionType.SERVO_CLOSE,
+            self.brick_stack.get_device(self.actors["N20FillValve"].get_br_uid()),
+        )
 
         # Open Purge Valve
-        self.actors["N2PurgeValve"].action(ActionType.SERVO_OPEN, self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()))
+        self.actors["N2PurgeValve"].action(
+            ActionType.SERVO_OPEN,
+            self.brick_stack.get_device(self.actors["N2PurgeValve"].get_br_uid()),
+        )
 
         # visual and auditory warnings
         # @TODO do we want to tigger the horn here?
-        self.actors["Horn"].action(ActionType.SOUND_HORN, self.brick_stack.get_device(self.actors["Horn"].get_br_uid()))
-        #self.actors["Light"].action(ActionType.LIGHT_RED, self.brick_stack.get_device(self.actors["Light"].get_br_uid()))
+        self.actors["Horn"].action(
+            ActionType.SOUND_HORN,
+            self.brick_stack.get_device(self.actors["Horn"].get_br_uid()),
+        )
 
     # ++++++
     # Internal methods
@@ -910,50 +993,54 @@ class Controller(Thread):
 
             match actor.type:
                 case ActorType.TRIGGER:
-                    brick.set_configuration(actor.output, 'o', False)
+                    brick.set_configuration(actor.output, "o", False)
                 case ActorType.LIGHT:
-                    brick.set_configuration(actor.output,'o', False)
-                    brick.set_configuration(actor.output + 1, 'o', False)
-                    brick.set_configuration(actor.output + 2, 'o', False)
+                    brick.set_configuration(actor.output, "o", False)
+                    brick.set_configuration(actor.output + 1, "o", False)
+                    brick.set_configuration(actor.output + 2, "o", False)
                 case ActorType.HORN:
-                    brick.set_configuration(actor.output, 'o', False)
+                    brick.set_configuration(actor.output, "o", False)
                 case ActorType.SERVO:
                     # with 0 is the position instantly set
                     velocity = 0
                     acceleration = 0
                     deceleration = 0
-                    pwm_min = 500 # pwm values from datasheet
+                    pwm_min = 500  # pwm values from datasheet
                     pwm_max = 2500
                     brick.set_pulse_width(actor.output, pwm_min, pwm_max)
-                    brick.set_motion_configuration(actor.output, velocity, acceleration, deceleration)
+                    brick.set_motion_configuration(
+                        actor.output, velocity, acceleration, deceleration
+                    )
                 case ActorType.SOLENOID:
-                    brick.set_configuration(actor.output, 'o', False)
-
+                    brick.set_configuration(actor.output, "o", False)
 
     def _construct_actors(self) -> None:
-        """
-        Construct all actors from the balrog.yaml
-        """
-
-        with open('config/balrog.yaml', 'r') as f:
+        """Construct all actors from the balrog.yaml"""
+        with open("config/balrog.yaml") as f:
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
-            actors = balrog_config['actors']
+            actors = balrog_config["actors"]
 
             for actor in actors:
                 # Convert actor type to ActorType enum
                 # actor_type = ActorType[actor['type'].upper()]
-                self.actors[actor['name']] = Actor(
-                    actor['name'], actor['type'], actor['uid'], actor['output'],
-                    actor.get('min_position', -1), actor.get('max_position', -1)
+                self.actors[actor["name"]] = Actor(
+                    actor["name"],
+                    actor["type"],
+                    actor["uid"],
+                    actor["output"],
+                    actor.get("min_position", -1),
+                    actor.get("max_position", -1),
                 )
 
         print(self.actors)
 
     def get_sensor_callback(self, name):
-        """
-        returns the sensor callbacks to register for the tinkerforge boards
+        """Get the sensor callbacks.
+
+        Returns the sensor callbacks to register for the tinkerforge boards
         pressure 1 and 2 are on the same board, so we have to use the same callback
-        the same of 3 and 4. If no callback is found, a no-op function is returned to avoid type issues.
+        the same of 3 and 4. If no callback is found, a no-op function is returned
+        to avoid type issues.
         """
         match name:
             case "Pressure 0":
@@ -972,28 +1059,39 @@ class Controller(Thread):
                 return thrust_load_cell_callback
             case "Nitrous load cell":
                 return nitrous_load_cell_callback
-            case "N2OMainValveSensor" | "N2OFillValveSensor" | "N2OVentValveSensor" | "N2PurgeValveSensor" | "N2PressureValveSensor":
+            case (
+                "N2OMainValveSensor"
+                | "N2OFillValveSensor"
+                | "N2OVentValveSensor"
+                | "N2PurgeValveSensor"
+                | "N2PressureValveSensor"
+            ):
                 return valve_sensor_callback
             case _:
                 print(f"No callback found for {name}")
-                self.event_queue.put({"type": EventType.INFO_EVENT, "message": f"No callback found for {name}"})
+                self.event_queue.put(
+                    {
+                        "type": EventType.INFO_EVENT,
+                        "message": f"No callback found for {name}",
+                    }
+                )
                 return lambda *args, **kwargs: None  # Return a no-op function
 
     def _construct_sensor(self) -> None:
-        """
-        construct all sensors from the balrog.yaml file
-        """
-        with open('config/balrog.yaml', 'r') as f:
+        """Construct all sensors_config from the balrog.yaml file"""
+        with open("config/balrog.yaml") as f:
             balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
-            sensors = balrog_config['sensors']
+            sensors_config = balrog_config["sensors"]
 
-            for sensor in sensors:
-                self.sensors[sensor['name']] = Sensor(sensor['name'],
-                                                      sensor['type'],
-                                                      sensor['uid'],
-                                                      sensor['channel'],
-                                                      self.get_sensor_callback(sensor['name']),
-                                                      sensor['period'])
+            for sensor_config in sensors_config:
+                self.sensors[sensor_config["name"]] = Sensor(
+                    sensor_config["name"],
+                    sensor_config["type"],
+                    sensor_config["uid"],
+                    sensor_config["channel"],
+                    self.get_sensor_callback(sensor_config["name"]),
+                    sensor_config["period"],
+                )
         print(self.sensors)
 
     # ++++++
@@ -1001,7 +1099,9 @@ class Controller(Thread):
     # ++++++
     def _sequence_worker(self):
         if self.sequence is None:
-            self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
+            self.event_queue.put(
+                {"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."}
+            )
             return
 
         seq_local = self.sequence.copy()
@@ -1009,7 +1109,7 @@ class Controller(Thread):
         seq_ts = 0
         seq_len = len(seq_local)
 
-        for i in interval_timer.IntervalTimer(0.02):
+        for _ in interval_timer.IntervalTimer(0.02):
             # signal used to abort the sequence with a button
             if self.abort_signal.is_set():
                 self.abort_signal.clear()
@@ -1017,7 +1117,10 @@ class Controller(Thread):
 
             while seq_idx < seq_len and int(seq_local[seq_idx][1]) <= seq_ts:
                 tpl = seq_local[seq_idx]
-                self.actors[tpl[0]].action(tpl[2], self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()))
+                self.actors[tpl[0]].action(
+                    tpl[2],
+                    self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()),
+                )
                 seq_idx += 1
 
             if seq_idx >= seq_len:
@@ -1027,9 +1130,7 @@ class Controller(Thread):
             seq_ts += 20
 
     def _thread_loop(self):
-
         while not self.thread_killer.is_set():
-
             if self.run_signal.is_set():
                 self.run_signal.clear()
                 self._sequence_worker()

@@ -1,25 +1,28 @@
+"""This module provides methods to update the plots in the GUI."""
+
 from shared.shared_lists import (
+    # @TODO(Nucleus): What is with pressure_3?
+    differential_pressure_list,
+    load_cell_1_sensor_list,
+    load_cell_2_sensor_list,
     pressure_0_sensor_list,
     pressure_1_sensor_list,
     pressure_2_sensor_list,
-    differential_pressure_list,
-    temperature_nitrous_sensor_list,
     temperature_engine_sensor_list,
-    load_cell_1_sensor_list,
-    load_cell_2_sensor_list,
+    temperature_nitrous_sensor_list,
 )
 
 
-def create_time_list(length):
+def _create_time_list(length):
     result = []
     time = 0
-    for i in range(length):
+    for _ in range(length):
         result.append(time)
         time += 5
     return result
 
 
-def set_x_range(view_buffer, plot, data_list):
+def _set_x_range(view_buffer, plot, data_list):
     if len(data_list[0]) > view_buffer:
         plot.setAutoPan(
             x=True
@@ -29,14 +32,11 @@ def set_x_range(view_buffer, plot, data_list):
 
 
 def update_plots(self):
-    """
-    Update the plots with new sensor values
-    """
-    # read_sensor_values_from_queue(self)
+    """Update the plots with new sensor values.
 
+    This takes the latest values from the global list and updates with that the plot.
+    """
     # update curves
-    # print(pressure_2_sensor_list)
-
     # pressure
     if len(pressure_0_sensor_list) > 0:
         pressure0 = pressure_0_sensor_list[1].copy()
@@ -79,36 +79,20 @@ def update_plots(self):
 
     view_buffer = 500
 
-    set_x_range(view_buffer, self.plot_pressure_0, pressure_0_sensor_list)
-    set_x_range(view_buffer, self.plot_pressure_1, pressure_1_sensor_list)
-    set_x_range(view_buffer, self.plot_pressure_2, pressure_2_sensor_list)
+    _set_x_range(view_buffer, self.plot_pressure_0, pressure_0_sensor_list)
+    _set_x_range(view_buffer, self.plot_pressure_1, pressure_1_sensor_list)
+    _set_x_range(view_buffer, self.plot_pressure_2, pressure_2_sensor_list)
 
-    set_x_range(
+    _set_x_range(
         view_buffer, self.plot_thermocouple_engine, temperature_engine_sensor_list
     )
-    set_x_range(
+    _set_x_range(
         view_buffer, self.plot_thermocouple_nitrous, temperature_nitrous_sensor_list
     )
 
-    set_x_range(view_buffer, self.plot_load_cell_nitrous, load_cell_1_sensor_list)
-    set_x_range(view_buffer, self.plot_load_cell_thrust, load_cell_2_sensor_list)
+    _set_x_range(view_buffer, self.plot_load_cell_nitrous, load_cell_1_sensor_list)
+    _set_x_range(view_buffer, self.plot_load_cell_thrust, load_cell_2_sensor_list)
 
-    set_x_range(
+    _set_x_range(
         view_buffer, self.plot_differential_pressure, differential_pressure_list
     )
-
-    """if len(pressure_0_sensor_list[0]) > view_buffer:
-        # @TODO this is an issue now, we need to change that
-        self.plot_pressure_0.setXRange(len(pressure_0_sensor_list[0])-view_buffer, len(pressure_0_sensor_list[0])-1)
-        #self.plot_pressure_1.setXRange(self.time_data[-view_buffer], self.time_data[-1])
-        #self.plot_pressure_2.setXRange(self.time_data[-view_buffer], self.time_data[-1])
-
-        #self.plot_thermocouple_engine.setXRange(self.time_data[-view_buffer], self.time_data[-1])
-        #self.plot_thermocouple_nitrous.setXRange(self.time_data[-view_buffer], self.time_data[-1])
-
-        #self.plot_load_cell_nitrous.setXRange(self.time_data[-view_buffer], self.time_data[-1])
-        self.plot_load_cell_nitrous.setXRange(len(load_cell_1_sensor_list[0])-view_buffer, len(load_cell_1_sensor_list[0])-1)
-        self.plot_load_cell_thrust.setXRange(len(load_cell_2_sensor_list[0])-view_buffer, len(load_cell_2_sensor_list[0])-1)
-
-        #self.plot_differential_pressure.setXRange(self.time_data[-view_buffer], self.time_data[-1])
-    """
