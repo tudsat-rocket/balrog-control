@@ -1,4 +1,5 @@
-from enum import StrEnum, IntEnum
+from enum import IntEnum, StrEnum
+
 
 class ActorType(StrEnum):
     DUMMY = "DUMMY"
@@ -9,6 +10,7 @@ class ActorType(StrEnum):
     COUNTER = "COUNTER"
     TRIGGER = "TRIGGER"
 
+
 class SensorType(StrEnum):
     DUMMY = "DUMMY"
     PRESSURE = "PRESSURE"
@@ -17,15 +19,16 @@ class SensorType(StrEnum):
     DIFFERENTIAL_PRESSURE = "DIFFERENTIAL_PRESSURE"
     SERVO_STATE = "SERVO_STATE"
 
+
 class ActionType(IntEnum):
-    NOT_IMPLEMENTED = -1 
+    NOT_IMPLEMENTED = -1
     SERVO_OPEN = 1
     SERVO_CLOSE = 2
     SERVO_TOGGLE = 3
     SOLENOID_OPEN = 4
     SOLENOID_CLOSE = 5
     SOLENOID_TOGGLE = 6
-    SOUND_HORN = 7 
+    SOUND_HORN = 7
     LIGHT_ON = 8
     LIGHT_OFF = 9
     TOGGLE_LIGHT = 10
@@ -42,8 +45,8 @@ class ActionType(IntEnum):
     SERVO_OPEN_QUARTER_SLOW = 21
     LIGHT_ALL = 22
 
-def str_to_action(action: str) -> ActionType:
 
+def str_to_action(action: str) -> ActionType:
     match action:
         case "SERVO_OPEN":
             return ActionType.SERVO_OPEN
@@ -91,6 +94,7 @@ def str_to_action(action: str) -> ActionType:
             return ActionType.LIGHT_ALL
         case _:
             return ActionType.NOT_IMPLEMENTED
+
 
 class EventType(StrEnum):
     CONNECTION_STATUS_UPDATE = "STATUS_UPDATE"

@@ -1,15 +1,17 @@
-"""Test definition file explorer
+"""Test definition file explorer.
 
 This module provides helper methods to load files.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
-from PySide6.QtWidgets import QFileDialog
 from typing import TYPE_CHECKING
+
+from PySide6.QtWidgets import QFileDialog
 
 if TYPE_CHECKING:
     from gui.main_window import NewMainWindow
-
 from control.controller import Controller
 
 

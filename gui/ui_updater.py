@@ -14,16 +14,15 @@ import logging
 import queue
 from queue import Queue
 
-from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
-from control.definitions import State
-from control.definitions import EventType
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
+from control.definitions import EventType, State
 from shared.shared_lists import (
-    n2o_main_valve_sensor_list,
-    n2o_fill_valve_sensor_list,
-    n2o_vent_valve_sensor_list,
-    n2_purge_valve_sensor_list,
     n2_pressure_valve_sensor_list,
+    n2_purge_valve_sensor_list,
+    n2o_fill_valve_sensor_list,
+    n2o_main_valve_sensor_list,
+    n2o_vent_valve_sensor_list,
 )
 
 logger = logging.getLogger(__name__)

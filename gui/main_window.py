@@ -1,18 +1,35 @@
-from PySide6.QtCore import QTimer, Qt
-from PySide6.QtUiTools import loadUiType
-import pyqtgraph as pg
+"""Module to provide the main GUI.
+
+This module provide the main GUI.
+"""
+
 from queue import Queue
 
+import pyqtgraph as pg
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtUiTools import loadUiType
+
 from control.controller import Controller
-from .test_definition_file_explorer import open_file_dialog, reload_file
-from .data_plotter import update_plots
 from gui.ui_updater import update_ui, update_valve_states
+
+from .data_plotter import update_plots
+from .test_definition_file_explorer import open_file_dialog, reload_file
 
 ui_class, baseclass = loadUiType("gui/main_view.ui")
 
 
 class NewMainWindow(ui_class, baseclass):
-    def __init__(self, event_queue: Queue, controller):
+    """Main Window class.
+
+    This represents the main window of the GUI.
+    """
+
+    def __init__(self, event_queue: Queue, controller) -> None:
+        """Crate new window object.
+
+        This creates a new main window object.
+        This is the main window displayed to the user.
+        """
         super().__init__()
         self.showMaximized()
 
@@ -76,18 +93,20 @@ class NewMainWindow(ui_class, baseclass):
         self.event_timer.timeout.connect(lambda: update_ui(self))
         self.event_timer.start(100)
 
-    def key_press_event(self, event):
-        """Override the keypress handler to implement our shortcuts"""
-        # implement v shortcut for opening the vent valve as long as the key is pressed
+    def key_press_event(self, event) -> None:
+        """Override the keypress handler to implement our shortcuts."""
+        # implement v shortcut for opening the vent
+        # valve as long as the key is pressed
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
             self.controller.toggle_n2o_vent_valve()
-        # implement the esc shortcut for opening the purge valve as long as the key us pressed
+        # implement the esc shortcut for opening the purge
+        # valve as long as the key us pressed
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
             self.controller.toggle_n2_purge_valve()
 
         super().key_press_event(event)
 
-    def key_release_event(self, event):
+    def key_release_event(self, event) -> None:
         """Override the keyrelease handler to implement our shortcuts."""
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
             self.controller.toggle_n2o_vent_valve()
@@ -189,10 +208,16 @@ class NewMainWindow(ui_class, baseclass):
             lambda: self.controller.start_sequence(),
         )
         self.button_open_sequence.clicked.connect(
-            lambda: open_file_dialog(self, self.controller,)
+            lambda: open_file_dialog(
+                self,
+                self.controller,
+            )
         )
         self.button_reload_sequence.clicked.connect(
-            lambda: reload_file(self, self.controller,)
+            lambda: reload_file(
+                self,
+                self.controller,
+            )
         )
 
         # Abort

@@ -1,35 +1,55 @@
-import time
+"""This module provides some testing method for the server.
+
+This file is intended to be used on its own. Currently this is not actively used.
+"""
+
 import csv
-import yaml
+import time
 from pathlib import Path
+
+import yaml
 
 from control.actor import Actor
 from control.brick_handling import StackHandler
 from control.definitions import ActorType
 
 
-def _load_actors_from_yaml(config_path: str = 'config/balrog.yaml') -> dict[str, Actor]:
-    """Parse balrog.yaml and construct Actor objects like controller._construct_actors does."""
-    with open(config_path, 'r') as f:
+def _load_actors_from_yaml(config_path: str = "config/balrog.yaml") -> dict[str, Actor]:
+    """Load actors from yaml.
+
+    Parse balrog.yaml and construct Actor
+    objects like controller._construct_actors does.
+    """
+    with open(config_path) as f:
         balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
-        actors_cfg = balrog_config['actors']
+        actors_cfg = balrog_config["actors"]
 
     actors: dict[str, Actor] = {}
     for a in actors_cfg:
-        actors[a['name']] = Actor(
-            a['name'], a['type'], a['uid'], a['output'], a.get('min_position', -1), a.get('max_position', -1)
+        actors[a["name"]] = Actor(
+            a["name"],
+            a["type"],
+            a["uid"],
+            a["output"],
+            a.get("min_position", -1),
+            a.get("max_position", -1),
         )
     return actors
 
 
 def _configure_servos(stack: StackHandler, actors: dict[str, Actor]) -> None:
-    """Replicate controller._set_configuration for SERVO actors to ensure positions can be set."""
+    """Configure Servos.
+
+    Replicate controller._set_configuration for SERVO
+    actors to ensure positions can be set.
+    """
     # wait for devices to enumerate
     time.sleep(0.5)
     for actor in actors.values():
-        # In config, type is stored as string (e.g., 'SERVO'). Accept either enum or string.
+        # In config, type is stored as string (e.g., 'SERVO').
+        # Accept either enum or string.
         if (isinstance(actor.type, ActorType) and actor.type == ActorType.SERVO) or (
-            isinstance(actor.type, str) and actor.type.upper() == 'SERVO'
+            isinstance(actor.type, str) and actor.type.upper() == "SERVO"
         ):
             brick = stack.get_device(actor.get_br_uid())
             # with 0 velocity the position is set instantly
@@ -40,11 +60,17 @@ def _configure_servos(stack: StackHandler, actors: dict[str, Actor]) -> None:
             pwm_max = 2500
             # Configure channel on Servo V2 bricklet
             brick.set_pulse_width(actor.output, pwm_min, pwm_max)
-            brick.set_motion_configuration(actor.output, velocity, acceleration, deceleration)
+            brick.set_motion_configuration(
+                actor.output, velocity, acceleration, deceleration
+            )
 
 
 def _position_range(min_pos: int, max_pos: int, step: int) -> list[int]:
-    """Generate an inclusive range from min_pos to max_pos using the correct step direction."""
+    """Generate an inclusive range.
+
+    Generate an inclusive range from min_pos
+    to max_pos using the correct step direction.
+    """
     if step <= 0:
         raise ValueError("step must be > 0")
     if min_pos == max_pos:
@@ -62,8 +88,9 @@ def test_servo_positions(
     step: int = 100,
     delay: float = 0.5,
 ) -> None:
-    """
-    Sweep positions from configured min to max for all SERVO actors and log current draw per position.
+    """Sweep positions from configured min to max for all.
+
+    SERVO actors and log current draw per position.
 
     - Connects to TinkerForge stack via StackHandler
     - Configures Servo V2 bricklet channels
@@ -82,20 +109,24 @@ def test_servo_positions(
         # Open CSV file for writing
         output_csv_path = Path(output_csv_path)
         output_csv_path.parent.mkdir(parents=True, exist_ok=True)
-        with output_csv_path.open(mode='w', newline='') as csvfile:
+        with output_csv_path.open(mode="w", newline="") as csvfile:
             csv_writer = csv.writer(csvfile)
             # header
-            csv_writer.writerow(["timestamp", "actor", "uid", "channel", "position", "current_mA"])
+            csv_writer.writerow(
+                ["timestamp", "actor", "uid", "channel", "position", "current_mA"]
+            )
 
             for name, actor in actors.items():
                 # Only test SERVO actors
-                if (isinstance(actor.type, ActorType) and actor.type == ActorType.SERVO) or (
-                    isinstance(actor.type, str) and actor.type.upper() == 'SERVO'
-                ):
+                if (
+                    isinstance(actor.type, ActorType) and actor.type == ActorType.SERVO
+                ) or (isinstance(actor.type, str) and actor.type.upper() == "SERVO"):
                     brick = stack.get_device(actor.get_br_uid())
                     channel = actor.get_output()
 
-                    positions = _position_range(actor.min_position, actor.max_position, step)
+                    positions = _position_range(
+                        actor.min_position, actor.max_position, step
+                    )
 
                     # Enable channel for test
                     brick.set_enable(channel, True)
@@ -106,9 +137,16 @@ def test_servo_positions(
                             time.sleep(delay)
                             # Read current draw for this channel in mA
                             current = brick.get_current(channel)
-                            csv_writer.writerow([
-                                time.strftime('%Y-%m-%d %H:%M:%S'), name, actor.get_br_uid(), channel, pos, current
-                            ])
+                            csv_writer.writerow(
+                                [
+                                    time.strftime("%Y-%m-%d %H:%M:%S"),
+                                    name,
+                                    actor.get_br_uid(),
+                                    channel,
+                                    pos,
+                                    current,
+                                ]
+                            )
                     finally:
                         # Disable channel after testing
                         brick.set_enable(channel, False)
