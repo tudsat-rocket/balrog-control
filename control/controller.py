@@ -180,6 +180,8 @@ class Controller(Thread):
                         "port": port,
                     }
                 )
+                self.connected = False
+                self.connected_signal.clear()
                 return False
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
@@ -255,6 +257,8 @@ class Controller(Thread):
         If a servo is open, the entry is True,
         if the Servo has position 0, the value is False.
         """
+        # We only need the ID of one valve, as all servos are
+        # connected to the same servobricklet
         uid = self.actors["N20MainValve"].get_br_uid()
         servo_bricklet = self.brick_stack.get_device(uid)
         # each is list of length 10
@@ -346,7 +350,9 @@ class Controller(Thread):
 
         This enabled the dangerous operations. Might require confirmation.
         """
+        print("Request to do to the red state")
         if self.currentState != State.YELLOW_STATE:
+            print("request override")
             self.event_queue.put(
                 {
                     "type": EventType.CONFIRMATION_EVENT,
