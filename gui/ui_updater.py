@@ -40,6 +40,7 @@ def _get_event_from_queue(event_queue: Queue) -> dict | None:
         # set waiting to false
         event: dict = event_queue.get(False)
         logger.debug("received event %event", event)
+        return event
     except queue.Empty:
         # queue is empty, Nothing to do.
         return None
@@ -98,6 +99,7 @@ def update_valve_states(self: NewMainWindow) -> None:
 
 def update_connection_state(self: NewMainWindow, connection_event: dict) -> None:
     """Update the labels to display the current connection status."""
+    print("update the connection state in the GUI")
     self.label_status_connection_state.setText(connection_event["status"])
     self.label_status_hostname_state.setText(connection_event["hostname"])
     self.label_status_port_state.setText(str(connection_event["port"]))

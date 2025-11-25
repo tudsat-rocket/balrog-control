@@ -13,7 +13,7 @@ from tinkerforge.ip_connection import Error, IPConnection
 class StackHandler:
     """Handler for connection to a Stack of TinkeForge Bricks and attached Bricklets."""
 
-    def __init__(self, devices: dict = None):
+    def __init__(self, devices: dict = {}):
         self.devices: dict = devices
         self.connection: IPConnection = IPConnection()
 
@@ -26,7 +26,8 @@ class StackHandler:
         try:
             self.connection.connect(host, port)
             self.connection.register_callback(
-                IPConnection.CALLBACK_ENUMERATE, self.cb_enumerate
+                IPConnection.CALLBACK_ENUMERATE,
+                self.cb_enumerate
             )
             self.connection.enumerate()
         except Error as err:
@@ -75,6 +76,7 @@ class StackHandler:
             enumeration_type == IPConnection.ENUMERATION_TYPE_AVAILABLE
         ):  # @TODO fix: or IPConnection.ENUMERATION_TYPE_CONNECTED:
             # construct device based on device device_identifier
+            print(f"enumerate {uid}")
             self.add_device(uid, device_identifier)
 
     # Internal

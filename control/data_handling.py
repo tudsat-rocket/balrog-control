@@ -52,8 +52,7 @@ class DataHandler:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         current_log_filename = f"log_{timestamp}.csv"
         filepath = os.path.join("logs", current_log_filename)
-        with open(filepath, "w", newline="") as file:
-            log_file = file
+        log_file = open(filepath, "w", newline="")
         return csv.writer(log_file)
 
     def write_header(self):
