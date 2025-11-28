@@ -667,10 +667,10 @@ class Controller(Thread):
             raise NotAllowedInThisState(self.event_queue)
 
         if self.solenoid_quick_disconnect_open:
-            self.open_quick_disconnect_solenoid()
+            self.close_quick_disconnect_solenoid()
             self.solenoid_quick_disconnect_open = False
         else:
-            self.close_quick_disconnect_solenoid()
+            self.open_quick_disconnect_solenoid()
             self.solenoid_quick_disconnect_open = True
 
         self.event_queue.put(
