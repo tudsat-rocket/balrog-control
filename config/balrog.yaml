@@ -29,7 +29,7 @@ actors:
     uid: 2cPc
     output: 0
     min_position: 0
-    max_position: 6050
+    max_position: -5500
   - name: N2PressureValve #renamed from N2Pressure
     type: SERVO
     uid: 2cPc
