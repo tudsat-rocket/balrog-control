@@ -1,98 +1,103 @@
-"""This module provides methods to update the plots in the GUI."""
+from shared.shared_lists import *
+from datetime import datetime
 
-from shared.shared_lists import (
-    # @TODO(Nucleus): What is with pressure_3?
-    differential_pressure_list,
-    load_cell_1_sensor_list,
-    load_cell_2_sensor_list,
-    pressure_0_sensor_list,
-    pressure_1_sensor_list,
-    pressure_2_sensor_list,
-    temperature_engine_sensor_list,
-    temperature_nitrous_sensor_list,
-)
+t0 = datetime.now()
 
-
-def _create_time_list(length):
+def create_time_list(length):
     result = []
     time = 0
-    for _ in range(length):
+    for i in range(length):
         result.append(time)
         time += 5
     return result
 
-
-def _set_x_range(view_buffer, plot, data_list):
+def set_x_range(view_buffer, plot, data_list):
     if len(data_list[0]) > view_buffer:
-        plot.setAutoPan(
-            x=True
-        )  # this allows a smooth pan, while you still can manually scroll
+        plot.setAutoPan(x=True) # this allows a smooth pan, while you still can manually scroll
         plot.setAutoVisible(y=True)
-        # plot.setXRange(len(data_list[0]) - view_buffer, len(data_list[0]) - 1)
+        #plot.setXRange(len(data_list[0]) - view_buffer, len(data_list[0]) - 1)
 
 
 def update_plots(self):
-    """Update the plots with new sensor values.
-
-    This takes the latest values from the global list and updates with that the plot.
     """
+    Update the plots with new sensor values
+    """
+    #read_sensor_values_from_queue(self)
+
     # update curves
+    #print(pressure_2_sensor_list)
+
+    
+    max_time = \
+        max([
+            (pressure_0_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(pressure_0_sensor_list[0]) > 0 else float("-inf"),
+            (pressure_1_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(pressure_1_sensor_list[0]) > 0 else float("-inf"),
+            (pressure_2_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(pressure_2_sensor_list[0]) > 0 else float("-inf"),
+            (differential_pressure_list[0][-1] - self.controller.t0).total_seconds() if len(differential_pressure_list[0]) > 0 else float("-inf"),
+            (temperature_engine_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(temperature_engine_sensor_list[0]) > 0 else float("-inf"),
+            (temperature_nitrous_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(temperature_nitrous_sensor_list[0]) > 0 else float("-inf"),
+            (load_cell_1_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(load_cell_1_sensor_list[0]) > 0 else float("-inf"),
+            (load_cell_2_sensor_list[0][-1] - self.controller.t0).total_seconds() if len(load_cell_2_sensor_list[0]) > 0 else float("-inf"),
+        ])
+
+    def get_time(timestamps):
+        return [(i - self.controller.t0).total_seconds() for i in timestamps].copy()
+
+    def pan_to_current(curve):
+        window = 60 #seconds
+        curve.setXRange(max(0, max_time - window), max_time)
+
     # pressure
-    if len(pressure_0_sensor_list) > 0:
+    if len(pressure_0_sensor_list[0]) > 0:
+        #self.current_value_n2_tank.setText("{:.3f}".format(pressure_0_sensor_list[1][-1]))
         pressure0 = pressure_0_sensor_list[1].copy()
-        self.pressure_curve_0.setData(pressure0)
+        self.pressure_curve_0.setData(get_time(pressure_0_sensor_list[0][-500:]), pressure0[-500:])
+        pan_to_current(self.plot_pressure_0)
         del pressure0
-    if len(pressure_1_sensor_list) > 0:
+    if len(pressure_1_sensor_list[0]) > 0:
+        #self.current_value_n2o_tank.setText("{:.3f}".format(pressure_1_sensor_list[1][-1]))
         pressure1 = pressure_1_sensor_list[1].copy()
-        self.pressure_curve_1.setData(pressure1)
+        self.pressure_curve_1.setData(get_time(pressure_1_sensor_list[0]), pressure1)
+        pan_to_current(self.plot_pressure_1)
         del pressure1
-    if len(pressure_2_sensor_list) > 0:
+    if len(pressure_2_sensor_list[0]) > 0:
+        #self.current_value_pre_chamber_pressure.setText("{:.3f}".format(pressure_2_sensor_list[1][-1]))
         pressure2 = pressure_2_sensor_list[1].copy()
-        self.pressure_curve_2.setData(pressure2)
+        self.pressure_curve_2.setData(get_time(pressure_2_sensor_list[0]), pressure2)
+        pan_to_current(self.plot_pressure_2)
         del pressure2
 
-    if len(differential_pressure_list) > 0:
+    if len(differential_pressure_list[0]) > 0 :
+        #self.current_value_differential_pressure.setText("{:.3f}".format(differential_pressure_list[1][-1]))
         differential_pressure = differential_pressure_list[1].copy()
-        self.differential_pressure_curve.setData(differential_pressure)
+        self.differential_pressure_curve.setData(get_time(differential_pressure_list[0]), differential_pressure)
+        pan_to_current(self.plot_differential_pressure)
         del differential_pressure
 
     # temperature
-    if len(temperature_engine_sensor_list) > 0:
-        temperature_engine = temperature_engine_sensor_list[1].copy()
-        self.thermocouple_engine_curve.setData(temperature_engine)
+    if len(temperature_engine_sensor_list[0]) > 0:
+        #self.current_value_temperature_engine.setText("{:.3f}".format(temperature_engine_sensor_list[1][-1]))
+        temperature_engine = temperature_engine_sensor_list[1].copy()#[len(temperature_engine_sensor_list[1]) - 500:].copy()
+        self.thermocouple_engine_curve.setData(get_time(temperature_engine_sensor_list[0]), temperature_engine)
+        pan_to_current(self.plot_thermocouple_engine)
         del temperature_engine
-    if len(temperature_nitrous_sensor_list) > 0:
+    if len(temperature_nitrous_sensor_list[0]) > 0:
+        #self.current_value_temperature_nitrous.setText("{:.3f}".format(temperature_nitrous_sensor_list[1][-1]))
         temperature_nitrous = temperature_nitrous_sensor_list[1].copy()
-        self.thermocouple_nitrous_curve.setData(temperature_nitrous)
+        self.thermocouple_nitrous_curve.setData(get_time(temperature_nitrous_sensor_list[0]), temperature_nitrous)
+        pan_to_current(self.plot_thermocouple_nitrous)
         del temperature_nitrous
 
     # load cell
-    if len(load_cell_1_sensor_list) > 0:
-        # print(load_cell_1_sensor_list[1])
+    if len(load_cell_1_sensor_list[0]) > 0:
+        #self.current_value_load_cell_thrust.setText("{:.3f}".format(load_cell_1_sensor_list[1][-1]))
         load_cell1 = load_cell_1_sensor_list[1].copy()
-        self.load_cell_thrust_curve.setData(load_cell1)
+        self.load_cell_thrust_curve.setData(get_time(load_cell_1_sensor_list[0]), load_cell1)
+        pan_to_current(self.plot_load_cell_thrust)
         del load_cell1
-    if len(load_cell_2_sensor_list):
+    if len(load_cell_2_sensor_list[0]):
+        #self.current_value_load_cell_nitrous.setText("{:.3f}".format(load_cell_2_sensor_list[1][-1]))
         load_cell2 = load_cell_2_sensor_list[1].copy()
-        self.load_cell_nitrous_curve.setData(load_cell2)
+        self.load_cell_nitrous_curve.setData(get_time(load_cell_2_sensor_list[0]), load_cell2)
+        pan_to_current(self.plot_load_cell_nitrous)
         del load_cell2
-
-    view_buffer = 500
-
-    _set_x_range(view_buffer, self.plot_pressure_0, pressure_0_sensor_list)
-    _set_x_range(view_buffer, self.plot_pressure_1, pressure_1_sensor_list)
-    _set_x_range(view_buffer, self.plot_pressure_2, pressure_2_sensor_list)
-
-    _set_x_range(
-        view_buffer, self.plot_thermocouple_engine, temperature_engine_sensor_list
-    )
-    _set_x_range(
-        view_buffer, self.plot_thermocouple_nitrous, temperature_nitrous_sensor_list
-    )
-
-    _set_x_range(view_buffer, self.plot_load_cell_nitrous, load_cell_1_sensor_list)
-    _set_x_range(view_buffer, self.plot_load_cell_thrust, load_cell_2_sensor_list)
-
-    _set_x_range(
-        view_buffer, self.plot_differential_pressure, differential_pressure_list
-    )

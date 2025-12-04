@@ -65,42 +65,42 @@ sensors:
     type: PRESSURE
     uid: 27AM
     channel: 0
-    period: 5
+    period: 50
   - name: Pressure 1
     type: PRESSURE
     uid: 27AM
     channel: 1
-    period: 5
+    period: 50
   - name: Pressure 2
     type: PRESSURE
     uid: 27AQ
     channel: 1
-    period: 5
+    period: 50
   - name: Differential Nitrous pressure
     type: PRESSURE
     uid: 27AQ
     channel: 0
-    period: 5
+    period: 50
   - name: Temperatur Nitrous
     type: TEMPERATURE
     uid: 2f1R
     channel: -1 # not used
-    period: 5
+    period: 50
   - name: Temperatur Engine
     type: TEMPERATURE
     uid: 2eZV
     channel: -1 # not used
-    period: 5
+    period: 50
   - name: Thrust load cell
     type: LOAD
     uid: 29hv
     channel: -1 # not used
-    period: 5
+    period: 50
   - name: Nitrous load cell
     type: LOAD
     uid: 29gV
     channel: -1 # not used
-    period: 5
+    period: 50
   - name: N2OMainValveSensor
     type: SERVO_STATE
     uid: 2cPc

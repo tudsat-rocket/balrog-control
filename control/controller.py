@@ -158,6 +158,7 @@ class Controller(Thread):
                 self.connected_signal.set()
                 # Turn all lights on after connecting
                 try:
+                    self.reset_t0()
                     uid = self.actors["Light"].get_br_uid()
                     self.actors["Light"].action(
                         ActionType.LIGHT_ALL, self.brick_stack.get_device(uid)
@@ -183,6 +184,9 @@ class Controller(Thread):
                 self.connected = False
                 self.connected_signal.clear()
                 return False
+
+    def reset_t0(self):
+        self.t0 = datetime.now()
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
         actor = self.actors[valve]
