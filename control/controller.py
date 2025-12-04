@@ -189,14 +189,14 @@ class Controller(Thread):
         adjust = 50
         brick = self.brick_stack.get_device(actor.get_br_uid())
 
-        if position == actor.max_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.max_position - adjust)
-        elif position == actor.max_position:
-            brick.set_position(actor.output, actor.max_position + adjust)
-        elif position == actor.min_position and actor.max_position > actor.min_position:
-            brick.set_position(actor.output, actor.min_position + adjust)
-        elif position == actor.min_position:
-            brick.set_position(actor.output, actor.min_position - adjust)
+        if position == actor.open_position and actor.open_position > actor.closed_position:
+            brick.set_position(actor.output, actor.open_position - adjust)
+        elif position == actor.open_position:
+            brick.set_position(actor.output, actor.open_position + adjust)
+        elif position == actor.closed_position and actor.open_position > actor.closed_position:
+            brick.set_position(actor.output, actor.closed_position + adjust)
+        elif position == actor.closed_position:
+            brick.set_position(actor.output, actor.closed_position - adjust)
 
     def read_valve_states(self) -> None:
         sensor_names = [
@@ -503,7 +503,7 @@ class Controller(Thread):
     def open_n2o_vent_valve(self):
         uid = self.actors["N20VentValve"].get_br_uid()
         self.actors["N20VentValve"].action(
-            ActionType.SERVO_OPEN_QUARTER_SLOW, self.brick_stack.get_device(uid)
+            ActionType.SERVO_OPEN_SLOW, self.brick_stack.get_device(uid)
         )
         self.servo_vent_open = True
 
@@ -1034,8 +1034,8 @@ class Controller(Thread):
                     actor["type"],
                     actor["uid"],
                     actor["output"],
-                    actor.get("min_position", -1),
-                    actor.get("max_position", -1),
+                    actor.get("closed_position", -1),
+                    actor.get("open_position", -1),
                 )
 
         print(self.actors)

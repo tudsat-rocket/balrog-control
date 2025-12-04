@@ -31,8 +31,8 @@ def _load_actors_from_yaml(config_path: str = "config/balrog.yaml") -> dict[str,
             a["type"],
             a["uid"],
             a["output"],
-            a.get("min_position", -1),
-            a.get("max_position", -1),
+            a.get("closed_position", -1),
+            a.get("open_position", -1),
         )
     return actors
 
@@ -125,7 +125,7 @@ def test_servo_positions(
                     channel = actor.get_output()
 
                     positions = _position_range(
-                        actor.min_position, actor.max_position, step
+                        actor.closed_position, actor.open_position, step
                     )
 
                     # Enable channel for test
