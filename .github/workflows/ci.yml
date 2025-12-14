@@ -1,0 +1,25 @@
+name: Lint and format balrog control
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+    - name: setup uv
+      run: uv sync
+    - name: run linter
+      run: uv run ruff check --exit-non-zero-on-fix
+    - name: run formatter
+      run: uv run ruff format --check --exit-non-zero-on-format
