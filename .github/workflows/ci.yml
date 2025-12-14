@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -21,5 +21,13 @@ jobs:
       run: uv sync
     - name: run linter
       run: uv run ruff check --exit-non-zero-on-fix
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+    - name: setup uv
+      run: uv sync
     - name: run formatter
       run: uv run ruff format --check --exit-non-zero-on-format
