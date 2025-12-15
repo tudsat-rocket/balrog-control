@@ -690,7 +690,7 @@ class Controller(Thread):
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
-        if self.solenoid_quick_disconnect_open:
+        if self.solenoid_quick_disconnect_open or self.servo_nitrous_fill_open:
             # the solenoid has to be closed to allow the servo to open
             raise NotAllowedInThisState(self.event_queue)
 
@@ -719,6 +719,7 @@ class Controller(Thread):
         self.close_n2o_fill_valve()
         self.close_n2_purge_valve()
         self.close_n2o_vent_valve()
+        self.close_quick_disconnect_servo()
         self.close_quick_disconnect_solenoid()
 
     def run_n2o_purge_sequence(self):
