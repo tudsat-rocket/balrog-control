@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 from queue import Queue
@@ -165,8 +166,6 @@ class Controller(Thread):
                     )
                     self.read_valve_states()
                     self.enable_all_sensor_callbacks()
-                    # @TODO(Nucleus): this opens the valves at startup
-                    #  due to a thinkerforge thing
                     self.close_all_valves()
                 except Exception as e:
                     print(f"Failed to set initial state: {e}")
@@ -479,7 +478,7 @@ class Controller(Thread):
         """This valve should be opened slow"""
         uid = self.actors["N20FillValve"].get_br_uid()
         self.actors["N20FillValve"].action(
-            ActionType.SERVO_OPEN_SLOW, self.brick_stack.get_device(uid)
+            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
         )
         self.servo_nitrous_fill_open = True
 
@@ -507,7 +506,7 @@ class Controller(Thread):
     def open_n2o_vent_valve(self):
         uid = self.actors["N20VentValve"].get_br_uid()
         self.actors["N20VentValve"].action(
-            ActionType.SERVO_OPEN_SLOW, self.brick_stack.get_device(uid)
+            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
         )
         self.servo_vent_open = True
 

@@ -44,7 +44,7 @@ def update_plots(self):
         return [(i - self.controller.t0).total_seconds() for i in timestamps].copy()
 
     def pan_to_current(curve):
-        window = 60 #seconds
+        window = 20 #seconds
         curve.setXRange(max(0, max_time - window), max_time)
 
     # pressure
