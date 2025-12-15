@@ -342,7 +342,6 @@ class Controller(Thread):
         this will trigger an alert dialog and will not set the light to yellow.
         """
         # check if all valves are closed and only enter his mode if this is true
-        # TODO request solenoid state from tinkerforge? Are the internal states safe enough?
         if not self.check_all_servos_closed() or not self.check_solenoid_closed():
             self.event_queue.put(
                 {

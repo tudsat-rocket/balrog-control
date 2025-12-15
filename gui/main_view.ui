@@ -487,8 +487,11 @@
                 <string>Manual control</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
-                <item row="1" column="0">
+                <item row="3" column="2">
                  <widget class="QPushButton" name="button_toggle_n2o_main_valve">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
                    <string>Toggle N2O Main Valve</string>
                   </property>
@@ -514,11 +517,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
+                <item row="1" column="0">
                  <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
                   <property name="text">
                    <string>Toggle N20 fill valve</string>
                   </property>

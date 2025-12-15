@@ -245,14 +245,14 @@ def update_arming_state(self: NewMainWindow, event: dict) -> None:
             self.button_run_ignition_sequence.setEnabled(True)
             self.button_toggle_n2_purge_valve.setEnabled(True)
             self.button_toggle_n2_pressure_valve.setEnabled(True)
-            self.button_toggle_n2o_fill_valve.setEnabled(True)
+            self.button_toggle_n2o_main_valve.setEnabled(True)
             self.button_start_sequence.setEnabled(True)
         case False:
             self.button_run_n20_purge_sequence.setEnabled(False)
             self.button_run_ignition_sequence.setEnabled(False)
             self.button_toggle_n2_purge_valve.setEnabled(False)
             self.button_toggle_n2_pressure_valve.setEnabled(False)
-            self.button_toggle_n2o_fill_valve.setEnabled(False)
+            self.button_toggle_n2o_main_valve.setEnabled(False)
             self.button_start_sequence.setEnabled(False)
 
 
