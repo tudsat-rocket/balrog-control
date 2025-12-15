@@ -254,6 +254,19 @@ class Controller(Thread):
         )
         return True
 
+    def check_solenoid_closed(self) -> bool:
+        """Check if the solenoid is closed.
+
+        Check if the solenoid is closed. Return True if the solenoid is closed,
+        return False if the solenoid is open.
+        """
+
+        uid = self.actors["QuickDisconnectSolenoid"].get_br_uid()
+        output = self.actors["QuickDisconnectSolenoid"].get_output()
+        io_bricklet = self.brick_stack.get_device(uid)
+        values = io_bricklet.get_value()
+        return values[output] == 0
+
     def get_servo_position(self) -> list[bool]:
         """Returns a list with all server positions.
 
@@ -268,9 +281,9 @@ class Controller(Thread):
         enabled, current_position, current_velocity, current, input_voltage = (
             servo_bricklet.get_status()
         )
-        result = []
+        result = [False] * len(current_position)
         for i in range(len(current_position)):
-            result[i] = current_position[i] == 0
+            result[i] = (current_position[i] == 0)
         return result
 
     def check_all_servos_closed(self) -> bool:
@@ -280,7 +293,7 @@ class Controller(Thread):
         return False if at least one servo is open.
         """
         servo_state = self.get_servo_position()
-        return all(not i for i in servo_state)
+        return all(servo_state)
 
     def request_go_to_green_state(self):
         """Request to to to the green state.
@@ -329,7 +342,8 @@ class Controller(Thread):
         this will trigger an alert dialog and will not set the light to yellow.
         """
         # check if all valves are closed and only enter his mode if this is true
-        if not self.check_all_servos_closed:
+        # TODO request solenoid state from tinkerforge? Are the internal states safe enough?
+        if not self.check_all_servos_closed() or not self.check_solenoid_closed():
             self.event_queue.put(
                 {
                     "type": EventType.CONFIRMATION_EVENT,
