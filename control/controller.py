@@ -290,7 +290,7 @@ class Controller(Thread):
         To go into green state, we have to be in the yellow state before.
         It is not allowed to change from red to green directly.
         """
-        if self.currentState != State.YELLOW_STATE:
+        if self.currentState != State.YELLOW_STATE and self.currentState != State.GREEN_STATE:
             self.event_queue.put(
                 {
                     "type": EventType.CONFIRMATION_EVENT,
@@ -314,6 +314,8 @@ class Controller(Thread):
         To go into green state, we have to be in the yellow state before.
         It is not allowed to change from red to green directly.
         """
+        if self.armingState:
+            self.toggle_arming()
         self.set_light_to_green()
         self.currentState = State.GREEN_STATE
         self.event_queue.put(
@@ -342,6 +344,8 @@ class Controller(Thread):
             self.go_to_yellow_state()
 
     def go_to_yellow_state(self):
+        if self.armingState:
+            self.toggle_arming()
         self.set_light_to_yellow()
         self.currentState = State.YELLOW_STATE
         self.event_queue.put(
