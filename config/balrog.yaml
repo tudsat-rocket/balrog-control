@@ -23,13 +23,13 @@ actors:
     uid: 2cPc
     output: 1
     closed_position: 0
-    open_position: -3800 #max position do not change
+    open_position: 5000 #max position do not change
   - name: N20FillValve #renamed from NitrousFill
     type: SERVO
     uid: 2cPc
     output: 0
     closed_position: 0
-    open_position: 5500
+    open_position: -7000
   - name: N2PressureValve #renamed from N2Pressure
     type: SERVO
     uid: 2cPc

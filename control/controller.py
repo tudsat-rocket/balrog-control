@@ -711,12 +711,17 @@ class Controller(Thread):
             # the solenoid has to be closed to allow the servo to open
             raise NotAllowedInThisState(self.event_queue)
 
-        if self.servo_quick_disconnect_open:
-            self.open_quick_disconnect_servo()
-            self.servo_quick_disconnect_open = False
-        else:
-            self.close_quick_disconnect_servo()
-            self.servo_quick_disconnect_open = True
+        self.open_quick_disconnect_servo()
+        sleep(1.5)
+        self.close_quick_disconnect_servo()
+
+
+        #if self.servo_quick_disconnect_open:
+        #    self.open_quick_disconnect_servo()
+        #    self.servo_quick_disconnect_open = False
+        #else:
+        #    self.close_quick_disconnect_servo()
+        #    self.servo_quick_disconnect_open = True
 
         self.event_queue.put(
             {

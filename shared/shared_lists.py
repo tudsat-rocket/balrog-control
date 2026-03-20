@@ -19,3 +19,6 @@ n2o_fill_valve_sensor_list = [[], []]
 n2o_vent_valve_sensor_list = [[], []]
 n2_pressure_valve_sensor_list = [[], []]
 n2_purge_valve_sensor_list = [[], []]
+
+# solenoid
+solenoid_sensor_list = [[], []]

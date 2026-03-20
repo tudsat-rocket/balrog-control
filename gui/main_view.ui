@@ -447,6 +447,20 @@
                </property>
               </widget>
              </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_solenoid">
+               <property name="text">
+                <string>Solenoid</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLabel" name="label_solenoid_state">
+               <property name="text">
+                <string>unknown</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -564,10 +578,10 @@
                 <item row="0" column="2">
                  <widget class="QPushButton" name="button_toggle_quick_disconnect_servo">
                   <property name="toolTip">
-                   <string>Toggle Quick Disconnct servo</string>
+                   <string>Trigger quick disconnect</string>
                   </property>
                   <property name="text">
-                   <string>Toggle QD servo</string>
+                   <string>Trigger QD</string>
                   </property>
                  </widget>
                 </item>
