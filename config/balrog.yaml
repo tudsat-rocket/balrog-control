@@ -35,13 +35,13 @@ actors:
     uid: 2cPc
     output: 3
     closed_position: 0
-    open_position: -5150
+    open_position: 7000
   - name: N2PurgeValve #renmaned from N2Purge
     type: SERVO
     uid: 2cPc
     output: 4
     closed_position: 0
-    open_position: -5070
+    open_position: 7000
   - name: QuickDisconnectSolenoid
     type: SOLENOID
     uid: 2f6L
@@ -79,6 +79,11 @@ sensors:
   - name: Differential Nitrous pressure
     type: PRESSURE
     uid: 27AQ
+    channel: 0
+    period: 50
+  - name: CC1 pressure
+    type: PRESSURE
+    uid: 27AG
     channel: 0
     period: 50
   - name: Temperatur Nitrous

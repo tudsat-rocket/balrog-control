@@ -19,6 +19,7 @@ from control.sensor_callbacks import (
     nitrous_load_cell_callback,
     pressure_0_1_callback,
     pressure_2_3_callback,
+    pressure_4_callback,
     temperature_engine_callback,
     temperature_nitrous_callback,
     thrust_load_cell_callback,
@@ -27,6 +28,7 @@ from control.sensor_callbacks import (
 from control.test_definition_parsing import parse_csv
 from shared.shared_lists import (
     differential_pressure_list,
+    cc_pressure_1_list,
     load_cell_1_sensor_list,
     load_cell_2_sensor_list,
     n2_pressure_valve_sensor_list,
@@ -925,6 +927,7 @@ class Controller(Thread):
         pressure_2_sensor_list[:] = [[], []]
         pressure_3_sensor_list[:] = [[], []]
         differential_pressure_list[:] = [[], []]
+        cc_pressure_1_list[:] = [[], []]
 
         # temp
         temperature_nitrous_sensor_list[:] = [[], []]
@@ -1083,6 +1086,8 @@ class Controller(Thread):
                 return pressure_2_3_callback
             case "Differential Nitrous pressure":
                 return pressure_2_3_callback
+            case "CC1 pressure":
+                return pressure_4_callback
             case "Temperatur Engine":
                 return temperature_engine_callback
             case "Temperatur Nitrous":
@@ -1149,6 +1154,7 @@ class Controller(Thread):
 
             while seq_idx < seq_len and int(seq_local[seq_idx][1]) <= seq_ts:
                 tpl = seq_local[seq_idx]
+                print(f"Executing: {tpl[0]} at TS: {tpl[1]} (Internal Clock: {seq_ts})")
                 self.actors[tpl[0]].action(
                     tpl[2],
                     self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()),

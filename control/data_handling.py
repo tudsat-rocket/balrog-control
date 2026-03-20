@@ -4,6 +4,7 @@ from datetime import datetime
 
 from shared.shared_lists import (
     differential_pressure_list,
+    cc_pressure_1_list,
     load_cell_1_sensor_list,
     load_cell_2_sensor_list,
     n2_pressure_valve_sensor_list,
@@ -73,8 +74,10 @@ class DataHandler:
                 "Thrust load cell",
                 "Time Nitrous load cell",
                 "Nitrous load cell",
-                "Time Differential",
-                "Differential Nitrous pressure",
+                "Time CC0",
+                "CC0 pressure",
+                "Time CC1",
+                "CC1 pressure",
                 "Time N2OMainValve",
                 "N2OValveState",
                 "Time N2OFillValve",
@@ -98,20 +101,18 @@ class DataHandler:
                 self.get_value_or_minus(pressure_1_sensor_list),
                 self.get_time_or_minus(pressure_2_sensor_list),
                 self.get_value_or_minus(pressure_2_sensor_list),
-                self.get_time_or_minus(pressure_2_sensor_list),
-                self.get_value_or_minus(pressure_2_sensor_list),
                 self.get_time_or_minus(temperature_nitrous_sensor_list),
                 self.get_value_or_minus(temperature_nitrous_sensor_list),
                 self.get_time_or_minus(temperature_engine_sensor_list),
                 self.get_value_or_minus(temperature_engine_sensor_list),
                 self.get_time_or_minus(load_cell_1_sensor_list),
                 self.get_value_or_minus(load_cell_1_sensor_list),
-                self.get_time_or_minus(
-                    load_cell_2_sensor_list
-                ),  # @TODO(Nucleus): name right?
+                self.get_time_or_minus(load_cell_2_sensor_list),
                 self.get_value_or_minus(load_cell_2_sensor_list),
                 self.get_time_or_minus(differential_pressure_list),
                 self.get_value_or_minus(differential_pressure_list),
+                self.get_time_or_minus(cc_pressure_1_list),
+                self.get_value_or_minus(cc_pressure_1_list),
                 self.get_time_or_minus(n2o_main_valve_sensor_list),
                 self.get_value_or_minus(n2o_main_valve_sensor_list),
                 self.get_time_or_minus(n2o_fill_valve_sensor_list),
@@ -120,8 +121,6 @@ class DataHandler:
                 self.get_value_or_minus(n2o_vent_valve_sensor_list),
                 self.get_time_or_minus(n2_purge_valve_sensor_list),
                 self.get_value_or_minus(n2_purge_valve_sensor_list),
-                self.get_time_or_minus(n2o_main_valve_sensor_list),
-                self.get_value_or_minus(n2o_main_valve_sensor_list),
                 self.get_time_or_minus(n2_pressure_valve_sensor_list),
                 self.get_value_or_minus(n2_pressure_valve_sensor_list),
             ]

@@ -1,0 +1,10 @@
+actor_name,times_ms,action
+SegmentDisplay,1,COUNTER_START
+N2PressureValve,1,SERVO_OPEN
+Igniter,1,PULL_TRIGGER
+N20MainValve,225,SERVO_OPEN
+Igniter,500,RELEASE_TRIGGER
+N20MainValve,5000,SERVO_CLOSE
+N2PressureValve,5000,SERVO_CLOSE
+N2PurgeValve,5500,SERVO_OPEN
+N2PurgeValve,7500,SERVO_CLOSE

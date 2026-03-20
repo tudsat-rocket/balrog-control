@@ -2,6 +2,7 @@ from datetime import datetime
 
 from shared.shared_lists import (
     differential_pressure_list,
+    cc_pressure_1_list,
     load_cell_1_sensor_list,
     load_cell_2_sensor_list,
     n2_pressure_valve_sensor_list,
@@ -59,6 +60,12 @@ def pressure_2_3_callback(channel, current):
         pressure_2_sensor_list[0].append(datetime.now())
         pressure_2_sensor_list[1].append(current_to_pressure(current))
 
+def pressure_4_callback(channel, current):
+    # print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
+    if channel == 0:
+        cc_pressure_1_list[0].append(datetime.now())
+        cc_pressure_1_list[1].append(current_to_pressure(current))
+
 
 def thrust_load_cell_callback(weight):
     # print("Weight thrust: " + str(weight) + " g")
@@ -98,10 +105,3 @@ def valve_sensor_callback(channel, position):
             n2_purge_valve_sensor_list[0].append(datetime.now())
             n2_purge_valve_sensor_list[1].append(position)
             # controller_singelton.adjust_valve_if_at_limit("N2PurgeValve", position)
-
-
-def differential_pressure_callback(channel, current):
-    # print("Channel: " + str(channel))
-    # print("Current: " + str(current / 1000000.0) + " mA")
-    differential_pressure_list[0].append(datetime.now())
-    differential_pressure_list[1].append(current)

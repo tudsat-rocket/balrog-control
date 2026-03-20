@@ -4,6 +4,7 @@ pressure_1_sensor_list = [[], []]
 pressure_2_sensor_list = [[], []]
 pressure_3_sensor_list = [[], []]
 differential_pressure_list = [[], []]
+cc_pressure_1_list  = [[], []]
 
 # temp
 temperature_nitrous_sensor_list = [[], []]

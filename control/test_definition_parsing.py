@@ -26,7 +26,7 @@ def parse_csv(file: os.PathLike) -> list[tuple[str, int, ActionType]]:
         for row in reader:
             try:
                 actor_name = row[0]
-                t_ms = row[1]
+                t_ms = int(row[1])
                 action_str = row[2]
             except Exception as err:
                 raise RuntimeError(f"Error parsing {file}: {err}") from err
