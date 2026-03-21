@@ -18,14 +18,11 @@ from shared.shared_lists import (
 )
 
 
-def current_to_pressure(current):
-    """Apply linear translation of current to pressure"""
-    # 100 = m*20.006 - m*4.001 =
-    # 6.248047485
-    # 0 = 6.248047485*4.001 => 24.992191
-    # => f(x) = 6.248047485*current-24.992191
-    # @todo verify calculation
+def current_to_pressure_100bar(current):
     return 6.248047485 * (current / 1000000.0) - 24.992191
+
+def current_to_pressure_160bar(current):
+    return 10.1439 * (current / 1000000.0) - 40.12
 
 
 def temperature_nitrous_callback(temperature):
@@ -45,26 +42,26 @@ def pressure_0_1_callback(channel, current):
     # print("----")
     if channel == 0:
         pressure_0_sensor_list[0].append(datetime.now())
-        pressure_0_sensor_list[1].append(current_to_pressure(current))
+        pressure_0_sensor_list[1].append(current_to_pressure_100bar(current))
     elif channel == 1:
         pressure_1_sensor_list[0].append(datetime.now())
-        pressure_1_sensor_list[1].append(current_to_pressure(current))
+        pressure_1_sensor_list[1].append(current_to_pressure_100bar(current))
 
 
 def pressure_2_3_callback(channel, current):
     # print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
     if channel == 0:
         differential_pressure_list[0].append(datetime.now())
-        differential_pressure_list[1].append(current_to_pressure(current))
+        differential_pressure_list[1].append(current_to_pressure_160bar(current))
     elif channel == 1:
         pressure_2_sensor_list[0].append(datetime.now())
-        pressure_2_sensor_list[1].append(current_to_pressure(current))
+        pressure_2_sensor_list[1].append(current_to_pressure_100bar(current))
 
 def pressure_4_callback(channel, current):
     # print(f"Channel {channel} Current: {str(current / 1000000.0)} mA")
     if channel == 0:
         cc_pressure_1_list[0].append(datetime.now())
-        cc_pressure_1_list[1].append(current_to_pressure(current))
+        cc_pressure_1_list[1].append(current_to_pressure_160bar(current))
 
 
 def thrust_load_cell_callback(weight):
