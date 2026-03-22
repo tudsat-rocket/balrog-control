@@ -75,7 +75,7 @@ sensors:
     type: PRESSURE
     uid: 27AQ
     channel: 1
-    period: 20
+    period: 50
   - name: Differential Nitrous pressure
     type: PRESSURE
     uid: 27AQ
@@ -85,7 +85,7 @@ sensors:
     type: PRESSURE
     uid: 27AG
     channel: 0
-    period: -1
+    period: 20
   - name: Temperatur Nitrous
     type: TEMPERATURE
     uid: 2f1R
