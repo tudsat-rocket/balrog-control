@@ -75,12 +75,12 @@ sensors:
     type: PRESSURE
     uid: 27AQ
     channel: 1
-    period: -1
+    period: 20
   - name: Differential Nitrous pressure
     type: PRESSURE
     uid: 27AQ
     channel: 0
-    period: -1
+    period: 20
   - name: CC1 pressure
     type: PRESSURE
     uid: 27AG

@@ -22,7 +22,7 @@ def current_to_pressure_100bar(current):
     return 6.248047485 * (current / 1000000.0) - 24.992191
 
 def current_to_pressure_160bar(current):
-    return 10.1439 * (current / 1000000.0) - 40.12
+    return 10.029461543 * (current / 1000000.0) - 40.12
 
 
 def temperature_nitrous_callback(temperature):
