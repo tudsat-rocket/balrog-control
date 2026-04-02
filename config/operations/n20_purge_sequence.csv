@@ -1,9 +1,0 @@
-actor_name,times_ms,action
-N20VentValve,1,SERVO_OPEN
-N2PressureValve,1,SERVO_OPEN
-N20VentValve,500,SERVO_CLOSE
-N20FillValve,500,SERVO_OPEN
-N20FillValve,2500,SERVO_CLOSE
-N20MainValve,2500,SERVO_OPEN
-N20MainValve,3500,SERVO_CLOSE
-N2PressureValve,3500,SERVO_CLOSE

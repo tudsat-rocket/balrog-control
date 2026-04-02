@@ -86,13 +86,14 @@ class Sensor:
                 )
             case SensorType.PRESSURE:
                 # parameters are: channel, period in ms, threshold, min, max
+                brick.set_sample_rate(3)
                 brick.set_current_callback_configuration(
                     self.channel, self.period, False, "x", 0, 0
                 )
             case SensorType.LOAD:
                 brick.set_weight_callback_configuration(self.period, False, "x", 0, 0)
             case SensorType.SERVO_STATE:
-                brick.set_position_reached_callback_configuration(self.channel, True)
+                brick.set_position_reached_callback_configuration(self.channel, False)
 
     def disable_callback(self, brick):
         """Disable the sensor callback functions.
@@ -164,7 +165,7 @@ class Sensor:
     def _setup_callback(self, brick) -> None:
         """Connects our callbacks to the sensor callbacks.
 
-        This registers the callback stored in self.callback with the thinkerforge brick.
+        This registers the callback stored in self.callback with the tinkerforge brick.
         """
         match self.type:
             case SensorType.TEMPERATURE:

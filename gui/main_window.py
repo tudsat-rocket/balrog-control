@@ -76,7 +76,7 @@ class NewMainWindow(ui_class, baseclass):
             [], [], pen=pg.mkPen(color="y", width=2)
         )
 
-        self.load_cell_nitrous_curve = self.plot_load_cell_nitrous.plot(
+        self.load_cell_ox_curve = self.plot_load_cell_nitrous.plot(
             [], [], pen=pg.mkPen(color="brown", width=2)
         )
         self.load_cell_thrust_curve = self.plot_load_cell_thrust.plot(
@@ -98,20 +98,20 @@ class NewMainWindow(ui_class, baseclass):
         # implement v shortcut for opening the vent
         # valve as long as the key is pressed
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
-            self.controller.toggle_n2o_vent_valve()
+            self.controller.toggle_vent_valve()
         # implement the esc shortcut for opening the purge
         # valve as long as the key us pressed
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
-            self.controller.toggle_n2_purge_valve()
+            self.controller.toggle_purge_valve()
 
         super().key_press_event(event)
 
     def key_release_event(self, event) -> None:
         """Override the keyrelease handler to implement our shortcuts."""
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
-            self.controller.toggle_n2o_vent_valve()
+            self.controller.toggle_vent_valve()
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
-            self.controller.toggle_n2_purge_valve()
+            self.controller.toggle_purge_valve()
         super().key_release_event(event)
 
     def setup_buttons(self) -> None:
@@ -137,8 +137,8 @@ class NewMainWindow(ui_class, baseclass):
                 self.edit_calibrate_load.text(), clear_load_calibration_text_callback
             )
         )
-        self.button_calibrate_nitrous_load.clicked.connect(
-            lambda: self.controller.calibrate_nitrous_load(
+        self.button_calibrate_ox_load.clicked.connect(
+            lambda: self.controller.calibrate_ox_load(
                 self.edit_calibrate_load.text(), clear_load_calibration_text_callback
             )
         )
@@ -169,37 +169,37 @@ class NewMainWindow(ui_class, baseclass):
         )
         self.button_test_horn.clicked.connect(lambda: self.controller.test_horn())
 
-        self.button_toggle_n2o_main_valve.clicked.connect(
-            lambda: self.controller.toggle_n2o_main_valve(),
+        self.button_toggle_main_valve.clicked.connect(
+            lambda: self.controller.toggle_main_valve(),
         )
-        self.button_toggle_n2o_fill_valve.clicked.connect(
-            lambda: self.controller.toggle_n2o_fill_valve(),
+        self.button_toggle_fill_valve.clicked.connect(
+            lambda: self.controller.toggle_fill_valve(),
         )
-        self.button_toggle_n2o_vent_valve.clicked.connect(
-            lambda: self.controller.toggle_n2o_vent_valve(),
+        self.button_toggle_vent_valve.clicked.connect(
+            lambda: self.controller.toggle_vent_valve(),
         )
-        self.button_toggle_n2_purge_valve.clicked.connect(
-            lambda: self.controller.toggle_n2_purge_valve(),
+        self.button_toggle_purge_valve.clicked.connect(
+            lambda: self.controller.toggle_purge_valve(),
         )
-        self.button_toggle_n2_pressure_valve.clicked.connect(
-            lambda: self.controller.toggle_n2_pressure_valve(),
+        self.button_toggle_pressurization_valve.clicked.connect(
+            lambda: self.controller.toggle_pressurization_valve(),
         )
         self.button_toggle_quick_disconnect_solenoid.clicked.connect(
             lambda: self.controller.toggle_quick_disconnect_solenoid(),
         )
-        self.button_toggle_quick_disconnect_servo.clicked.connect(
-            lambda: self.controller.toggle_quick_disconnect_servo(),
+        self.button_trigger_quick_disconnect.clicked.connect(
+            lambda: self.controller.trigger_quick_disconnect(),
         )
 
         self.button_toggle_arming.clicked.connect(
             lambda: self.controller.toggle_arming(),
         )
 
-        self.button_run_n20_purge_sequence.clicked.connect(
-            lambda: self.controller.run_n2o_purge_sequence(),
+        self.button_run_purge_sequence.clicked.connect(
+            lambda: self.controller.run_purge_sequence(),
         )
         self.button_run_ignition_sequence.clicked.connect(
-            lambda: self.controller.run_ignition_sequence(),
+            lambda: self.controller.request_run_ignition_sequence(),
         )
         # self.button_open_vent_valve.
 

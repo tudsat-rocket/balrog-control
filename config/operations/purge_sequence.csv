@@ -1,0 +1,9 @@
+actor_name,times_ms,action
+vent_valve,1,SERVO_OPEN
+pressurization_valve,1,SERVO_OPEN
+vent_valve,500,SERVO_CLOSE
+fill_valve,500,SERVO_OPEN
+fill_valve,2500,SERVO_CLOSE
+main_valve,2500,SERVO_OPEN
+main_valve,3500,SERVO_CLOSE
+pressurization_valve,3500,SERVO_CLOSE

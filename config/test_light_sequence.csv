@@ -1,7 +1,7 @@
 actor_name,times_ms,action
-SegmentDisplay,1,COUNTER_RESET
-SegmentDisplay,10,COUNTER_START
-Light,10,LIGHT_GREEN
-Light,1000,LIGHT_YELLOW
-Light,5000,LIGHT_RED
-SegmentDisplay,2000,COUNTER_RESET
+segment_display,1,COUNTER_RESET
+segment_display,10,COUNTER_START
+light,10,LIGHT_GREEN
+light,1000,LIGHT_YELLOW
+light,5000,LIGHT_RED
+segment_display,2000,COUNTER_RESET

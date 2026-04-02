@@ -18,11 +18,11 @@ from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
 from control.definitions import EventType, State
 from shared.shared_lists import (
-    n2_pressure_valve_sensor_list,
-    n2_purge_valve_sensor_list,
-    n2o_fill_valve_sensor_list,
-    n2o_main_valve_sensor_list,
-    n2o_vent_valve_sensor_list,
+    pressurization_valve_sensor_list,
+    purge_valve_sensor_list,
+    fill_valve_sensor_list,
+    main_valve_sensor_list,
+    vent_valve_sensor_list,
 )
 
 logger = logging.getLogger(__name__)
@@ -80,21 +80,21 @@ def update_valve_states(self: NewMainWindow) -> None:
     This updates the text in the UI where the user can see
     the current position of the valve.
     """
-    if len(n2o_main_valve_sensor_list[1]) > 0:
-        state = n2o_main_valve_sensor_list[1][-1]
-        self.label_valve_status_n2o_main_state.setText(str(state))
-    if len(n2o_fill_valve_sensor_list[1]) > 0:
-        state = n2o_fill_valve_sensor_list[1][-1]
-        self.label_valve_status_n2o_fill_state.setText(str(state))
-    if len(n2o_vent_valve_sensor_list[1]) > 0:
-        state = n2o_vent_valve_sensor_list[1][-1]
-        self.label_valve_status_n2o_vent_state.setText(str(state))
-    if len(n2_purge_valve_sensor_list[1]) > 0:
-        state = n2_purge_valve_sensor_list[1][-1]
-        self.label_valve_status_n2_purge_state.setText(str(state))
-    if len(n2_pressure_valve_sensor_list[1]) > 0:
-        state = n2_pressure_valve_sensor_list[1][-1]
-        self.label_valve_status_n2_pressure_state.setText(str(state))
+    if len(main_valve_sensor_list[1]) > 0:
+        state = main_valve_sensor_list[1][-1]
+        self.label_valve_status_main_state.setText(str(state))
+    if len(fill_valve_sensor_list[1]) > 0:
+        state = fill_valve_sensor_list[1][-1]
+        self.label_valve_status_fill_state.setText(str(state))
+    if len(vent_valve_sensor_list[1]) > 0:
+        state = vent_valve_sensor_list[1][-1]
+        self.label_valve_status_vent_state.setText(str(state))
+    if len(purge_valve_sensor_list[1]) > 0:
+        state = purge_valve_sensor_list[1][-1]
+        self.label_valve_status_purge_state.setText(str(state))
+    if len(pressurization_valve_sensor_list[1]) > 0:
+        state = pressurization_valve_sensor_list[1][-1]
+        self.label_valve_status_pressurization_state.setText(str(state))
 
 
 def update_connection_state(self: NewMainWindow, connection_event: dict) -> None:
@@ -241,18 +241,18 @@ def update_arming_state(self: NewMainWindow, event: dict) -> None:
     """
     match event["new_state"]:
         case True:
-            self.button_run_n20_purge_sequence.setEnabled(True)
+            self.button_run_purge_sequence.setEnabled(True)
             self.button_run_ignition_sequence.setEnabled(True)
-            self.button_toggle_n2_purge_valve.setEnabled(True)
-            self.button_toggle_n2_pressure_valve.setEnabled(True)
-            self.button_toggle_n2o_main_valve.setEnabled(True)
+            self.button_toggle_purge_valve.setEnabled(True)
+            self.button_toggle_pressurization_valve.setEnabled(True)
+            self.button_toggle_main_valve.setEnabled(True)
             self.button_start_sequence.setEnabled(True)
         case False:
-            self.button_run_n20_purge_sequence.setEnabled(False)
+            self.button_run_purge_sequence.setEnabled(False)
             self.button_run_ignition_sequence.setEnabled(False)
-            self.button_toggle_n2_purge_valve.setEnabled(False)
-            self.button_toggle_n2_pressure_valve.setEnabled(False)
-            self.button_toggle_n2o_main_valve.setEnabled(False)
+            self.button_toggle_purge_valve.setEnabled(False)
+            self.button_toggle_pressurization_valve.setEnabled(False)
+            self.button_toggle_main_valve.setEnabled(False)
             self.button_start_sequence.setEnabled(False)
 
 
@@ -261,5 +261,5 @@ def reset_plots(self: NewMainWindow) -> None:
 
     This in useful when the sensors are calibrated to remove the old plots.
     """
-    self.load_cell_nitrous_curve.clear()
+    self.load_cell_ox_curve.clear()
     self.load_cell_thrust_curve.clear()

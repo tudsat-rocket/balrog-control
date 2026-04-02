@@ -1,132 +1,148 @@
 # List of actor definitions
 actors:
-  - name: Horn
-    type: HORN
-    uid: 2f6L
-    output: 0
-  - name: Light
-    type: LIGHT
-    uid: 2f6L
-    output: 1
-  - name: Igniter
-    type: TRIGGER
-    uid: 2f6L
-    output: 8
-  - name: N20MainValve #renmaed from NitrousMain
+
+  # Valves
+  - name: main_valve
     type: SERVO
     uid: 2cPc
     output: 2
     closed_position: 0
     open_position: 8772
-  - name: N20VentValve # rename from  NitrousVent
+  - name: vent_valve
     type: SERVO
     uid: 2cPc
     output: 1
     closed_position: 0
-    open_position: 5000 #max position do not change
-  - name: N20FillValve #renamed from NitrousFill
+    open_position: 5000
+  - name: fill_valve
     type: SERVO
     uid: 2cPc
     output: 0
     closed_position: 0
     open_position: -7000
-  - name: N2PressureValve #renamed from N2Pressure
+  - name: pressurization_valve
     type: SERVO
     uid: 2cPc
     output: 3
     closed_position: 0
     open_position: 7000
-  - name: N2PurgeValve #renmaned from N2Purge
+  - name: purge_valve
     type: SERVO
     uid: 2cPc
     output: 4
     closed_position: 0
     open_position: 7000
-  - name: QuickDisconnectSolenoid
+
+  # Quick Disconnect
+  - name: qd_solenoid
     type: SOLENOID
     uid: 2f6L
     output: 4
     closed_position: 0
     open_position: 6000
-  - name: QuickDisconnectServo
+  - name: qd_servo
     type: SERVO
     uid: 2cPc
     output: 5
     closed_position: 0
     open_position: 2250
-  - name: SegmentDisplay
+
+  # Misc
+  - name: igniter
+    type: TRIGGER
+    uid: 2f6L
+    output: 8
+  - name: segment_display
     type: COUNTER
     uid: 256T
     output: -1
+  - name: horn
+    type: HORN
+    uid: 2f6L
+    output: 0
+  - name: light
+    type: LIGHT
+    uid: 2f6L
+    output: 1
 
 # List of sensor definitions
 sensors:
-  - name: Pressure 0
+
+  # Pressures
+  - name: pressure_0
     type: PRESSURE
     uid: 27AM
     channel: 0
-    period: 50
-  - name: Pressure 1
+    period: 1
+  - name: pressure_1
     type: PRESSURE
     uid: 27AM
     channel: 1
-    period: 50
-  - name: Pressure 2
+    period: 1
+  - name: pressure_2
     type: PRESSURE
     uid: 27AQ
     channel: 1
-    period: 50
-  - name: Differential Nitrous pressure
+    period: 1
+
+  # Combustion Chamber Pressures
+  - name: pressure_cc0
     type: PRESSURE
     uid: 27AQ
     channel: 0
-    period: 20
-  - name: CC1 pressure
+    period: 1
+  - name: pressure_cc1
     type: PRESSURE
     uid: 27AG
     channel: 0
-    period: 20
-  - name: Temperatur Nitrous
+    period: 1
+
+  # Temperatures
+  - name: temperature_ox
     type: TEMPERATURE
     uid: 2f1R
     channel: -1 # not used
     period: 50
-  - name: Temperatur Engine
+  - name: temperature_engine
     type: TEMPERATURE
     uid: 2eZV
     channel: -1 # not used
     period: 50
-  - name: Thrust load cell
+
+  # Load Cells
+  - name: load_cell_thrust
     type: LOAD
     uid: 29hv
     channel: -1 # not used
     period: 50
-  - name: Nitrous load cell
+  - name: load_cell_ox
     type: LOAD
     uid: 29gV
     channel: -1 # not used
     period: 50
-  - name: N2OMainValveSensor
+
+  # Valves, TODO: create automatically with servos
+  - name: main_valve_sensor
     type: SERVO_STATE
     uid: 2cPc
     channel: 2
     period: -1
-  - name: N2OFillValveSensor
+  - name: fill_valve_sensor
     type: SERVO_STATE
     uid: 2cPc
     channel: 0
     period: -1
-  - name: N2OVentValveSensor
+  - name: vent_valve_sensor
     type: SERVO_STATE
     uid: 2cPc
     channel: 1
     period: -1
-  - name: N2PurgeValveSensor
+  - name: purge_valve_sensor
     type: SERVO_STATE
     uid: 2cPc
     channel: 4
     period: -1
-  - name: N2PressureValveSensor
+  - name: pressurization_valve_sensor
     type: SERVO_STATE
     uid: 2cPc
     channel: 3

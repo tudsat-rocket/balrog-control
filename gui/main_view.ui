@@ -123,7 +123,7 @@
              <item row="0" column="1">
               <widget class="QLabel" name="label_status_connection_state">
                <property name="text">
-                <string>unkown</string>
+                <string>unknown</string>
                </property>
               </widget>
              </item>
@@ -179,7 +179,7 @@
              <item row="4" column="0">
               <widget class="QLabel" name="label_5">
                <property name="text">
-                <string>Shortcut N2 Purge</string>
+                <string>Shortcut Purge</string>
                </property>
               </widget>
              </item>
@@ -193,7 +193,7 @@
              <item row="6" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>Shortcut N20 vent</string>
+                <string>Shortcut Vent</string>
                </property>
               </widget>
              </item>
@@ -240,14 +240,14 @@
                 <item>
                  <widget class="QPushButton" name="button_toggle_sensors">
                   <property name="text">
-                   <string>Toggle(enable/Disable) Sensor</string>
+                   <string>Toggle Sensors</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="button_dump_sensors_to_file">
                   <property name="text">
-                   <string>dump sensors to file</string>
+                   <string>Dump Sensors to File</string>
                   </property>
                  </widget>
                 </item>
@@ -290,7 +290,7 @@
                 <item>
                  <widget class="QPushButton" name="button_close_all_valves">
                   <property name="text">
-                   <string>Close all valves</string>
+                   <string>Close all Valves</string>
                   </property>
                  </widget>
                 </item>
@@ -335,14 +335,14 @@
                 <item>
                  <widget class="QPushButton" name="button_calibrate_thrust_load">
                   <property name="text">
-                   <string>Calibate thrust load</string>
+                   <string>Calibrate Thrust-Load</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="button_calibrate_nitrous_load">
+                 <widget class="QPushButton" name="button_calibrate_ox_load">
                   <property name="text">
-                   <string>calibrate nitrous load</string>
+                   <string>Calibrate Ox-Load</string>
                   </property>
                  </widget>
                 </item>
@@ -374,74 +374,74 @@
           <item>
            <widget class="QGroupBox" name="group_valve_status">
             <property name="title">
-             <string>Vavle Status</string>
+             <string>Valve Status</string>
             </property>
             <layout class="QFormLayout" name="formLayout_2">
              <item row="0" column="0">
-              <widget class="QLabel" name="label_valve_status_n2o_main">
+              <widget class="QLabel" name="label_valve_status_main">
                <property name="text">
-                <string>N20 Main Valve</string>
+                <string>Main Valve</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLabel" name="label_valve_status_n2o_main_state">
+              <widget class="QLabel" name="label_valve_status_main_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="label_valve_status_n2o_vent">
+              <widget class="QLabel" name="label_valve_status_vent">
                <property name="text">
-                <string>N20 Vent Valve</string>
+                <string>Vent Valve</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLabel" name="label_valve_status_n2o_vent_state">
+              <widget class="QLabel" name="label_valve_status_vent_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="label_valve_status_n2o_fill">
+              <widget class="QLabel" name="label_valve_status_fill">
                <property name="text">
-                <string>N20 Fill Valve</string>
+                <string>Fill Valve</string>
                </property>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLabel" name="label_valve_status_n2o_fill_state">
+              <widget class="QLabel" name="label_valve_status_fill_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="3" column="0">
-              <widget class="QLabel" name="label_valve_status_n2_pressure">
+              <widget class="QLabel" name="label_valve_status_pressurization">
                <property name="text">
-                <string>N2 Pressure Valve</string>
+                <string>Pressurization Valve</string>
                </property>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLabel" name="label_valve_status_n2_pressure_state">
+              <widget class="QLabel" name="label_valve_status_pressurization_state">
                <property name="text">
                 <string>unknown</string>
                </property>
               </widget>
              </item>
              <item row="4" column="0">
-              <widget class="QLabel" name="label_valve_status_n2_purge">
+              <widget class="QLabel" name="label_valve_status_purge">
                <property name="text">
-                <string>N2 Purge valve</string>
+                <string>Purge Valve</string>
                </property>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLabel" name="label_valve_status_n2_purge_state">
+              <widget class="QLabel" name="label_valve_status_purge_state">
                <property name="text">
                 <string>unknown</string>
                </property>
@@ -502,46 +502,46 @@
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
                 <item row="3" column="2">
-                 <widget class="QPushButton" name="button_toggle_n2o_main_valve">
+                 <widget class="QPushButton" name="button_toggle_main_valve">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="text">
-                   <string>Toggle N2O Main Valve</string>
+                   <string>Toggle Main Valve</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QPushButton" name="button_toggle_n2_pressure_valve">
+                 <widget class="QPushButton" name="button_toggle_pressurization_valve">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="text">
-                   <string>Toggle N2 Pressure valve</string>
+                   <string>Toggle Pressurization Valve</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="0">
-                 <widget class="QPushButton" name="button_toggle_n2_purge_valve">
+                 <widget class="QPushButton" name="button_toggle_purge_valve">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="text">
-                   <string>Toggle N2 Purge valve</string>
+                   <string>Toggle Purge Valve</string>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QPushButton" name="button_toggle_n2o_fill_valve">
+                 <widget class="QPushButton" name="button_toggle_fill_valve">
                   <property name="text">
-                   <string>Toggle N20 fill valve</string>
+                   <string>Toggle Fill Valve</string>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QToolButton" name="button_toggle_n2o_vent_valve">
+                 <widget class="QPushButton" name="button_toggle_vent_valve">
                   <property name="text">
-                   <string>Toggle N2O Vent Valve</string>
+                   <string>Toggle Vent Valve</string>
                   </property>
                   <property name="autoRepeat">
                    <bool>true</bool>
@@ -551,7 +551,7 @@
                 <item row="1" column="2">
                  <widget class="QPushButton" name="button_test_horn">
                   <property name="text">
-                   <string>trigger Horn</string>
+                   <string>Trigger Horn</string>
                   </property>
                  </widget>
                 </item>
@@ -568,17 +568,17 @@
                 <item row="0" column="1">
                  <widget class="QPushButton" name="button_toggle_quick_disconnect_solenoid">
                   <property name="toolTip">
-                   <string>Toggle quick disconnet Solenoid</string>
+                   <string>Toggle QD Solenoid</string>
                   </property>
                   <property name="text">
-                   <string>Toggle QD solenoid</string>
+                   <string>Toggle QD Solenoid</string>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="2">
-                 <widget class="QPushButton" name="button_toggle_quick_disconnect_servo">
+                 <widget class="QPushButton" name="button_trigger_quick_disconnect">
                   <property name="toolTip">
-                   <string>Trigger quick disconnect</string>
+                   <string>Trigger QD</string>
                   </property>
                   <property name="text">
                    <string>Trigger QD</string>
@@ -595,7 +595,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
-                 <widget class="QPushButton" name="button_run_n20_purge_sequence">
+                 <widget class="QPushButton" name="button_run_purge_sequence">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -603,7 +603,7 @@
                    <string notr="true">background-color: rgb(53, 132, 228);</string>
                   </property>
                   <property name="text">
-                   <string>run N20 Purge Sequence</string>
+                   <string>run Purge Sequence</string>
                   </property>
                  </widget>
                 </item>

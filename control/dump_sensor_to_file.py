@@ -3,20 +3,20 @@ import os
 from datetime import datetime
 
 from shared.shared_lists import (
-    differential_pressure_list,
-    cc_pressure_1_list,
-    load_cell_1_sensor_list,
-    load_cell_2_sensor_list,
-    n2_pressure_valve_sensor_list,
-    n2_purge_valve_sensor_list,
-    n2o_fill_valve_sensor_list,
-    n2o_main_valve_sensor_list,
-    n2o_vent_valve_sensor_list,
+    cc_pressure_0_sensor_list,
+    cc_pressure_1_sensor_list,
+    load_cell_thrust_sensor_list,
+    load_cell_ox_sensor_list,
+    pressurization_valve_sensor_list,
+    purge_valve_sensor_list,
+    fill_valve_sensor_list,
+    main_valve_sensor_list,
+    vent_valve_sensor_list,
     pressure_0_sensor_list,
     pressure_1_sensor_list,
     pressure_2_sensor_list,
     temperature_engine_sensor_list,
-    temperature_nitrous_sensor_list,
+    temperature_ox_sensor_list,
 )
 
 
@@ -48,33 +48,33 @@ def dump_sensor_to_file():
         writer.writerow(
             [
                 "Time pressure 0",
-                "Pressure 0",
+                "pressure_0",
                 "Time pressure 1",
-                "Pressure 1",
+                "pressure_1",
                 "Time pressure 2",
-                "Pressure 2",
+                "pressure_2",
                 "Time temperature Nitrous",
                 "Temperature Nitrous",
                 "Time Engine",
-                "Temperature Engine",
+                "temperature_engine",
                 "Time load cell",
-                "Thrust load cell",
-                "Time Nitrous load cell",
-                "Nitrous load cell",
+                "load_cell_thrust",
+                "Time load_cell_ox",
+                "load_cell_ox",
                 "Time CC0",
-                "CC0 pressure",
+                "pressure_cc0",
                 "Time CC1",
-                "CC1 pressure",
+                "pressure_cc1",
                 "Time N2OMainValve",
                 "N2OValveState",
-                "Time N2OFillValve",
-                "N2OFillValveState",
+                "Time N2Ofill_valve",
+                "N2Ofill_valveState",
                 "Time N2OVentValve",
                 "N2OVentValveState",
-                "Time N2PurgeValve",
-                "N2PurgeValveState",
-                "TIme N2PressureValve",
-                "N2PressureValveState",
+                "Time purge_valve",
+                "purge_valveState",
+                "TIme pressurization_valve",
+                "pressurization_valveState",
             ]
         )
         time = 0
@@ -83,17 +83,17 @@ def dump_sensor_to_file():
         length_pressure0 = len(pressure_0_sensor_list[1])
         length_pressure1 = len(pressure_1_sensor_list[1])
         length_pressure2 = len(pressure_2_sensor_list[1])
-        length_temperature_nitrous = len(temperature_nitrous_sensor_list[1])
+        length_temperature_nitrous = len(temperature_ox_sensor_list[1])
         length_temperature_engine = len(temperature_engine_sensor_list[1])
-        length_loadcell_1 = len(load_cell_1_sensor_list[1])
-        length_loadcell_2 = len(load_cell_2_sensor_list[1])
-        length_differential = len(differential_pressure_list[1])
-        length_cc1 = len(cc_pressure_1_list[1])
-        length_n2o_main_valve = len(n2o_main_valve_sensor_list[1])
-        length_n2o_fill_valve = len(n2o_fill_valve_sensor_list[1])
-        length_n2o_vent_valve = len(n2o_vent_valve_sensor_list[1])
-        length_n2_purge_valve = len(n2_purge_valve_sensor_list[1])
-        length_n2_pressure_valve = len(n2_pressure_valve_sensor_list[1])
+        length_loadcell_1 = len(load_cell_thrust_sensor_list[1])
+        length_loadcell_2 = len(load_cell_ox_sensor_list[1])
+        length_differential = len(cc_pressure_0_sensor_list[1])
+        length_cc1 = len(cc_pressure_1_sensor_list[1])
+        length_n2o_main_valve = len(main_valve_sensor_list[1])
+        length_n2o_fill_valve = len(fill_valve_sensor_list[1])
+        length_n2o_vent_valve = len(vent_valve_sensor_list[1])
+        length_n2_purge_valve = len(purge_valve_sensor_list[1])
+        length_n2_pressure_valve = len(pressurization_valve_sensor_list[1])
         max_length = max(
             [
                 length_pressure0,
@@ -122,28 +122,28 @@ def dump_sensor_to_file():
                     get_value_or_minus(i, pressure_1_sensor_list),
                     get_time_or_minus(i, pressure_2_sensor_list),
                     get_value_or_minus(i, pressure_2_sensor_list),
-                    get_time_or_minus(i, temperature_nitrous_sensor_list),
-                    get_value_or_minus(i, temperature_nitrous_sensor_list),
+                    get_time_or_minus(i, temperature_ox_sensor_list),
+                    get_value_or_minus(i, temperature_ox_sensor_list),
                     get_time_or_minus(i, temperature_engine_sensor_list),
                     get_value_or_minus(i, temperature_engine_sensor_list),
-                    get_time_or_minus(i, load_cell_1_sensor_list),
-                    get_value_or_minus(i, load_cell_1_sensor_list),
-                    get_time_or_minus(i, load_cell_2_sensor_list),
-                    get_value_or_minus(i, load_cell_2_sensor_list),
-                    get_time_or_minus(i, differential_pressure_list),
-                    get_value_or_minus(i, differential_pressure_list),
-                    get_time_or_minus(i, cc_pressure_1_list),
-                    get_value_or_minus(i, cc_pressure_1_list),
-                    get_time_or_minus(i, n2o_main_valve_sensor_list),
-                    get_value_or_minus(i, n2o_main_valve_sensor_list),
-                    get_time_or_minus(i, n2o_fill_valve_sensor_list),
-                    get_value_or_minus(i, n2o_fill_valve_sensor_list),
-                    get_time_or_minus(i, n2o_vent_valve_sensor_list),
-                    get_value_or_minus(i, n2o_vent_valve_sensor_list),
-                    get_time_or_minus(i, n2_purge_valve_sensor_list),
-                    get_value_or_minus(i, n2_purge_valve_sensor_list),
-                    get_time_or_minus(i, n2_pressure_valve_sensor_list),
-                    get_value_or_minus(i, n2_pressure_valve_sensor_list),
+                    get_time_or_minus(i, load_cell_thrust_sensor_list),
+                    get_value_or_minus(i, load_cell_thrust_sensor_list),
+                    get_time_or_minus(i, load_cell_ox_sensor_list),
+                    get_value_or_minus(i, load_cell_ox_sensor_list),
+                    get_time_or_minus(i, cc_pressure_0_sensor_list),
+                    get_value_or_minus(i, cc_pressure_0_sensor_list),
+                    get_time_or_minus(i, cc_pressure_1_sensor_list),
+                    get_value_or_minus(i, cc_pressure_1_sensor_list),
+                    get_time_or_minus(i, main_valve_sensor_list),
+                    get_value_or_minus(i, main_valve_sensor_list),
+                    get_time_or_minus(i, fill_valve_sensor_list),
+                    get_value_or_minus(i, fill_valve_sensor_list),
+                    get_time_or_minus(i, vent_valve_sensor_list),
+                    get_value_or_minus(i, vent_valve_sensor_list),
+                    get_time_or_minus(i, purge_valve_sensor_list),
+                    get_value_or_minus(i, purge_valve_sensor_list),
+                    get_time_or_minus(i, pressurization_valve_sensor_list),
+                    get_value_or_minus(i, pressurization_valve_sensor_list),
                 ]
             )
 
