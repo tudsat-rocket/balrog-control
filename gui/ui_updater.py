@@ -5,7 +5,9 @@ This module provides methods to update ui elements
 
 from __future__ import annotations
 
+from shared.state import telemetry, telemetry_lock
 from typing import TYPE_CHECKING
+from datetime import datetime
 
 if TYPE_CHECKING:
     from gui.main_window import NewMainWindow
@@ -16,24 +18,118 @@ from queue import Queue
 
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
+import time
 from control.definitions import EventType, State
-from shared.shared_lists import (
-    pressurization_valve_sensor_list,
-    purge_valve_sensor_list,
-    fill_valve_sensor_list,
-    main_valve_sensor_list,
-    vent_valve_sensor_list,
-)
 
 logger = logging.getLogger(__name__)
 
+from collections import deque
 
-def read_events_values_from_queue(self: NewMainWindow) -> None:
-    """Consume the newest values from the sensor queues."""
-    # get new pressure value from queue
-    self.eventdata.append()
+# TELEMETRY and Graphs
+
+def update_telemetry(self: NewMainWindow):
+    _pull_telemetry_to_local_history(self)
+    _update_valve_labels(self)
+    _refresh_plot_curves(self)
 
 
+import time
+from collections import deque
+from shared.state import telemetry, telemetry_lock
+
+
+def _pull_telemetry_to_local_history(self: "NewMainWindow"):
+    with telemetry_lock:
+        snapshot = telemetry.copy()
+
+    t0 = self.controller.t0_wall
+
+    for name, (ts, val) in snapshot.items():
+        if name not in self.local_history:
+            self.local_history[name] = {
+                "time": deque(maxlen=self.max_points),
+                "val": deque(maxlen=self.max_points),
+                "last_ts": 0
+            }
+
+        #print(f"Pulled {name}, ts={ts}, val={val} to local history")
+
+        hist = self.local_history[name]
+
+        # TODO Nur neue Punkte? Pro Kontra Abwaegung
+        if ts > hist["last_ts"]:
+            rel_time = ts - t0
+
+            hist["time"].append(rel_time)
+            hist["val"].append(val)
+            hist["last_ts"] = ts
+
+def _update_valve_labels(self: NewMainWindow):
+    """Update the state of every valve.
+
+    This updates the text in the UI where the user can see
+    the current position of the valve.
+    """
+    valve_mapping = {
+        "main_valve_sensor": self.label_valve_status_main_state,
+        "fill_valve_sensor": self.label_valve_status_fill_state,
+        "vent_valve_sensor": self.label_valve_status_vent_state,
+        "purge_valve_sensor": self.label_valve_status_purge_state,
+        "pressurization_valve_sensor": self.label_valve_status_pressurization_state,
+    }
+
+    for sensor_name, label in valve_mapping.items():
+        hist = self.local_history.get(sensor_name)
+        if hist and hist["val"]:
+            last_value = hist["val"][-1]
+            #TODO von state nicht werte abhaenigig machen
+            is_open = last_value > 0
+            label.setText("OPEN" if is_open else "CLOSED")
+            color = "#8FF0A4" if is_open else "#FFA0A0"
+            label.setStyleSheet(f"color: {color}; font-weight: bold;")
+
+def _refresh_plot_curves(self: NewMainWindow):
+    # Aktuelle Zeit für das synchrone Scrolling
+    # TODO Revisitg auto scrolling and scaling
+
+    curve_mapping = {
+
+        # pressure_tank temp_ox
+        # load_cell_ox  load_cell_thrust
+        # pressure_n2_bottle pressure_ox_bottle
+        # pressure_cc_pre pressure_cc0
+
+        # Nicht
+        # pressure_cc1 temp_engine
+        "pressure_tank": (self.pressure_curve_0, self.plot_pressure_0),
+        "temp_ox": (self.pressure_curve_1, self.plot_pressure_1),
+        "load_cell_ox": (self.pressure_curve_2, self.plot_pressure_2),
+        "load_cell_thrust": (self.differential_pressure_curve, self.plot_differential_pressure),
+        "pressure_n2_bottle": (self.load_cell_thrust_curve, self.plot_load_cell_thrust),
+        "pressure_ox_bottle": (self.load_cell_ox_curve, self.plot_load_cell_nitrous),
+        "pressure_cc_pre": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
+        "pressure_cc0": (self.thermocouple_engine_curve, self.plot_thermocouple_engine),
+    }
+
+    now_abs = self.controller.t0_wall + (time.perf_counter() - self.controller.t0_perf)
+    now_rel = now_abs - self.controller.t0_wall
+    window = self.history_window_seconds
+
+    for key, (curve, plot_widget) in curve_mapping.items():
+        hist = self.local_history.get(key)
+        if not hist or not hist["time"]:
+            continue
+
+        x = list(hist["time"])
+        y = list(hist["val"])
+
+        curve.setData(x, y)
+        plot_widget.setXRange(now_rel - window, now_rel, padding=0)
+
+def clear_data_cache(self: NewMainWindow) -> None:
+    self.local_history = {}
+
+# From here on SIGNAL-BASED
 def _get_event_from_queue(event_queue: Queue) -> dict | None:
     """Get the event from the queue."""
     try:
@@ -44,7 +140,6 @@ def _get_event_from_queue(event_queue: Queue) -> dict | None:
     except queue.Empty:
         # queue is empty, Nothing to do.
         return None
-
 
 def update_ui(self: NewMainWindow) -> None:  # noqa: C901
     """Update the plots with new sensor values."""
@@ -73,30 +168,6 @@ def update_ui(self: NewMainWindow) -> None:  # noqa: C901
         case EventType.RESET_PLOTS:
             reset_plots(self)
 
-
-def update_valve_states(self: NewMainWindow) -> None:
-    """Update the state of every valve.
-
-    This updates the text in the UI where the user can see
-    the current position of the valve.
-    """
-    if len(main_valve_sensor_list[1]) > 0:
-        state = main_valve_sensor_list[1][-1]
-        self.label_valve_status_main_state.setText(str(state))
-    if len(fill_valve_sensor_list[1]) > 0:
-        state = fill_valve_sensor_list[1][-1]
-        self.label_valve_status_fill_state.setText(str(state))
-    if len(vent_valve_sensor_list[1]) > 0:
-        state = vent_valve_sensor_list[1][-1]
-        self.label_valve_status_vent_state.setText(str(state))
-    if len(purge_valve_sensor_list[1]) > 0:
-        state = purge_valve_sensor_list[1][-1]
-        self.label_valve_status_purge_state.setText(str(state))
-    if len(pressurization_valve_sensor_list[1]) > 0:
-        state = pressurization_valve_sensor_list[1][-1]
-        self.label_valve_status_pressurization_state.setText(str(state))
-
-
 def update_connection_state(self: NewMainWindow, connection_event: dict) -> None:
     """Update the labels to display the current connection status."""
     print("update the connection state in the GUI")
@@ -107,7 +178,6 @@ def update_connection_state(self: NewMainWindow, connection_event: dict) -> None
         self.button_connect.setText("Disconnect")
     elif connection_event["status"] == "Disconnected":
         self.button_connect.setText("Connect")
-
 
 def update_sequence_state(self: NewMainWindow, *, enabled: bool) -> None:
     """Enable and disable the buttons to start a sequence or do abort a sequence."""
@@ -122,73 +192,6 @@ def update_sequence_state(self: NewMainWindow, *, enabled: bool) -> None:
     self.button_reload_sequence.setEnabled(enabled)
 
     self.button_abort_sequence.setEnabled(not enabled)
-
-
-def show_info_event(self: NewMainWindow, info_event: dict) -> None:
-    """Show a dialog with an error message.
-
-    If something went wrong, we can show the user a dialog with the error message.
-    """
-    # @TODO(Nucleus): redesign with pyside designer
-    dlg = QDialog(self)
-    dlg.setWindowTitle(info_event["title"])
-    message = QLabel(info_event["message"])
-    layout = QVBoxLayout()
-    layout.addWidget(message)
-    dlg.setLayout(layout)
-    dlg.exec()
-
-
-def show_confirmation_event(self: NewMainWindow, confirmation_event: dict) -> None:
-    """Show a dialog with a confirmation request.
-
-    This allows to have state transition a confirmation to change the state.
-    """
-    dlg = QDialog(self)
-    dlg.setWindowTitle(confirmation_event["title"])
-    message = QLabel(confirmation_event["message"])
-    button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-    button_box.accepted.connect(confirmation_event["confirm"])
-    button_box.accepted.connect(dlg.accept)
-    button_box.rejected.connect(confirmation_event["cancel"])
-    button_box.rejected.connect(dlg.reject)
-    layout = QVBoxLayout()
-    layout.addWidget(message)
-    layout.addWidget(button_box)
-    dlg.setLayout(layout)
-    dlg.exec()
-
-
-def show_sequence_error(self: NewMainWindow, error_event: dict) -> None:
-    """Show a dialog with an error message."""
-    # @TODO(Nucleus): redesign with pyside designer
-    dlg = QDialog(self)
-    dlg.setWindowTitle("something went wrong")
-    message = QLabel(error_event["message"])
-    layout = QVBoxLayout()
-    layout.addWidget(message)
-    dlg.setLayout(layout)
-    dlg.exec()
-
-
-def clear_data_cache(self: NewMainWindow) -> None:
-    """Clear the data cache.
-
-    This clears all lists with sensor data.
-    """
-    self.time_data = []
-    self.pressure_1_data = []
-    self.pressure_2_data = []
-    self.pressure_3_data = []
-    self.pressure_4_data = []
-
-    self.temperature_1_data = []
-    self.temperature_2_data = []
-
-    self.load_cell_1_data = []
-    self.load_cell_2_data = []
-    self.differential_pressure_data = []
-
 
 def update_state(self: NewMainWindow, event: dict) -> None:
     """Update the displayed state in the UI.
@@ -232,7 +235,6 @@ def update_state(self: NewMainWindow, event: dict) -> None:
                 "background-color: rgb(255, 255, 255);",
             )
 
-
 def update_arming_state(self: NewMainWindow, event: dict) -> None:
     """Update the state of the arming buttons.
 
@@ -255,7 +257,7 @@ def update_arming_state(self: NewMainWindow, event: dict) -> None:
             self.button_toggle_main_valve.setEnabled(False)
             self.button_start_sequence.setEnabled(False)
 
-
+# MISC
 def reset_plots(self: NewMainWindow) -> None:
     """Reset the plots in the UI.
 
@@ -263,3 +265,47 @@ def reset_plots(self: NewMainWindow) -> None:
     """
     self.load_cell_ox_curve.clear()
     self.load_cell_thrust_curve.clear()
+
+def show_info_event(self: NewMainWindow, info_event: dict) -> None:
+    """Show a dialog with an error message.
+
+    If something went wrong, we can show the user a dialog with the error message.
+    """
+    # @TODO(Nucleus): redesign with pyside designer
+    dlg = QDialog(self)
+    dlg.setWindowTitle(info_event["title"])
+    message = QLabel(info_event["message"])
+    layout = QVBoxLayout()
+    layout.addWidget(message)
+    dlg.setLayout(layout)
+    dlg.exec()
+
+def show_confirmation_event(self: NewMainWindow, confirmation_event: dict) -> None:
+    """Show a dialog with a confirmation request.
+
+    This allows to have state transition a confirmation to change the state.
+    """
+    dlg = QDialog(self)
+    dlg.setWindowTitle(confirmation_event["title"])
+    message = QLabel(confirmation_event["message"])
+    button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    button_box.accepted.connect(confirmation_event["confirm"])
+    button_box.accepted.connect(dlg.accept)
+    button_box.rejected.connect(confirmation_event["cancel"])
+    button_box.rejected.connect(dlg.reject)
+    layout = QVBoxLayout()
+    layout.addWidget(message)
+    layout.addWidget(button_box)
+    dlg.setLayout(layout)
+    dlg.exec()
+
+def show_sequence_error(self: NewMainWindow, error_event: dict) -> None:
+    """Show a dialog with an error message."""
+    # @TODO(Nucleus): redesign with pyside designer
+    dlg = QDialog(self)
+    dlg.setWindowTitle("something went wrong")
+    message = QLabel(error_event["message"])
+    layout = QVBoxLayout()
+    layout.addWidget(message)
+    dlg.setLayout(layout)
+    dlg.exec()

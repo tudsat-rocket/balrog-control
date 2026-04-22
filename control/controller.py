@@ -10,39 +10,14 @@ from typing import Any
 import interval_timer
 import yaml
 
+from shared.state import disk_queue
+from control.data_handling import TelemetryLogger
 from control.actor import Actor
 from control.brick_handling import StackHandler
 from control.definitions import ActionType, ActorType, EventType, State, SensorType
-from control.dump_sensor_to_file import dump_sensor_to_file
 from control.sensor import Sensor
-from control.sensor_callbacks import (
-    load_cell_ox_callback,
-    pressure_0_1_callback,
-    pressure_2_3_callback,
-    pressure_4_callback,
-    temperature_engine_callback,
-    temperature_ox_callback,
-    load_cell_thrust_callback,
-    valve_sensor_callback,
-)
 from control.test_definition_parsing import parse_csv
-from shared.shared_lists import (
-    cc_pressure_0_sensor_list,
-    cc_pressure_1_sensor_list,
-    load_cell_thrust_sensor_list,
-    load_cell_ox_sensor_list,
-    pressurization_valve_sensor_list,
-    purge_valve_sensor_list,
-    fill_valve_sensor_list,
-    main_valve_sensor_list,
-    vent_valve_sensor_list,
-    pressure_0_sensor_list,
-    pressure_1_sensor_list,
-    pressure_2_sensor_list,
-    pressure_3_sensor_list,
-    temperature_engine_sensor_list,
-    temperature_ox_sensor_list,
-)
+from control.sensor_callbacks import create_master_callback
 
 
 class NotConnectedException(Exception):
@@ -97,11 +72,13 @@ class Controller(Thread):
         connected_signal,
     ):
         super().__init__(target=None)
+        self.t0_wall = time.time()
+        self.t0_perf = time.perf_counter()
         self.actors = {}
         # @TODO(Nucleus): use correct type annotation "name": str, "sensor": Sensor
         self.sensors = {}
         self._construct_actors()
-        self._construct_sensor()
+        self._construct_sensors()
         self.brick_stack = StackHandler()
         self.ignition_sequence = parse_csv(
             Path("config/operations/ignition_sequence.csv")
@@ -115,6 +92,17 @@ class Controller(Thread):
         self.abort_signal = abort_signal
         self.run_signal = run_signal
         self.connected_signal = connected_signal
+
+        self.telemetry_logger = TelemetryLogger(f"telemetry_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}")
+
+        # Thread starten, der die disk_queue aus shared/state abarbeitet
+        self.logging_thread = Thread(
+            target=self.telemetry_logger.run,
+            args=(disk_queue, thread_killer),
+            daemon=True
+        )
+        self.logging_thread.start()
+
         self.start()
 
     def run(self):
@@ -161,12 +149,14 @@ class Controller(Thread):
                 self.connected_signal.set()
                 # Turn all lights on after connecting
                 try:
-                    self.reset_t0()
-                    uid = self.actors["light"].get_br_uid()
-                    self.actors["light"].action(
-                        ActionType.LIGHT_ALL, self.brick_stack.get_device(uid)
-                    )
-                    self.read_valve_states()
+                    #self.reset_t0()
+                    #uid = self.actors["light"].get_br_uid()
+                    #self.actors["light"].action(
+                    #    ActionType.LIGHT_ALL, self.brick_stack.get_device(uid)
+                    #)
+                    #self.read_valve_states()
+
+
                     self.enable_all_sensor_callbacks()
                     self.close_all_valves()
                 except Exception as e:
@@ -185,9 +175,6 @@ class Controller(Thread):
                 self.connected = False
                 self.connected_signal.clear()
                 return False
-
-    def reset_t0(self):
-        self.t0 = datetime.now()
 
     def adjust_valve_if_at_limit(self, valve: str, position: int) -> None:
         actor = self.actors[valve]
@@ -331,7 +318,7 @@ class Controller(Thread):
         """
         if self.armingState:
             self.toggle_arming()
-        self.set_light_to_green()
+        #self.set_light_to_green()
         self.currentState = State.GREEN_STATE
         self.event_queue.put(
             {"type": EventType.STATE_CHANGE, "new_state": State.GREEN_STATE}
@@ -361,7 +348,7 @@ class Controller(Thread):
     def go_to_yellow_state(self):
         if self.armingState:
             self.toggle_arming()
-        self.set_light_to_yellow()
+        #self.set_light_to_yellow()
         self.currentState = State.YELLOW_STATE
         self.event_queue.put(
             {"type": EventType.STATE_CHANGE, "new_state": State.YELLOW_STATE}
@@ -391,7 +378,7 @@ class Controller(Thread):
 
     def go_to_red_state(self):
         """Go to red state. This enabled the dangerous operations"""
-        self.set_light_to_red()
+        #self.set_light_to_red()
         self.currentState = State.RED_STATE
         self.event_queue.put(
             {"type": EventType.STATE_CHANGE, "new_state": State.RED_STATE}
@@ -920,32 +907,8 @@ class Controller(Thread):
             self.disable_all_sensor_callbacks()
             self.sensor_enabled = False
 
-    def dump_sensors_to_file(self):
-        """Wrapper for the dumping method from import"""
-        dump_sensor_to_file()
-
-    def reset_sensors(self):
-        # Disable all sensor callbacks before clearing the lists
-        self.disable_all_sensor_callbacks()
-
-        # Reinitialize lists (keep 2-list structure) so GUI clears plots on next update
-        pressure_0_sensor_list[:] = [[], []]
-        pressure_1_sensor_list[:] = [[], []]
-        pressure_2_sensor_list[:] = [[], []]
-        pressure_3_sensor_list[:] = [[], []]
-        cc_pressure_0_sensor_list[:] = [[], []]
-        cc_pressure_1_sensor_list[:] = [[], []]
-
-        # temp
-        temperature_ox_sensor_list[:] = [[], []]
-        temperature_engine_sensor_list[:] = [[], []]
-
-        # load cell
-        load_cell_thrust_sensor_list[:] = [[], []]
-        load_cell_ox_sensor_list[:] = [[], []]
-
-        # enable callbacks again
-        self.enable_all_sensor_callbacks()
+    def stop(self):
+        self.logging_thread.join(timeout=2)
 
     def start_sequence(self) -> bool:
         """Start the loaded sequence."""
@@ -1061,8 +1024,11 @@ class Controller(Thread):
 
             match sensor.type:
                 case SensorType.PRESSURE:
-                    brick.set_sample_rate(0)
-
+                    #pass
+                    # TODO Config
+                    brick.set_sample_rate(2)
+                    brick.set_gain(0)
+                    #brick.set_sample_rate(0)
 
     def _construct_actors(self) -> None:
         """Construct all actors from the balrog.yaml"""
@@ -1084,67 +1050,37 @@ class Controller(Thread):
 
         print(self.actors)
 
-    def get_sensor_callback(self, name):
-        """Get the sensor callbacks.
-
-        Returns the sensor callbacks to register for the tinkerforge boards
-        pressure 1 and 2 are on the same board, so we have to use the same callback
-        the same of 3 and 4. If no callback is found, a no-op function is returned
-        to avoid type issues.
-        """
-        match name:
-            case "pressure_0":
-                return pressure_0_1_callback
-            case "pressure_1":
-                return pressure_0_1_callback
-            case "pressure_2":
-                return pressure_2_3_callback
-            case "pressure_cc0":
-                return pressure_2_3_callback
-            case "pressure_cc1":
-                return pressure_4_callback
-            case "temperature_engine":
-                return temperature_engine_callback
-            case "temperature_ox":
-                return temperature_ox_callback
-            case "load_cell_thrust":
-                return load_cell_thrust_callback
-            case "load_cell_ox":
-                return load_cell_ox_callback
-            case (
-                "main_valve_sensor"
-                | "fill_valve_sensor"
-                | "vent_valve_sensor"
-                | "purge_valve_sensor"
-                | "pressurization_valve_sensor"
-            ):
-                return valve_sensor_callback
-            case _:
-                print(f"No callback found for {name}")
-                self.event_queue.put(
-                    {
-                        "type": EventType.INFO_EVENT,
-                        "message": f"No callback found for {name}",
-                    }
-                )
-                return lambda *args, **kwargs: None  # Return a no-op function
-
-    def _construct_sensor(self) -> None:
-        """Construct all sensors_config from the balrog.yaml file"""
+    def _construct_sensors(self) -> None:
         with open("config/balrog.yaml") as f:
-            balrog_config = yaml.load(f, Loader=yaml.SafeLoader)
-            sensors_config = balrog_config["sensors"]
+            sensors_config = yaml.load(f, Loader=yaml.SafeLoader)["sensors"]
 
-            for sensor_config in sensors_config:
-                self.sensors[sensor_config["name"]] = Sensor(
-                    sensor_config["name"],
-                    sensor_config["type"],
-                    sensor_config["uid"],
-                    sensor_config["channel"],
-                    self.get_sensor_callback(sensor_config["name"]),
-                    sensor_config["period"],
+        from collections import defaultdict
+        by_uid = defaultdict(list)
+        for cfg in sensors_config:
+            by_uid[cfg["uid"]].append(cfg)
+
+        for actor_name, actor_obj in self.actors.items():
+            if actor_obj.type == ActorType.SERVO:
+                by_uid[actor_obj.get_br_uid()].append({
+                    'name': actor_name,
+                    'channel': actor_obj.output,
+                    'type': SensorType.SERVO_STATE,
+                    'period': -1
+                })
+
+        for uid, cfgs in by_uid.items():
+            # Master-Dispatcher für alle Kanäle dieser UID
+            units = [{'name': c["name"], 'channel': c["channel"]} for c in cfgs]
+            master_cb = create_master_callback(self, units)
+
+            for cfg in cfgs:
+                self.sensors[cfg["name"]] = Sensor(
+                    cfg["name"], cfg["type"], uid, cfg["channel"],
+                    master_cb,  # Geteilter Dispatcher
+                    cfg["period"]
                 )
-        print(self.sensors)
+
+        print(f"Initialized {len(self.sensors)} sensors.")
 
     # ++++++
     # Thread target
@@ -1184,6 +1120,7 @@ class Controller(Thread):
 
     def _thread_loop(self):
         while not self.thread_killer.is_set():
+            # TODO Start durch self.run_signal.wait(timeout=1.0) ersetzen? Testn
             if self.run_signal.is_set():
                 self.run_signal.clear()
                 self._sequence_worker()

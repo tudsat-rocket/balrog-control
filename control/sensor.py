@@ -84,9 +84,11 @@ class Sensor:
                 brick.set_temperature_callback_configuration(
                     self.period, False, "x", 0, 0
                 )
+
+            #TODO: Value has to change pro kontra
             case SensorType.PRESSURE:
                 # parameters are: channel, period in ms, threshold, min, max
-                brick.set_sample_rate(3)
+                #TODO: Sample Rate
                 brick.set_current_callback_configuration(
                     self.channel, self.period, False, "x", 0, 0
                 )
@@ -114,53 +116,6 @@ class Sensor:
                 brick.set_weight_callback_configuration(0, False, "x", 0, 0)
             case SensorType.SERVO_STATE:
                 brick.set_position_reached_callback_configuration(self.channel, False)
-
-    def read_sensor(self, brick) -> int:
-        """Read sensor value from brick.
-
-        Currently, this is not used, as we are using the callbacks instead.
-        """
-        match self.type:
-            case SensorType.DUMMY:
-                return 0
-            case SensorType.PRESSURE:
-                return self._read_pressure(brick)
-            case SensorType.TEMPERATURE:
-                return self._read_temperature(brick)
-            case SensorType.LOAD:
-                return self._read_load(brick)
-            case SensorType.DIFFERENTIAL_PRESSURE:
-                return self._read_pressure(brick)
-            case SensorType.SERVO_STATE:
-                return self._read_servo_state(brick)
-
-    def _read_servo_state(self, brick) -> int:
-        return brick.get_current_position(self.channel)
-
-    def _read_pressure(self, brick) -> int:
-        """Read the pressure value
-        Reads of the IO input of the industrial dual bricklet.
-        @TODO(Nucleus): We could display an warning,
-         if we expect that the sensor is either broken or not connected
-        """
-        print("read pressure")
-        current = brick.get_current(self.channel)
-        if current < 4:
-            # there is no sensor connected!
-            pass
-        if current > 20:
-            # the sensor has a malfunction, Please check the sensor
-            pass
-        return current
-
-    def _read_temperature(self, brick) -> int:
-        temperature = brick.get_temperature()
-        print(temperature)
-        return temperature
-
-    def _read_load(self, brick) -> int:
-        weight = brick.get_weight()
-        return weight
 
     def _setup_callback(self, brick) -> None:
         """Connects our callbacks to the sensor callbacks.

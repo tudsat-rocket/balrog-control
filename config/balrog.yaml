@@ -6,7 +6,7 @@ actors:
     type: SERVO
     uid: 2cPc
     output: 2
-    closed_position: 0
+    closed_position: -8000
     open_position: 8772
   - name: vent_valve
     type: SERVO
@@ -52,58 +52,63 @@ actors:
     type: TRIGGER
     uid: 2f6L
     output: 8
-  - name: segment_display
-    type: COUNTER
-    uid: 256T
-    output: -1
+#  - name: segment_display
+#    type: COUNTER
+#    uid: 256T
+#    output: -1
   - name: horn
     type: HORN
     uid: 2f6L
     output: 0
-  - name: light
-    type: LIGHT
-    uid: 2f6L
-    output: 1
+   # - name: light
+ #   type: LIGHT
+ #   uid: 2f6L
+ #   output: 1
 
 # List of sensor definitions
 sensors:
 
   # Pressures
-  - name: pressure_0
+  - name: pressure_tank
     type: PRESSURE
     uid: 27AM
     channel: 0
-    period: 1
-  - name: pressure_1
+    period: 100
+  - name: pressure_ox_bottle
     type: PRESSURE
     uid: 27AM
     channel: 1
-    period: 1
-  - name: pressure_2
+    period: 100
+  - name: pressure_cc_pre
     type: PRESSURE
     uid: 27AQ
     channel: 1
-    period: 1
+    period: 100
+  - name: pressure_n2_bottle
+    type: PRESSURE
+    uid: 27AQ
+    channel: 0
+    period: 100
 
   # Combustion Chamber Pressures
   - name: pressure_cc0
     type: PRESSURE
-    uid: 27AQ
+    uid: 27AG
     channel: 0
-    period: 1
+    period: 100
   - name: pressure_cc1
     type: PRESSURE
     uid: 27AG
-    channel: 0
-    period: 1
+    channel: 1
+    period: 100
 
   # Temperatures
-  - name: temperature_ox
+  - name: temp_ox
     type: TEMPERATURE
     uid: 2f1R
     channel: -1 # not used
     period: 50
-  - name: temperature_engine
+  - name: temp_engine
     type: TEMPERATURE
     uid: 2eZV
     channel: -1 # not used
