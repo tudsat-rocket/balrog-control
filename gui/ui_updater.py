@@ -64,29 +64,40 @@ def _pull_telemetry_to_local_history(self: "NewMainWindow"):
             hist["val"].append(val)
             hist["last_ts"] = ts
 
-def _update_valve_labels(self: NewMainWindow):
-    """Update the state of every valve.
 
-    This updates the text in the UI where the user can see
-    the current position of the valve.
+def _update_valve_labels(self: NewMainWindow):
+    """Update the state of every valve based on telemetry history.
+
+    Now uses the actor_key directly as populated by the controller's
+    virtual telemetry updates.
     """
+    # Mapping von Actor-Key (aus Controller) zu UI-Label
     valve_mapping = {
-        "main_valve_sensor": self.label_valve_status_main_state,
-        "fill_valve_sensor": self.label_valve_status_fill_state,
-        "vent_valve_sensor": self.label_valve_status_vent_state,
-        "purge_valve_sensor": self.label_valve_status_purge_state,
-        "pressurization_valve_sensor": self.label_valve_status_pressurization_state,
+        "main_valve": self.label_valve_status_main_state,
+        "vent_valve": self.label_valve_status_vent_state,
+        "fill_solenoid": self.label_valve_status_fill_state,
+        "pressurization_valve": self.label_valve_status_pressurization_state,
+        "purge_valve": self.label_valve_status_purge_state,
+        "qd_solenoid": self.label_solenoid_state,
+
+        #"qd_servo": self.label_valve_status_qd_servo_state,  # Falls Label existiert
+        #        #"fill_solenoid": self.label_valve_status_fill_solenoid_state,
+        #"vent_solenoid": self.label_valve_status_vent_solenoid_state,
     }
 
-    for sensor_name, label in valve_mapping.items():
-        hist = self.local_history.get(sensor_name)
+    for actor_key, label in valve_mapping.items():
+
+        hist = self.local_history.get(actor_key)
         if hist and hist["val"]:
-            last_value = hist["val"][-1]
-            #TODO von state nicht werte abhaenigig machen
-            is_open = last_value > 0
+            # 1.0 ist IMMER offen, da wir es im Controller so normalisiert haben
+            is_open = hist["val"][-1] > 0.5
+
             label.setText("OPEN" if is_open else "CLOSED")
             color = "#8FF0A4" if is_open else "#FFA0A0"
             label.setStyleSheet(f"color: {color}; font-weight: bold;")
+        else:
+            label.setText("UNKNOWN")
+            label.setStyleSheet("color: #AAAAAA;")
 
 def _refresh_plot_curves(self: NewMainWindow):
     # Aktuelle Zeit für das synchrone Scrolling
@@ -167,6 +178,8 @@ def update_ui(self: NewMainWindow) -> None:  # noqa: C901
             update_arming_state(self, event)
         case EventType.RESET_PLOTS:
             reset_plots(self)
+
+        #TODO? Servokommpunikation asynchron wie frueher?
 
 def update_connection_state(self: NewMainWindow, connection_event: dict) -> None:
     """Update the labels to display the current connection status."""

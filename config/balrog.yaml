@@ -6,8 +6,8 @@ actors:
     type: SERVO
     uid: 2cPc
     output: 2
-    closed_position: -8000
-    open_position: 8772
+    closed_position: -7500
+    open_position: 6800
   - name: vent_valve
     type: SERVO
     uid: 2cPc
@@ -33,13 +33,27 @@ actors:
     closed_position: 0
     open_position: 7000
 
+  # Solenoids
+  - name: vent_solenoid
+    type: SOLENOID
+    uid: 2f6L
+    output: 2
+    closed_position: 0
+    open_position: 1
+  - name: fill_solenoid
+    type: SOLENOID
+    uid: 2f6L
+    output: 1
+    closed_position: 0
+    open_position: 1
+
   # Quick Disconnect
   - name: qd_solenoid
     type: SOLENOID
     uid: 2f6L
-    output: 4
+    output: 3
     closed_position: 0
-    open_position: 6000
+    open_position: 1
   - name: qd_servo
     type: SERVO
     uid: 2cPc
@@ -52,10 +66,10 @@ actors:
     type: TRIGGER
     uid: 2f6L
     output: 8
-#  - name: segment_display
-#    type: COUNTER
-#    uid: 256T
-#    output: -1
+  - name: segment_display
+    type: COUNTER
+    uid: 256T
+    output: -1
   - name: horn
     type: HORN
     uid: 2f6L
@@ -125,30 +139,3 @@ sensors:
     uid: 29gV
     channel: -1 # not used
     period: 50
-
-  # Valves, TODO: create automatically with servos
-  - name: main_valve_sensor
-    type: SERVO_STATE
-    uid: 2cPc
-    channel: 2
-    period: -1
-  - name: fill_valve_sensor
-    type: SERVO_STATE
-    uid: 2cPc
-    channel: 0
-    period: -1
-  - name: vent_valve_sensor
-    type: SERVO_STATE
-    uid: 2cPc
-    channel: 1
-    period: -1
-  - name: purge_valve_sensor
-    type: SERVO_STATE
-    uid: 2cPc
-    channel: 4
-    period: -1
-  - name: pressurization_valve_sensor
-    type: SERVO_STATE
-    uid: 2cPc
-    channel: 3
-    period: -1

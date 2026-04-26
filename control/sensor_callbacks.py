@@ -13,8 +13,8 @@ def identity(val): return val
 CALLBACK_CONFIG = {
     "pressure_tank":        to_bar_100,
     "pressure_ox_bottle":   to_bar_100,
+    "pressure_n2_bottle":   to_bar_100,
     "pressure_cc_pre":      to_bar_100,
-    "pressure_n2":          to_bar_100,
     "pressure_cc0":         to_bar_160,
     "pressure_cc1":         to_bar_160,
     "temp_engine":     to_temp_c,

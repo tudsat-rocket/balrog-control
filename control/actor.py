@@ -184,17 +184,19 @@ class Actor:
         pass
 
     def solenoid_open(self, io_brick: BrickletIO16V2) -> None:
-        io_brick.set_selected_value(self.get_output(), True)
+        state = bool(self.open_position)
+        io_brick.set_selected_value(self.get_output(), state)
 
     def solenoid_close(self, io_brick: BrickletIO16V2) -> None:
-        io_brick.set_selected_value(self.get_output(), False)
+        state = bool(self.closed_position)
+        io_brick.set_selected_value(self.get_output(), state)
 
     def solenoid_toggle(self, brick: BrickletIO16V2) -> None:
         print("solenoid toggle is not implemented")
         pass
 
     def sound_horn(self, brick: BrickletIO16V2) -> None:
-        brick.set_monoflop(self.output, True, 5000)  # sound horn for 5s = 5000ms
+        brick.set_monoflop(self.output, True, 3000)  # sound horn for 5s = 5000ms
 
     def light_on(self, brick: BrickletIO16V2) -> None:
         # not used anymore

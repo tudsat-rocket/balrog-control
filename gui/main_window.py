@@ -104,9 +104,11 @@ class NewMainWindow(ui_class, baseclass):
     def key_release_event(self, event) -> None:
         """Override the keyrelease handler to implement our shortcuts."""
         if event.key() == Qt.Key.Key_V and not event.isAutoRepeat():
-            self.controller.toggle_vent_valve()
+            #self.controller.toggle_vent_valve()
+            pass
         elif event.key() == Qt.Key.Key_Escape and not event.isAutoRepeat():
-            self.controller.toggle_purge_valve()
+            #self.controller.toggle_purge_valve()
+            pass
         super().key_release_event(event)
 
     def setup_buttons(self) -> None:
@@ -119,7 +121,7 @@ class NewMainWindow(ui_class, baseclass):
             self.button_toggle_sensors: ctrl.toggle_sensors,
             self.button_test_counter: ctrl.test_counter,
             self.button_test_horn: ctrl.test_horn,
-            self.button_abort_sequence: ctrl.abort,
+#            self.button_abort_sequence: ctrl.abort,
             # States
             self.button_green_state: ctrl.request_go_to_green_state,
             self.button_yellow_state: ctrl.request_go_to_yellow_state,
@@ -131,12 +133,13 @@ class NewMainWindow(ui_class, baseclass):
             self.button_close_all_valves: ctrl.close_all_valves,
             # Ventile & Aktoren
             self.button_toggle_main_valve: ctrl.toggle_main_valve,
-            self.button_toggle_fill_valve: ctrl.toggle_fill_valve,
+#            self.button_toggle_fill_valve: ctrl.toggle_fill_valve,
+            self.button_toggle_fill_valve: ctrl.toggle_fill_solenoid,
             self.button_toggle_vent_valve: ctrl.toggle_vent_valve,
             self.button_toggle_purge_valve: ctrl.toggle_purge_valve,
             self.button_toggle_pressurization_valve: ctrl.toggle_pressurization_valve,
-            self.button_toggle_quick_disconnect_solenoid: ctrl.toggle_quick_disconnect_solenoid,
-            self.button_trigger_quick_disconnect: ctrl.trigger_quick_disconnect,
+            self.button_toggle_quick_disconnect_solenoid: ctrl.toggle_qd_solenoid,
+            self.button_trigger_quick_disconnect: ctrl.trigger_qd,
             # Sequenzen
             self.button_run_purge_sequence: ctrl.run_purge_sequence,
             self.button_run_ignition_sequence: ctrl.request_run_ignition_sequence,

@@ -10,7 +10,7 @@ from typing import Any
 import interval_timer
 import yaml
 
-from shared.state import disk_queue
+from shared.state import disk_queue, telemetry_lock, telemetry
 from control.data_handling import TelemetryLogger
 from control.actor import Actor
 from control.brick_handling import StackHandler
@@ -56,12 +56,30 @@ class Controller(Thread):
     servo_main_open = False
     servo_pressurization_open = False
     servo_purge_open = False
-    solenoid_quick_disconnect_open = False
-    servo_quick_disconnect_open = False
+    servo_qd_open = False
+
+    solenoid_qd_open = False
+    solenoid_vent_open = False
+    solenoid_fill_open = False
+
+
     abort_sequence = False
 
     armingState: bool = False
     currentState: State = State.GREEN_STATE
+
+    ACTOR_ATTR_LOOKUP = {
+        "main_valve": "servo_main_open",
+        "fill_valve": "servo_fill_open",
+        "vent_valve": "servo_vent_open",
+        "purge_valve": "servo_purge_open",
+        "pressurization_valve": "servo_pressurization_open",
+        "fill_solenoid": "solenoid_fill_open",
+        "vent_solenoid": "solenoid_vent_open",
+        "qd_solenoid": "solenoid_qd_open",
+        "qd_servo": "servo_qd_open",
+    }
+
 
     def __init__(
         self,
@@ -466,104 +484,105 @@ class Controller(Thread):
     #   Servo/Valve controller #
     #####
 
+    def _execute_actor_action(self, actor_key: str, action_type: ActionType):
+        """Zentrale Methode für Ventile (Servo/Solenoid)."""
+        if actor_key not in self.actors:
+            return
+
+        # Bestimme logischen Zustand für Telemetrie/GUI
+        # Hier können später auch SLOW_OPEN etc. ergänzt werden
+        # TODO Slow open etc.
+        # Staircase, lookup move values vs opening
+        is_open = action_type in [
+            ActionType.SERVO_OPEN,
+            ActionType.SOLENOID_OPEN,
+            ActionType.SERVO_OPEN_SLOW,
+            ActionType.SERVO_SAFE_OPEN,
+            ActionType.SERVO_OPEN_QUARTER_SLOW
+        ]
+
+        try:
+            # Hardware-Ansteuerung
+            actor = self.actors[actor_key]
+            actor.action(action_type, self.brick_stack.get_device(actor.get_br_uid()))
+
+            attr_name = self.ACTOR_ATTR_LOOKUP.get(actor_key)
+            if attr_name and hasattr(self, attr_name):
+                setattr(self, attr_name, is_open)
+
+            ts = self.t0_wall + (time.perf_counter() - self.t0_perf)
+            processed = 1.0 if is_open else 0.0
+
+            with telemetry_lock:
+                telemetry[actor_key] = (ts, processed)
+            disk_queue.put((actor_key, ts, processed))
+        except Exception as e:
+            print(f"Action Error ({actor_key}): {e}")
+
+    # --- Main Valve ---
     def open_main_valve(self):
-        uid = self.actors["main_valve"].get_br_uid()
-        self.actors["main_valve"].action(
-            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.servo_main_open = True
+        self._execute_actor_action("main_valve", ActionType.SERVO_OPEN)
 
     def close_main_valve(self):
-        uid = self.actors["main_valve"].get_br_uid()
-        self.actors["main_valve"].action(
-            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.servo_main_open = False
+        self._execute_actor_action("main_valve", ActionType.SERVO_CLOSE)
 
+    # --- Fill Valve ---
     def open_fill_valve(self):
-        """This valve should be opened slow"""
-        uid = self.actors["fill_valve"].get_br_uid()
-        self.actors["fill_valve"].action(
-            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.servo_fill_open = True
+        self._execute_actor_action("fill_valve", ActionType.SERVO_OPEN)
 
     def close_fill_valve(self):
-        uid = self.actors["fill_valve"].get_br_uid()
-        self.actors["fill_valve"].action(
-            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.servo_fill_open = False
+        self._execute_actor_action("fill_valve", ActionType.SERVO_CLOSE)
 
+    # --- Pressurization Valve ---
     def open_pressurization_valve(self):
-        uid = self.actors["pressurization_valve"].get_br_uid()
-        self.actors["pressurization_valve"].action(
-            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.servo_pressurization_open = True
+        self._execute_actor_action("pressurization_valve", ActionType.SERVO_OPEN)
 
     def close_pressurization_valve(self):
-        uid = self.actors["pressurization_valve"].get_br_uid()
-        self.actors["pressurization_valve"].action(
-            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.servo_pressurization_open = False
+        self._execute_actor_action("pressurization_valve", ActionType.SERVO_CLOSE)
 
+    # --- Vent Valve ---
     def open_vent_valve(self):
-        uid = self.actors["vent_valve"].get_br_uid()
-        self.actors["vent_valve"].action(
-            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.servo_vent_open = True
+        self._execute_actor_action("vent_valve", ActionType.SERVO_OPEN)
 
     def close_vent_valve(self):
-        uid = self.actors["vent_valve"].get_br_uid()
-        self.actors["vent_valve"].action(
-            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.servo_vent_open = False
+        self._execute_actor_action("vent_valve", ActionType.SERVO_CLOSE)
 
+    # --- Purge Valve ---
     def open_purge_valve(self):
-        uid = self.actors["purge_valve"].get_br_uid()
-        self.actors["purge_valve"].action(
-            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.servo_purge_open = True
+        self._execute_actor_action("purge_valve", ActionType.SERVO_OPEN)
 
     def close_purge_valve(self):
-        uid = self.actors["purge_valve"].get_br_uid()
-        self.actors["purge_valve"].action(
-            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.servo_purge_open = False
+        self._execute_actor_action("purge_valve", ActionType.SERVO_CLOSE)
 
-    def open_quick_disconnect_solenoid(self):
-        uid = self.actors["qd_solenoid"].get_br_uid()
-        self.actors["qd_solenoid"].action(
-            ActionType.SOLENOID_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.solenoid_quick_disconnect_open = True
+    # --- QD Solenoid ---
+    def open_qd_solenoid(self):
+        self._execute_actor_action("qd_solenoid", ActionType.SOLENOID_OPEN)
 
-    def close_quick_disconnect_solenoid(self):
-        uid = self.actors["qd_solenoid"].get_br_uid()
-        self.actors["qd_solenoid"].action(
-            ActionType.SOLENOID_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.solenoid_quick_disconnect_open = False
+    def close_qd_solenoid(self):
+        self._execute_actor_action("qd_solenoid", ActionType.SOLENOID_CLOSE)
 
-    def open_quick_disconnect_servo(self):
-        uid = self.actors["qd_servo"].get_br_uid()
-        self.actors["qd_servo"].action(
-            ActionType.SERVO_OPEN, self.brick_stack.get_device(uid)
-        )
-        self.servo_quick_disconnect_open = False
+    # --- QD Servo ---
+    def open_qd_servo(self):
+        self._execute_actor_action("qd_servo", ActionType.SERVO_OPEN)
 
-    def close_quick_disconnect_servo(self):
-        uid = self.actors["qd_servo"].get_br_uid()
-        self.actors["qd_servo"].action(
-            ActionType.SERVO_CLOSE, self.brick_stack.get_device(uid)
-        )
-        self.servo_quick_disconnect_open = False
+    def close_qd_servo(self):
+        self._execute_actor_action("qd_servo", ActionType.SERVO_CLOSE)
+
+    # --- Vent Solenoid ---
+    def open_vent_solenoid(self):
+        self._execute_actor_action("vent_solenoid", ActionType.SOLENOID_OPEN)
+
+    def close_vent_solenoid(self):
+        self._execute_actor_action("vent_solenoid", ActionType.SOLENOID_CLOSE)
+
+    # --- Fill Solenoid ---
+    def open_fill_solenoid(self):
+        self._execute_actor_action("fill_solenoid", ActionType.SOLENOID_OPEN)
+
+    def close_fill_solenoid(self):
+        self._execute_actor_action("fill_solenoid", ActionType.SOLENOID_CLOSE)
+
+    # Toggels
 
     def toggle_main_valve(self):
         """Toggle the main valve from open to close"""
@@ -626,6 +645,45 @@ class Controller(Thread):
             }
         )
 
+    def toggle_vent_solenoid(self):
+        """Toggle the vent solenoid between open to close"""
+        print("toggle vent valve")
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+        if self.solenoid_vent_open:
+            self.close_vent_solenoid()
+        else:
+            self.open_vent_solenoid()
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "vent_solenoid",
+                "state": self.solenoid_vent_open,
+            }
+        )
+
+    def toggle_fill_solenoid(self):
+        """Toggle the fill solenoid between open to close"""
+        if not self.connected:
+            raise NotConnectedException(self.event_queue)
+        if not self.currentState == State.RED_STATE:
+            raise NotAllowedInThisState(self.event_queue)
+
+        if self.solenoid_fill_open:
+            self.close_fill_solenoid()
+        else:
+            self.open_fill_solenoid()
+        self.event_queue.put(
+            {
+                "type": EventType.VALVE_STATUS_UPDATE,
+                "valve": "fill_solenoid",
+                "state": self.solenoid_fill_open,
+            }
+        )
+
     def toggle_purge_valve(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
@@ -669,48 +727,48 @@ class Controller(Thread):
             }
         )
 
-    def toggle_quick_disconnect_solenoid(self):
+    def toggle_qd_solenoid(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
-        if self.solenoid_quick_disconnect_open:
-            self.close_quick_disconnect_solenoid()
-            self.solenoid_quick_disconnect_open = False
+        if self.solenoid_qd_open:
+            self.close_qd_solenoid()
+            self.solenoid_qd_open = False
         else:
-            self.open_quick_disconnect_solenoid()
-            self.solenoid_quick_disconnect_open = True
+            self.open_qd_solenoid()
+            self.solenoid_qd_open = True
 
         self.event_queue.put(
             {
                 "type": EventType.VALVE_STATUS_UPDATE,  # @TODO
-                "valve": "quick_disconnect",
-                "state": self.solenoid_quick_disconnect_open,
+                "valve": "qd_solenoid",
+                "state": self.solenoid_qd_open,
             }
         )
 
-    def trigger_quick_disconnect(self):
+    def trigger_qd(self):
         if not self.connected:
             raise NotConnectedException(self.event_queue)
         if not self.currentState == State.RED_STATE:
             raise NotAllowedInThisState(self.event_queue)
 
-        if self.solenoid_quick_disconnect_open or self.servo_fill_open:
+        if self.solenoid_qd_open or self.servo_fill_open or self.solenoid_qd_open:
             # the solenoid has to be closed to allow the servo to open
             raise NotAllowedInThisState(self.event_queue)
 
-        self.open_quick_disconnect_servo()
+        self.open_qd_servo()
         sleep(1.5)
-        self.close_quick_disconnect_servo()
+        self.close_qd_servo()
 
 
         self.event_queue.put(
             {
                 # @TODO (Nucleus): this is a servo and not a valve
                 "type": EventType.VALVE_STATUS_UPDATE,
-                "valve": "quick_disconnect_servo",
-                "state": self.servo_quick_disconnect_open,
+                "valve": "qd_servo",
+                "state": self.servo_qd_open,
             }
         )
 
@@ -723,8 +781,10 @@ class Controller(Thread):
         self.close_fill_valve()
         self.close_purge_valve()
         self.close_vent_valve()
-        self.close_quick_disconnect_servo()
-        self.close_quick_disconnect_solenoid()
+        self.close_qd_servo()
+        self.close_qd_solenoid()
+        self.close_vent_solenoid()
+        self.close_fill_solenoid()
 
     def run_purge_sequence(self):
         """Run the purge sequence
@@ -1059,6 +1119,7 @@ class Controller(Thread):
         for cfg in sensors_config:
             by_uid[cfg["uid"]].append(cfg)
 
+        '''Legacay, eh keine echten werte
         for actor_name, actor_obj in self.actors.items():
             if actor_obj.type == ActorType.SERVO:
                 by_uid[actor_obj.get_br_uid()].append({
@@ -1067,6 +1128,7 @@ class Controller(Thread):
                     'type': SensorType.SERVO_STATE,
                     'period': -1
                 })
+        '''
 
         for uid, cfgs in by_uid.items():
             # Master-Dispatcher für alle Kanäle dieser UID
@@ -1087,9 +1149,7 @@ class Controller(Thread):
     # ++++++
     def _sequence_worker(self):
         if self.sequence is None:
-            self.event_queue.put(
-                {"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."}
-            )
+            self.event_queue.put({"type": EventType.SEQUENCE_ERROR, "message": "No sequence to execute."})
             return
 
         seq_local = self.sequence.copy()
@@ -1098,18 +1158,23 @@ class Controller(Thread):
         seq_len = len(seq_local)
 
         for _ in interval_timer.IntervalTimer(0.02):
-            # signal used to abort the sequence with a button
             if self.abort_signal.is_set():
                 self.abort_signal.clear()
                 return
 
             while seq_idx < seq_len and int(seq_local[seq_idx][1]) <= seq_ts:
-                tpl = seq_local[seq_idx]
-                print(f"Executing: {tpl[0]} at TS: {tpl[1]} (Internal Clock: {seq_ts})")
-                self.actors[tpl[0]].action(
-                    tpl[2],
-                    self.brick_stack.get_device(self.actors[tpl[0]].get_br_uid()),
-                )
+                actor_name, _, action_type = seq_local[seq_idx]
+
+                action_str = action_type.name
+                if "SERVO" in action_str or "SOLENOID" in action_str:
+                    self._execute_actor_action(actor_name, action_type)
+                else:
+                    try:
+                        actor = self.actors[actor_name]
+                        actor.action(action_type, self.brick_stack.get_device(actor.get_br_uid()))
+                    except Exception as e:
+                        print(f"Misc Sequence Error ({actor_name}): {e}")
+
                 seq_idx += 1
 
             if seq_idx >= seq_len:

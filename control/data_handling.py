@@ -47,7 +47,9 @@ class TelemetryLogger:
                 data = disk_queue.get(timeout=0.2)
 
                 #(ts, name, val)
+                #print('Inserting', data)
                 batch_buffer.append((data[1], data[0], data[2]))
+
 
                 if len(batch_buffer) >= self.batch_size:
                     cursor.executemany(
@@ -63,6 +65,9 @@ class TelemetryLogger:
                     conn.commit()
                     batch_buffer = []
                 continue
+
+            except Exception as e:
+                print("Logging Error", e)
 
         if batch_buffer:
             cursor.executemany("INSERT INTO sensor_data VALUES (?, ?, ?)", batch_buffer)
