@@ -118,7 +118,7 @@ class NewMainWindow(ui_class, baseclass):
         direct_map = {
             # System & Check
             self.button_selfcheck: ctrl.self_check,
-            self.button_toggle_sensors: ctrl.toggle_sensors,
+            self.button_toggle_water: ctrl.toggle_vent_solenoid,
             self.button_test_counter: ctrl.test_counter,
             self.button_test_horn: ctrl.test_horn,
 #            self.button_abort_sequence: ctrl.abort,
@@ -128,7 +128,7 @@ class NewMainWindow(ui_class, baseclass):
             self.button_red_state: ctrl.request_go_to_red_state,
             self.button_toggle_arming: ctrl.toggle_arming,
             # Maintenance
-#            self.button_dump_sensors_to_file: ctrl.dump_sensors_to_file,
+            self.button_dump_sensors_to_file: ctrl.toggle_fill_valve,
 #            self.button_reset_sensors: ctrl.reset_sensors,
             self.button_close_all_valves: ctrl.close_all_valves,
             # Ventile & Aktoren

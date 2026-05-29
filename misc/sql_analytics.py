@@ -11,16 +11,20 @@ def plot_rocket_log(db_path, start_str, end_str):
 
     # Konfiguration (Sensorname in DB, Label im Plot)
     pressure_sensors = [
-        ('pressure_tank', 'Tank Pressure'),
-        #('pressure_ox_bottle', 'Ox Bottle Pressure'),
-        #('pressure_n2_bottle', 'N2 Bottle Pressure'),
-        #('pressure_cc_pre', 'CC Pre Pressure'),
-        #('pressure_cc0', 'CC Pressure 0'),
+        ('pressure_tank', 'Tank Pressure', 1),
+        #('pressure_ox_bottle', 'Ox Bottle Pressure', 1),
+        ('pressure_n2_bottle', 'N2 Bottle Pressure', 1),
+        #('pressure_cc_pre', 'CC Pre Pressure', 1),
+        #('pressure_cc0', 'CC Pressure 0', 15),
+        ('cc0_CAN', 'CC Pressure 0 CAN', 1),
         #('pressure_cc1', 'CC Pressure 1'),
-        #('temp_ox', 'Ox Temperature'),
-        #('temp_engine', 'Engine Temperature'),
-        #('load_cell_thrust', 'Thrust Force'),
-        #('load_cell_ox', 'N2O Tank Weight')
+        #('pressure_cc1_can', 'CC Pressure 1 CAN'),
+        #('temp_ox', 'Ox Temperature', 1),
+        #('temp_engine', 'Engine Temperature', 1),
+        #('temp_1', 'Temperature 1', 1),
+        #('temp_2', 'Temperature 2', 1),
+        #('load_cell_thrust', 'Thrust Force', 1),
+        #('load_cell_ox', 'N2O Tank Weight', 20)
     ]
     valves = [
         #('main_valve', 'Main Valve'),
@@ -29,7 +33,7 @@ def plot_rocket_log(db_path, start_str, end_str):
         #('fill_valve', 'Fill Valve'),
         #('purge_valve', 'Purge Valve'),
         #('vent_solenoid', 'Vent Solenoid'),
-        #('fill_solenoid', 'Fill Solenoid'),
+        ('fill_solenoid', 'Fill Solenoid'),
         ('qd_solenoid', 'QD Solenoid'),
         #('qd_servo', 'QD Servo')
     ]
@@ -43,7 +47,7 @@ def plot_rocket_log(db_path, start_str, end_str):
     conn = sqlite3.connect(db_path)
 
     # --- AXIS 1: Sensoren ---
-    for i, (db_name, label) in enumerate(pressure_sensors):
+    for i, (db_name, label, factor) in enumerate(pressure_sensors):
         # Nutzt den Index idx_ts für schnelles Laden
         query = """
                 SELECT timestamp, value \
@@ -56,7 +60,7 @@ def plot_rocket_log(db_path, start_str, end_str):
         if df.empty: continue
 
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-        ax1.plot(df['timestamp'], df['value'], label=label, color=p_colors[i], alpha=0.8)
+        ax1.plot(df['timestamp'], df['value'] * factor, label=label, color=p_colors[i], alpha=0.8)
 
         df_to_export = df[['timestamp', 'value']].copy()
         df_to_export.to_csv(f"export_{db_name}_label.csv", index=False)
@@ -116,4 +120,4 @@ def plot_rocket_log(db_path, start_str, end_str):
 
 
 # Beispielaufruf
-plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-04-23_14-53-09', "2026-04-01 15:00:00", "2027-04-01 16:00:00")
+plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-05-30_00-14-20', "2026-05-28 19:00:00", "2026-05-30 22:10:00")

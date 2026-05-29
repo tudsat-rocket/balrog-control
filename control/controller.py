@@ -10,6 +10,7 @@ from typing import Any
 import interval_timer
 import yaml
 
+from control import actor
 from shared.state import disk_queue, telemetry_lock, telemetry
 from control.data_handling import TelemetryLogger
 from control.actor import Actor
@@ -17,7 +18,7 @@ from control.brick_handling import StackHandler
 from control.definitions import ActionType, ActorType, EventType, State, SensorType
 from control.sensor import Sensor
 from control.test_definition_parsing import parse_csv
-from control.sensor_callbacks import create_master_callback
+from control.sensor_callbacks import create_master_callback, create_master_can_callback
 
 
 class NotConnectedException(Exception):
@@ -175,12 +176,17 @@ class Controller(Thread):
                     #self.read_valve_states()
 
 
+                    can = self.brick_stack.can
+                    master_can_cb = create_master_can_callback(self)
+                    can.register_callback(can.CALLBACK_FRAME_READ, master_can_cb)
+                    print(f"Initialized CAN")
                     self.enable_all_sensor_callbacks()
                     self.close_all_valves()
                 except Exception as e:
                     print(f"Failed to set initial state: {e}")
                 return True
             except Exception as e:
+                raise e
                 print(f"Failed to connect to {host}:{port}: {e}")
                 self.event_queue.put(
                     {
@@ -846,9 +852,6 @@ class Controller(Thread):
             self.sensors["load_cell_thrust"].calibrate_load(
                 self.brick_stack.get_device(uid), calibration_weight
             )
-            # Reset existing sensor data before calibration
-            # (keep 2-list structure so GUI clears plot)
-            load_cell_thrust_sensor_list[:] = [[], []]
             self.event_queue.put(
                 {
                     "type": EventType.RESET_PLOTS,
@@ -942,6 +945,9 @@ class Controller(Thread):
                 sensor.enable_callback(self.brick_stack.get_device(uid))
             except Exception as e:
                 print(f"could not enable sensor {sensor.get_br_uid()}", e)
+        can = self.brick_stack.can
+        can.set_frame_read_callback_configuration(True)
+
 
     def disable_all_sensor_callbacks(self):
         """Disable all callbacks. No new sensor values will be added"""
@@ -949,6 +955,9 @@ class Controller(Thread):
         for sensor in self.sensors.values():
             uid = sensor.get_br_uid()
             sensor.disable_callback(self.brick_stack.get_device(uid))
+
+        can = self.brick_stack.can
+        can.set_frame_read_callback_configuration(False)
 
     def toggle_sensors(self):
         """Toggles the sensor callbacks on and off.
@@ -1143,6 +1152,7 @@ class Controller(Thread):
                 )
 
         print(f"Initialized {len(self.sensors)} sensors.")
+
 
     # ++++++
     # Thread target

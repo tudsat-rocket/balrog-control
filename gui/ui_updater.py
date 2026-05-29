@@ -68,7 +68,7 @@ def _pull_telemetry_to_local_history(self: "NewMainWindow"):
 def _update_valve_labels(self: NewMainWindow):
     """Update the state of every valve based on telemetry history.
 
-    Now uses the actor_key directly as populated by the controller's
+    Uses the actor_key directly as populated by the controller's
     virtual telemetry updates.
     """
     # Mapping von Actor-Key (aus Controller) zu UI-Label
@@ -119,7 +119,7 @@ def _refresh_plot_curves(self: NewMainWindow):
         "pressure_n2_bottle": (self.load_cell_thrust_curve, self.plot_load_cell_thrust),
         "pressure_ox_bottle": (self.load_cell_ox_curve, self.plot_load_cell_nitrous),
         "pressure_cc_pre": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
-        "pressure_cc0": (self.thermocouple_engine_curve, self.plot_thermocouple_engine),
+        "cc0_CAN": (self.thermocouple_engine_curve, self.plot_thermocouple_engine),
     }
 
     now_abs = self.controller.t0_wall + (time.perf_counter() - self.controller.t0_perf)

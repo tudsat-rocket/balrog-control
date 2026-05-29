@@ -1,4 +1,5 @@
 from tinkerforge.brick_master import BrickMaster
+from tinkerforge.bricklet_can_v2 import BrickletCANV2
 from tinkerforge.bricklet_industrial_dual_0_20ma_v2 import BrickletIndustrialDual020mAV2
 from tinkerforge.bricklet_industrial_dual_ac_relay import BrickletIndustrialDualACRelay
 from tinkerforge.bricklet_io16_v2 import BrickletIO16V2
@@ -15,6 +16,7 @@ class StackHandler:
 
     def __init__(self, devices: dict = {}):
         self.devices: dict = devices
+        self.can = None
         self.connection: IPConnection = IPConnection()
 
     def start_connection(self, host: str, port: int = 4223) -> None:
@@ -30,6 +32,13 @@ class StackHandler:
                 self.cb_enumerate
             )
             self.connection.enumerate()
+
+            try:
+                self.can = BrickletCANV2("2552", self.connection)
+                self.can.set_transceiver_configuration(125000, 875, self.can.TRANSCEIVER_MODE_NORMAL)
+                print(f"Add CAN device with UID 2552")
+            except RuntimeError as err:
+                raise err
         except Error as err:
             raise err
 

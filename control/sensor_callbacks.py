@@ -16,9 +16,12 @@ CALLBACK_CONFIG = {
     "pressure_n2_bottle":   to_bar_100,
     "pressure_cc_pre":      to_bar_100,
     "pressure_cc0":         to_bar_160,
+    "pressure_cc0":         to_bar_160,
     "pressure_cc1":         to_bar_160,
     "temp_engine":     to_temp_c,
     "temp_ox":         to_temp_c,
+    "temp_1":         to_temp_c,
+    "temp_2":         to_temp_c,
     "load_cell_thrust": to_kg,
     "load_cell_ox":     to_kg,
 }
@@ -56,3 +59,27 @@ def create_master_callback(controller, sensor_units):
                 return
 
     return master_dispatcher
+
+def parse_can_adc(can_data):
+    return int.from_bytes(bytes(can_data), byteorder='little')
+
+
+def create_master_can_callback(controller):
+
+    def cb_frame_read(frame_type, identifier, data):
+        binary_data = " ".join(f"{b:08b}" for b in data)
+        #print(str(identifier) + "   -   " + str(parse_can_adc(data) / 1024 * 3.3) + "   -   " + str(data) + "   -   " + str(parse_can_adc(data)) + "   -   " + binary_data)
+        #print(int.from_bytes(data, byteorder='little'))
+
+        # 190 0.25xxxx
+        # 191 0.0064453125
+        # 1024 = 3.3V
+        processed = parse_can_adc(data) - 385
+        ts = controller.t0_wall + (time.perf_counter() - controller.t0_perf)
+        with telemetry_lock:
+            telemetry["cc0_CAN"] = (ts, processed)
+            disk_queue.put(("cc0_CAN", ts, processed))
+            print(processed)
+        return
+
+    return cb_frame_read

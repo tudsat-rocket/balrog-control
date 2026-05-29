@@ -238,16 +238,16 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="button_toggle_sensors">
+                 <widget class="QPushButton" name="button_toggle_water">
                   <property name="text">
-                   <string>Toggle Sensors</string>
+                   <string>Toggle Water</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="button_dump_sensors_to_file">
                   <property name="text">
-                   <string>Dump Sensors to File</string>
+                   <string>Toggle Servo 0</string>
                   </property>
                  </widget>
                 </item>

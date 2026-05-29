@@ -25,7 +25,7 @@ class TelemetryLogger:
                            REAL
                        )
                        """)
-        # Index für schnelle spätere Analyse (z.B. in Grafana oder Excel)
+
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_ts ON sensor_data (timestamp)")
 
         cursor.execute("PRAGMA journal_mode=WAL")

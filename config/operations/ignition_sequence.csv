@@ -2,9 +2,9 @@ actor_name,times_ms,action
 segment_display,1,COUNTER_START
 pressurization_valve,1,SERVO_OPEN
 igniter,1,PULL_TRIGGER
-main_valve,800,SERVO_OPEN
-igniter,800,RELEASE_TRIGGER
-pressurization_valve,1500,SERVO_CLOSE
-main_valve,2000,SERVO_CLOSE
-purge_valve,2000,SERVO_OPEN
-purge_valve,4000,SERVO_CLOSE
+main_valve,700,SERVO_OPEN
+igniter,1500,RELEASE_TRIGGER
+pressurization_valve,7000,SERVO_CLOSE
+main_valve,8000,SERVO_CLOSE
+purge_valve,9000,SERVO_OPEN
+purge_valve,11000,SERVO_CLOSE

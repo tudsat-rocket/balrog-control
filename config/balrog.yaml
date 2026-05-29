@@ -14,12 +14,18 @@ actors:
     output: 1
     closed_position: 0
     open_position: 5000
+  #- name: fill_valve
+  #  type: SERVO
+  #  uid: 2cPc
+  #  output: 0
+  #  closed_position: 0
+  #  open_position: -7000
   - name: fill_valve
     type: SERVO
     uid: 2cPc
     output: 0
-    closed_position: 0
-    open_position: -7000
+    closed_position: 8600
+    open_position: -9000
   - name: pressurization_valve
     type: SERVO
     uid: 2cPc
@@ -66,10 +72,10 @@ actors:
     type: TRIGGER
     uid: 2f6L
     output: 8
-  - name: segment_display
-    type: COUNTER
-    uid: 256T
-    output: -1
+#  - name: segment_display
+#    type: COUNTER
+#    uid: 256T
+#    output: -1
   - name: horn
     type: HORN
     uid: 2f6L
@@ -127,6 +133,16 @@ sensors:
     uid: 2eZV
     channel: -1 # not used
     period: 50
+  - name: temp_1
+    type: TEMPERATURE
+    uid: 2f1S
+    channel: -1 # not used
+    period: 50
+  - name: temp_2
+    type: TEMPERATURE
+    uid: 2f1T
+    channel: -1 # not used
+    period: 50
 
   # Load Cells
   - name: load_cell_thrust
@@ -134,6 +150,7 @@ sensors:
     uid: 29hv
     channel: -1 # not used
     period: 50
+
   - name: load_cell_ox
     type: LOAD
     uid: 29gV

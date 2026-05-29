@@ -96,6 +96,12 @@ class Sensor:
                 brick.set_weight_callback_configuration(self.period, False, "x", 0, 0)
             case SensorType.SERVO_STATE:
                 brick.set_position_reached_callback_configuration(self.channel, False)
+            case SensorType.TEMPERATURE:
+                # parameters are period in ms, value_has_to_change,
+                # Threshold (x =disabled), min, max
+                brick.set_temperature_callback_configuration(
+                    self.period, False, "x", 0, 0
+                )
 
     def disable_callback(self, brick):
         """Disable the sensor callback functions.
