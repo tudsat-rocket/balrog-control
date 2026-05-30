@@ -79,7 +79,7 @@ def create_master_can_callback(controller):
         with telemetry_lock:
             telemetry["cc0_CAN"] = (ts, processed)
             disk_queue.put(("cc0_CAN", ts, processed))
-            print(processed)
+            #print(processed)
         return
 
     return cb_frame_read

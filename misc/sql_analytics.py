@@ -11,30 +11,30 @@ def plot_rocket_log(db_path, start_str, end_str):
 
     # Konfiguration (Sensorname in DB, Label im Plot)
     pressure_sensors = [
-        ('pressure_tank', 'Tank Pressure', 1),
+        #('pressure_tank', 'Tank Pressure', 1),
         #('pressure_ox_bottle', 'Ox Bottle Pressure', 1),
-        ('pressure_n2_bottle', 'N2 Bottle Pressure', 1),
+        #('pressure_n2_bottle', 'N2 Bottle Pressure', 1),
         #('pressure_cc_pre', 'CC Pre Pressure', 1),
         #('pressure_cc0', 'CC Pressure 0', 15),
-        ('cc0_CAN', 'CC Pressure 0 CAN', 1),
+        ('cc0_CAN', 'CC Pressure 0 CAN', 0.2),
         #('pressure_cc1', 'CC Pressure 1'),
         #('pressure_cc1_can', 'CC Pressure 1 CAN'),
-        #('temp_ox', 'Ox Temperature', 1),
-        #('temp_engine', 'Engine Temperature', 1),
-        #('temp_1', 'Temperature 1', 1),
-        #('temp_2', 'Temperature 2', 1),
-        #('load_cell_thrust', 'Thrust Force', 1),
-        #('load_cell_ox', 'N2O Tank Weight', 20)
+        ('temp_ox', 'Ox Temperature', 1),
+        ('temp_engine', 'Engine Temperature', 1),
+        ('temp_1', 'Temperature 1', 1),
+        ('temp_2', 'Temperature 2', 1),
+        ('load_cell_thrust', 'Thrust Force', 1),
+        #('load_cell_ox', 'N2O Tank Weight', 1)
     ]
     valves = [
-        #('main_valve', 'Main Valve'),
+        ('main_valve', 'Main Valve'),
         #('vent_valve', 'Vent Valve'),
         #('pressurization_valve', 'Pressurization Valve'),
         #('fill_valve', 'Fill Valve'),
         #('purge_valve', 'Purge Valve'),
         #('vent_solenoid', 'Vent Solenoid'),
-        ('fill_solenoid', 'Fill Solenoid'),
-        ('qd_solenoid', 'QD Solenoid'),
+        #('fill_solenoid', 'Fill Solenoid'),
+        #('qd_solenoid', 'QD Solenoid'),
         #('qd_servo', 'QD Servo')
     ]
 
@@ -120,4 +120,4 @@ def plot_rocket_log(db_path, start_str, end_str):
 
 
 # Beispielaufruf
-plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-05-30_00-14-20', "2026-05-28 19:00:00", "2026-05-30 22:10:00")
+plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-05-30_14-36-39', "2026-05-30 12:00:00", "2026-05-30 14:10:00")

@@ -14,18 +14,24 @@ actors:
     output: 1
     closed_position: 0
     open_position: 5000
-  #- name: fill_valve
+  #- name: fill_valve OLD
   #  type: SERVO
   #  uid: 2cPc
   #  output: 0
   #  closed_position: 0
   #  open_position: -7000
+  #- name: fill_valve BIG TEST
+  #  type: SERVO
+  #  uid: 2cPc
+  #  output: 0
+  #  closed_position: 8600
+  #  open_position: -9000
   - name: fill_valve
     type: SERVO
     uid: 2cPc
     output: 0
-    closed_position: 8600
-    open_position: -9000
+    closed_position: 7000
+    open_position: -2000
   - name: pressurization_valve
     type: SERVO
     uid: 2cPc
