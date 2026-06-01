@@ -16,22 +16,22 @@ def plot_rocket_log(db_path, start_str, end_str):
         #('pressure_n2_bottle', 'N2 Bottle Pressure', 1),
         #('pressure_cc_pre', 'CC Pre Pressure', 1),
         #('pressure_cc0', 'CC Pressure 0', 15),
-        ('cc0_CAN', 'CC Pressure 0 CAN', 0.2),
+        #('cc0_CAN', 'CC Pressure 0 CAN', 0.0627),
         #('pressure_cc1', 'CC Pressure 1'),
         #('pressure_cc1_can', 'CC Pressure 1 CAN'),
-        ('temp_ox', 'Ox Temperature', 1),
-        ('temp_engine', 'Engine Temperature', 1),
-        ('temp_1', 'Temperature 1', 1),
-        ('temp_2', 'Temperature 2', 1),
-        ('load_cell_thrust', 'Thrust Force', 1),
-        #('load_cell_ox', 'N2O Tank Weight', 1)
+        #('temp_ox', 'Ox Temperature', 1),
+        #('temp_engine', 'Engine Temperature', 1),
+        #('temp_1', 'Temperature 1', 1),
+        #('temp_2', 'Temperature 2', 1),
+        ('load_cell_thrust', 'Thrust Force', 0.1),
+        ('load_cell_ox', 'N2O Tank Weight', 10)
     ]
     valves = [
         ('main_valve', 'Main Valve'),
         #('vent_valve', 'Vent Valve'),
-        #('pressurization_valve', 'Pressurization Valve'),
+        ('pressurization_valve', 'Pressurization Valve'),
         #('fill_valve', 'Fill Valve'),
-        #('purge_valve', 'Purge Valve'),
+        ('purge_valve', 'Purge Valve'),
         #('vent_solenoid', 'Vent Solenoid'),
         #('fill_solenoid', 'Fill Solenoid'),
         #('qd_solenoid', 'QD Solenoid'),
@@ -60,14 +60,22 @@ def plot_rocket_log(db_path, start_str, end_str):
         if df.empty: continue
 
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-        ax1.plot(df['timestamp'], df['value'] * factor, label=label, color=p_colors[i], alpha=0.8)
+        ax1.plot(df['timestamp'], df['value'] * factor, label=label + f" x{factor}", color=p_colors[i], alpha=0.8)
 
         df_to_export = df[['timestamp', 'value']].copy()
         df_to_export.to_csv(f"export_{db_name}_label.csv", index=False)
 
-    ax1.set_ylabel("Sensor Value")
-    ax1.grid(True, alpha=0.3)
-    ax1.legend(loc='upper left')
+        # --- AXIS 1.5: Rolling Mass Flow (dm/dt) ---
+    df_ox = pd.read_sql_query(
+            "SELECT timestamp, value FROM sensor_data WHERE sensor_name = 'load_cell_ox' AND timestamp BETWEEN ? AND ?",
+        conn, params=(start_time.timestamp(), end_time.timestamp()))
+    if not df_ox.empty:
+        factor_mass = 30
+        df_ox['timestamp'] = pd.to_datetime(df_ox['timestamp'], unit='s')
+        smoothed = df_ox.set_index('timestamp')['value'].rolling('1000ms').mean().reset_index()
+        df_ox['mass_flow'] = -smoothed['value'].diff() / df_ox['timestamp'].diff().dt.total_seconds()
+        ax1.plot(df_ox['timestamp'], df_ox['mass_flow'].ffill() * factor_mass, color='crimson', label='-dm/dt' + f" x{factor_mass}")
+        ax1.grid(True, alpha=0.3)
 
     # --- AXIS 2: Ventile (Stacked) ---
     stack_step = 1.5
@@ -120,4 +128,4 @@ def plot_rocket_log(db_path, start_str, end_str):
 
 
 # Beispielaufruf
-plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-05-30_14-36-39', "2026-05-30 12:00:00", "2026-05-30 14:10:00")
+plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-05-30_14-36-39', "2026-05-30 13:13:00", "2026-05-30 13:13:30")
