@@ -2,29 +2,50 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import sqlite3
+import os
+import glob
 
 
-def plot_rocket_log(db_path, start_str, end_str):
-    # Zeitfenster für den Plot
-    start_time = pd.to_datetime(start_str)
-    end_time = pd.to_datetime(end_str)
+import os, glob
 
-    # Konfiguration (Sensorname in DB, Label im Plot)
+def plot_rocket_log(db_path=None, start_str=None, end_str=None):
+    # Default to current directory if no path given, or search if path is a directory
+    if not db_path or os.path.isdir(db_path):
+        search_dir = db_path if db_path else "."
+        db_path = max(glob.glob(os.path.join(search_dir, "telemetry_*")), key=os.path.getmtime)
+
+    conn = sqlite3.connect(db_path)
+
+    if not start_str or not end_str:
+        cursor = conn.cursor()
+        cursor.execute("SELECT MIN(timestamp), MAX(timestamp) FROM sensor_data")
+        min_ts, max_ts = cursor.fetchone()
+
+    start_time = pd.to_datetime(start_str if start_str else min_ts, unit='s' if not start_str else None)
+    end_time = pd.to_datetime(end_str if end_str else max_ts, unit='s' if not end_str else None)
+
+    # Konfiguration (name_db, label_plot, offset_before, factor, offset)
     pressure_sensors = [
-        #('pressure_tank', 'Tank Pressure', 1),
-        #('pressure_ox_bottle', 'Ox Bottle Pressure', 1),
-        #('pressure_n2_bottle', 'N2 Bottle Pressure', 1),
-        #('pressure_cc_pre', 'CC Pre Pressure', 1),
-        #('pressure_cc0', 'CC Pressure 0', 15),
-        #('cc0_CAN', 'CC Pressure 0 CAN', 0.0627),
-        #('pressure_cc1', 'CC Pressure 1'),
-        #('pressure_cc1_can', 'CC Pressure 1 CAN'),
-        #('temp_ox', 'Ox Temperature', 1),
-        #('temp_engine', 'Engine Temperature', 1),
-        #('temp_1', 'Temperature 1', 1),
-        #('temp_2', 'Temperature 2', 1),
-        ('load_cell_thrust', 'Thrust Force', 0.1),
-        ('load_cell_ox', 'N2O Tank Weight', 10)
+        #('pressure_tank'     , 'Tank Pressure'     , 0, 1, 0),
+        #('pressure_ox_bottle', 'Ox Bottle Pressure', 0, 1, 0),
+        #('pressure_n2_bottle', 'N2 Bottle Pressure', 0, 1, 0),
+        #('pressure_cc_pre'   , 'CC Pre Pressure'   , 0, 1, 0),
+        #('pressure_cc0'      , 'CC Pressure 0'     , 0, 1, 0),
+
+        #OLD
+        ('cc0_CAN'           , 'CC Pressure 0 CAN' , 0, 0.0535, 0),
+
+        #NEW
+        #('cc0_CAN'           , 'CC Pressure 0 CAN' , 15, 0.0855, 0),
+
+        ('pressure_cc1'      , 'CC Pressure 1'     , 0, 1, -0.259),
+        #('pressure_cc1_can'  , 'CC Pressure 1 CAN' , 0, 0),
+        #('temp_ox'           , 'Ox Temperature'    , 0, 1, 0),
+        #('temp_engine'       , 'Engine Temperature', 0, 1, 0),
+        #('temp_1'            , 'Temperature 1'     , 0, 1, 0),
+        #('temp_2'            , 'Temperature 2'     , 0, 1, 0),
+        #('load_cell_thrust'  , 'Thrust Force'      , 0, 0.1, 0),
+        #('load_cell_ox'      , 'N2O Tank Weight'   , 0, 10, 0)
     ]
     valves = [
         ('main_valve', 'Main Valve'),
@@ -47,7 +68,7 @@ def plot_rocket_log(db_path, start_str, end_str):
     conn = sqlite3.connect(db_path)
 
     # --- AXIS 1: Sensoren ---
-    for i, (db_name, label, factor) in enumerate(pressure_sensors):
+    for i, (db_name, label, offset_before, factor, offset) in enumerate(pressure_sensors):
         # Nutzt den Index idx_ts für schnelles Laden
         query = """
                 SELECT timestamp, value \
@@ -60,7 +81,7 @@ def plot_rocket_log(db_path, start_str, end_str):
         if df.empty: continue
 
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-        ax1.plot(df['timestamp'], df['value'] * factor, label=label + f" x{factor}", color=p_colors[i], alpha=0.8)
+        ax1.plot(df['timestamp'], (df['value'] + offset_before) * factor + offset, label=label + f" x{factor}", color=p_colors[i], alpha=0.8)
 
         df_to_export = df[['timestamp', 'value']].copy()
         df_to_export.to_csv(f"export_{db_name}_label.csv", index=False)
@@ -70,7 +91,7 @@ def plot_rocket_log(db_path, start_str, end_str):
             "SELECT timestamp, value FROM sensor_data WHERE sensor_name = 'load_cell_ox' AND timestamp BETWEEN ? AND ?",
         conn, params=(start_time.timestamp(), end_time.timestamp()))
     if not df_ox.empty:
-        factor_mass = 30
+        factor_mass = 10
         df_ox['timestamp'] = pd.to_datetime(df_ox['timestamp'], unit='s')
         smoothed = df_ox.set_index('timestamp')['value'].rolling('1000ms').mean().reset_index()
         df_ox['mass_flow'] = -smoothed['value'].diff() / df_ox['timestamp'].diff().dt.total_seconds()
@@ -127,5 +148,7 @@ def plot_rocket_log(db_path, start_str, end_str):
     plt.show()
 
 
-# Beispielaufruf
-plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-05-30_14-36-39', "2026-05-30 13:13:00", "2026-05-30 13:13:30")
+
+#plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/sens_new_telemetry_2026-06-02_19-15-24', "2026-06-02 13:13:00", "2026-06-03 13:13:30")
+#plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/sens_old_telemetry_2026-06-02_16-53-34')
+plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/')

@@ -4,6 +4,7 @@ from shared.state import telemetry_lock, telemetry, disk_queue
 
 def to_bar_100(val): return 6.248047485 * (val / 1e6) - 24.992191
 def to_bar_160(val): return 10.0 * ((val  ) / 1e6) - 40.0 #* 0.5
+#def to_bar_160_cc0(val): return (val / 1e6 - 4.026) * (80.000 /  (12.012 - 4.026)) #* 0.5
 def to_temp_c(val): return val / 100.0
 def to_kg(val): return val / 1000.0
 def to_current_ma(val): return val / 1000000.0
@@ -15,7 +16,6 @@ CALLBACK_CONFIG = {
     "pressure_ox_bottle":   to_bar_100,
     "pressure_n2_bottle":   to_bar_100,
     "pressure_cc_pre":      to_bar_100,
-    "pressure_cc0":         to_bar_160,
     "pressure_cc0":         to_bar_160,
     "pressure_cc1":         to_bar_160,
     "temp_engine":     to_temp_c,
@@ -74,7 +74,7 @@ def create_master_can_callback(controller):
         # 190 0.25xxxx
         # 191 0.0064453125
         # 1024 = 3.3V
-        processed = parse_can_adc(data) - 385
+        processed = parse_can_adc(data) # - 385
         ts = controller.t0_wall + (time.perf_counter() - controller.t0_perf)
         with telemetry_lock:
             telemetry["cc0_CAN"] = (ts, processed)
