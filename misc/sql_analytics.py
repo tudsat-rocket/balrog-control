@@ -31,16 +31,17 @@ def plot_rocket_log(db_path=None, start_str=None, end_str=None):
         #('pressure_n2_bottle', 'N2 Bottle Pressure', 0, 1, 0),
         #('pressure_cc_pre'   , 'CC Pre Pressure'   , 0, 1, 0),
         #('pressure_cc0'      , 'CC Pressure 0'     , 0, 1, 0),
+        ('pressure_cc1'      , 'CC Pressure 0'     , 0, 1, 0),
 
         #OLD
-        ('cc0_CAN'           , 'CC Pressure 0 CAN' , 0, 0.0535, 0),
+        ('cc0_CAN'           , 'CC Pressure 0 CAN' , -74, 0.232, 0),
 
         #NEW
         #('cc0_CAN'           , 'CC Pressure 0 CAN' , 15, 0.0855, 0),
 
-        ('pressure_cc1'      , 'CC Pressure 1'     , 0, 1, -0.259),
+        #('pressure_cc1'      , 'CC Pressure 1'     , 0, 1, -0.259),
         #('pressure_cc1_can'  , 'CC Pressure 1 CAN' , 0, 0),
-        #('temp_ox'           , 'Ox Temperature'    , 0, 1, 0),
+        ('temp_ox'           , 'Ox Temperature'    , 0, 1, 0),
         #('temp_engine'       , 'Engine Temperature', 0, 1, 0),
         #('temp_1'            , 'Temperature 1'     , 0, 1, 0),
         #('temp_2'            , 'Temperature 2'     , 0, 1, 0),
@@ -83,8 +84,8 @@ def plot_rocket_log(db_path=None, start_str=None, end_str=None):
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
         ax1.plot(df['timestamp'], (df['value'] + offset_before) * factor + offset, label=label + f" x{factor}", color=p_colors[i], alpha=0.8)
 
-        df_to_export = df[['timestamp', 'value']].copy()
-        df_to_export.to_csv(f"export_{db_name}_label.csv", index=False)
+        #df_to_export = df[['timestamp', 'value']].copy()
+        #df_to_export.to_csv(f"export_{db_name}_label.csv", index=False)
 
         # --- AXIS 1.5: Rolling Mass Flow (dm/dt) ---
     df_ox = pd.read_sql_query(
@@ -151,4 +152,5 @@ def plot_rocket_log(db_path=None, start_str=None, end_str=None):
 
 #plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/sens_new_telemetry_2026-06-02_19-15-24', "2026-06-02 13:13:00", "2026-06-03 13:13:30")
 #plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/sens_old_telemetry_2026-06-02_16-53-34')
-plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/')
+#plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/')
+plot_rocket_log('/home/lukas/Desktop/2026-05-02_Sensor-Test/telemetry_2026-06-12_21-31-05_sens_100')

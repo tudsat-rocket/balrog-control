@@ -118,7 +118,8 @@ def _refresh_plot_curves(self: NewMainWindow):
         "load_cell_thrust": (self.differential_pressure_curve, self.plot_differential_pressure),
         "pressure_n2_bottle": (self.load_cell_thrust_curve, self.plot_load_cell_thrust),
         "pressure_ox_bottle": (self.load_cell_ox_curve, self.plot_load_cell_nitrous),
-        "pressure_cc_pre": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
+        #"pressure_cc_pre": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
+        "cc1_CAN": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
         "cc0_CAN": (self.thermocouple_engine_curve, self.plot_thermocouple_engine),
     }
 
