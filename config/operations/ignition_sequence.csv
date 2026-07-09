@@ -1,11 +1,11 @@
 actor_name,times_ms,action
 segment_display,1,COUNTER_START
 vent_solenoid,1,SOLENOID_OPEN
-pressurization_valve,1,SERVO_OPEN
 igniter,5001,PULL_TRIGGER
 main_valve,5700,SERVO_OPEN
+pressurization_valve,6000,SERVO_OPEN
 igniter,6500,RELEASE_TRIGGER
 pressurization_valve,12000,SERVO_CLOSE
-main_valve,13000,SERVO_CLOSE
-purge_valve,14000,SERVO_OPEN
-purge_valve,16000,SERVO_CLOSE
+main_valve,14000,SERVO_CLOSE
+purge_valve,15000,SERVO_OPEN
+purge_valve,17000,SERVO_CLOSE

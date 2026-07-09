@@ -119,8 +119,10 @@ def _refresh_plot_curves(self: NewMainWindow):
         "pressure_n2_bottle": (self.load_cell_thrust_curve, self.plot_load_cell_thrust),
         "pressure_ox_bottle": (self.load_cell_ox_curve, self.plot_load_cell_nitrous),
         #"pressure_cc_pre": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
+        #"ereg": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
         "cc1_CAN": (self.thermocouple_nitrous_curve, self.plot_thermocouple_nitrous),
         "cc0_CAN": (self.thermocouple_engine_curve, self.plot_thermocouple_engine),
+        #"cc1_CAN": (self.thermocouple_engine_curve, self.plot_thermocouple_engine),
     }
 
     now_abs = self.controller.t0_wall + (time.perf_counter() - self.controller.t0_perf)

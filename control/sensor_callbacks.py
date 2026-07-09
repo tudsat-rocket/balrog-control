@@ -78,13 +78,23 @@ def create_master_can_callback(controller):
         ts = controller.t0_wall + (time.perf_counter() - controller.t0_perf)
         with telemetry_lock:
             if identifier == 191:
-                processed = (parse_can_adc(data) - 385) * 0.0535
+                #processed = (parse_can_adc(data) - 385) * 0.0535
+                #processed = (parse_can_adc(data) - 74) * 0.232
+                processed = (parse_can_adc(data) - 74) * 0.232 #100 bar
                 telemetry["cc0_CAN"] = (ts, processed)
                 disk_queue.put(("cc0_CAN", ts, processed))
             if identifier == 190:
-                processed = (parse_can_adc(data) - 74) * 0.232
+                processed = (parse_can_adc(data) + 49) * 0.888 #400 bar
                 telemetry["cc1_CAN"] = (ts, processed)
-                disk_queue.put(("cc0_CAN", ts, processed))
+                disk_queue.put(("cc1_CAN", ts, processed))
+            if identifier == 192:
+                processed = (parse_can_adc(data)- 385) * 0.0535
+                telemetry["ereg"] = (ts, processed)
+                disk_queue.put(("ereg", ts, processed))
+            if identifier > 193:
+                processed = (parse_can_adc(data)) / 10
+                telemetry[f"tli{identifier}"] = (ts, processed)
+                disk_queue.put((f"tli{identifier}", ts, processed))
             #print(processed)
         return
 

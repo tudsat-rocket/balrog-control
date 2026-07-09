@@ -37,8 +37,9 @@ def cb_frame_read(frame_type, identifier, data):
     #print("Data (Length: " + str(len(data)) + "): " + ", ".join(map(str, data[:min(len(data), 8)])))
     #print(data)
     #if str(identifier) == "191":
-    binary_data = " ".join(f"{b:08b}" for b in data)
-    print(str(identifier) + "   -   " + str(parse_can_adc(data) / 1024 * 3.3) + "   -   " + str(data) + "   -   " + str(parse_can_adc(data)) + "   -   " + binary_data)
+    if identifier < 200:
+        binary_data = " ".join(f"{b:08b}" for b in data)
+        print(str(identifier) + "   -   " + str(parse_can_adc(data) / 1024 * 3.3) + "   -   " + str(data) + "   -   " + str(parse_can_adc(data)) + "   -   " + binary_data)
     #print(int.from_bytes(data, byteorder='little'))
 
     # 190 0.25xxxx
