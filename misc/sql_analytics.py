@@ -34,29 +34,31 @@ def plot_rocket_log(db_path=None, start_str=None, end_str=None):
         #('pressure_cc1'      , 'CC Pressure 0'     , 0, 1, 0),
 
         #OLD
-        ('cc0_CAN'           , 'CC Pressure 0 CAN' , -74, 0.232, 0),
+        #processed = (parse_can_adc(data) - 74) * 0.232 #100 bar
+        #processed = (parse_can_adc(data) + 49) * 0.888  # 400 bar
+        ('cc1_CAN'           , 'CC Pressure 1 CAN' , 0, 1, 0),
 
         #NEW
-        ('cc1_CAN'           , 'CC Pressure 0 CAN' , 15, 0.0855, 0),
+        ('cc0_CAN'           , 'CC Pressure 0 CAN' , 0, 1, 0),
 
         #('pressure_cc1'      , 'CC Pressure 1'     , 0, 1, -0.259),
         #('pressure_cc1_can'  , 'CC Pressure 1 CAN' , 0, 0),
-        ('temp_ox'           , 'Ox Temperature'    , 0, 1, 0),
-        ('temp_engine'       , 'Engine Temperature', 0, 1, 0),
-        ('temp_1'            , 'Temperature 1'     , 0, 1, 0),
-        ('temp_2'            , 'Temperature 2'     , 0, 1, 0),
-        ('load_cell_thrust'  , 'Thrust Force'      , 0, 0.1, 0),
-        ('load_cell_ox'      , 'N2O Tank Weight'   , 0, 10, 0),
-        ('tli201'      , 'TLI'   , 0, 10, 0)
+        #('temp_ox'           , 'Ox Temperature'    , 0, 1, 0),
+        #('temp_engine'       , 'Engine Temperature', 0, 1, 0),
+        #('temp_1'            , 'Temperature 1'     , 0, 1, 0),
+        #('temp_2'            , 'Temperature 2'     , 0, 1, 0),
+        #('load_cell_thrust'  , 'Thrust Force'      , 0, 0.1, 0),
+        #('load_cell_ox'      , 'N2O Tank Weight'   , 0, 10, 0),
+        #('tli201'      , 'TLI'   , 0, 10, 0)
     ]
     valves = [
-        ('main_valve', 'Main Valve'),
+        #('main_valve', 'Main Valve'),
         #('vent_valve', 'Vent Valve'),
-        ('pressurization_valve', 'Pressurization Valve'),
+        #('pressurization_valve', 'Pressurization Valve'),
         #('fill_valve', 'Fill Valve'),
-        ('purge_valve', 'Purge Valve'),
+        #('purge_valve', 'Purge Valve'),
         #('vent_solenoid', 'Vent Solenoid'),
-        #('fill_solenoid', 'Fill Solenoid'),
+        ('fill_solenoid', 'Fill Solenoid'),
         #('qd_solenoid', 'QD Solenoid'),
         #('qd_servo', 'QD Servo')
     ]
@@ -151,7 +153,7 @@ def plot_rocket_log(db_path=None, start_str=None, end_str=None):
 
 
 
-#plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/sens_new_telemetry_2026-06-02_19-15-24', "2026-06-02 13:13:00", "2026-06-03 13:13:30")
-#plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/sens_old_telemetry_2026-06-02_16-53-34')
-#plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/')
-plot_rocket_log('/home/lukas/PycharmProjects/balrog-control/telemetry_2026-06-27_11-05-26')
+plot_rocket_log('telemetry_2026-07-09_20-06-52')
+plot_rocket_log('telemetry_2026-07-09_20-46-49')
+plot_rocket_log('telemetry_2026-07-09_21-23-04')
+plot_rocket_log('telemetry_2026-07-09_21-41-09')
