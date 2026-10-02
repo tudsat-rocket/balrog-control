@@ -36,8 +36,10 @@ actors:
     type: SERVO
     uid: 2cPc
     output: 3
-    closed_position: 0
-    open_position: 7000
+    closed_position: 7900
+    # 1410 closed = -8.1 = -810
+    # 2390 open = 88 Grad = 8100
+    open_position: -3000
   - name: purge_valve
     type: SERVO
     uid: 2cPc
